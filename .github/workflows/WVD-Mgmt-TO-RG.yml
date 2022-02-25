@@ -1,0 +1,149 @@
+name: AVD Management deployment
+on:
+  # push:
+    # branches-ignore:
+    # branches:
+    #   - avd-dev
+  workflow_dispatch:
+
+# env:
+  # orchestrationPath: ${{ github.workspace }}/Workloads/WVD/Environments/template-orchestrated
+  # orchestrationFunctionsPath: ${{ github.workspace }}/Workloads/WVD/OrchestrationSources/SharedDeploymentFunctions
+  # wvdUploadsPath: ${{ github.workspace }}/Workloads/WVD/OrchestrationSources/Uploads
+
+jobs:
+## Deploy Management resource Group Resources
+  Deploy_Mgmt:
+    name: Deploy Management Resources
+    runs-on: ubuntu-latest
+    # strategy:
+    #   matrix: ${{ fromJson(needs.parser.outputs.matrix) }}
+    #   fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # - name: Install PowerShell modules
+      #   shell: pwsh
+      #   run: |
+      #     Install-Module -Name "Az" -RequiredVersion "4.7.0" -Force -Scope CurrentUser -ErrorAction Stop
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: Validate Module
+        id: task-validate
+        uses: azure/arm-deploy@v1
+        with:
+          deploymentMode: Validate
+          scope: subscription
+          region: ${{ env.LOCATION }}
+          template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json
+      - name: Deploy Module
+        id: task-deploy
+        uses: azure/arm-deploy@v1
+        with:
+          deploymentName: ${{ env.rgFolder }}
+          scope: subscription
+          region: ${{ env.LOCATION }}
+          template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json
+
+## Invoke Key Vault Post Deployment
+  Invoke_WVDKeyVaultPostDeployment:
+    name: Invoke Key Vault Post Deployment
+    needs: Deploy_Mgmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Trigger module KeyVault post-deployment
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Invoke-KeyVaultPostDeployment.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
+              VaultName                    = '${{ env.keyVaultName }}'
+              domainJoin_userName          = '${{ env.domainJoinUserName }}'
+              domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVDJoinDomainUserPwd }}' -AsPlainText -Force
+            }
+
+            if(-not ([string]::IsNullOrEmpty('${{ secrets.localAdminPassword }}'))) {
+              $functionInput += @{
+                localAdminPassword         = ConvertTo-SecureString '${{ secrets.localAdminPassword }}' -AsPlainText -Force
+              }
+            }
+
+            # # Only required to enable Native AD identity-based access for file shares
+            # if(-not ([string]::IsNullOrEmpty('$(storageJoinUserName)'))) {
+            #   $functionInput += @{
+            #     storageJoin_userName       = '$(storageJoinUserName)'
+            #     storageJoin_pwd            = ConvertTo-SecureString "$(StorageJoinUserPwd)" -AsPlainText -Force
+            #   }
+            # }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Invoke-KeyVaultPostDeployment @functionInput -Verbose
+          azPSVersion: "latest"
+
+## Invoke Automation Account Post Deployment
+  Invoke_AutomationAccountPostDeployment:
+    name: Invoke Automation Account Post Deployment
+    needs: Deploy_Mgmt
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Trigger module AutomationAccount post-deployment
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Invoke-AutomationAccountPostDeployment.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath         = '${{ env.orchestrationFunctionsPath }}'
+              AutomationAccountName              = '${{ env.AutomationAccountName }}'
+              AutomationAccountRGName            = '${{ env.resourcegroupname }}'
+              ScalingRunbookName                 = '${{ env.ScalingRunbookName }}'
+              WebhookName                        = '${{ env.ScalingWebhookName }}'
+              RunAsConnectionSPName              = '${{ env.RunAsConnectionSPName }}'
+              KeyVaultName                       = '${{ env.keyVaultName }}'
+              RunAsSelfSignedCertSecretName      = '${{ env.RunAsSelfSignedCertSecretName }}'
+              AutoAccountRunAsCertExpiryInMonths = '${{ env.AutoAccountRunAsCertExpiryInMonths }}'
+              tempPath                           = '${{ runner.temp }}'
+              # LAWorkspaceName                    = '${{ env.LAWorkspaceName }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Invoke-AutomationAccountPostDeployment @functionInput -Verbose
+          azPSVersion: "latest"
