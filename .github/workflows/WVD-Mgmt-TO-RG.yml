@@ -42,7 +42,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{env.componentStorageAccountId}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
       - name: Deploy Module
         id: task-deploy
         uses: azure/arm-deploy@v1
