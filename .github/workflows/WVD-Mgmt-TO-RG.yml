@@ -42,13 +42,14 @@ jobs:
           creds: ${{secrets.AZURE_CREDENTIALS}}
       - name: Check Params
         run: |
-          echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
+          echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
           echo "Deployment Name: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')"
       - name: Validate Module
         id: task-validate
         uses: azure/arm-deploy@v1
         with:
           deploymentMode: Validate
+          deploymentName: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
