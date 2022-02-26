@@ -44,7 +44,7 @@
         // Shared
         "resourcegroupname": {
             "type": "string",
-            "defaultValue": "[deployment().resourcegroupname]",
+            "defaultValue": "[deployment().name]",
             "metadata": {
                 "description": "Optional. Resource Group Name."
             }
