@@ -42,6 +42,13 @@
             "defaultValue": {}
         },
         // Shared
+        "resourcegroupname": {
+            "type": "string",
+            "defaultValue": "[deployment().resourcegroupname]",
+            "metadata": {
+                "description": "Optional. Resource Group Name."
+            }
+        },
         "location": {
             "type": "string",
             "defaultValue": "[deployment().location]",
@@ -196,7 +203,7 @@
                 },
                 "parameters": {
                     "resourceGroupName": {
-                        "value": "[parameters('rgParameters').resourceGroupName]"
+                        "value": "[parameters('resourcegroupname')]"
                     },
                     "lockForDeletion": {
                         "value": "[if(contains(parameters('rgParameters'), 'lockForDeletion'), parameters('rgParameters').lockForDeletion, parameters('lockForDeletion'))]"
@@ -206,156 +213,156 @@
                     }
                 }
             }
-        },
-        // Key Vault
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[concat(parameters('kvParameters').moduleName, '-', variables('formattedTime'))]",
-            "condition": "[parameters('kvParameters').enabled]",
-            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
-            "dependsOn": [
-                "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('kvParameters').moduleName, '/', parameters('kvParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "keyVaultName": {
-                        "value": "[parameters('kvParameters').keyVaultName]"
-                    },
-                    "accessPolicies": {
-                        "value": "[parameters('kvParameters').accessPolicies]"
-                    },
-                    "vaultSku": {
-                        "value": "[parameters('kvParameters').vaultSku]"
-                    },
-                    "lockForDeletion": {
-                        "value": "[if(contains(parameters('kvParameters'), 'lockForDeletion'), parameters('kvParameters').lockForDeletion, parameters('lockForDeletion'))]"
-                    },
-                    "tags": {
-                        "value": "[if(contains(parameters('kvParameters'), 'tags'), union(parameters('tags'), parameters('kvParameters').tags), parameters('tags'))]"
-                    }
-                }
-            }
-        },
-        // Storage Account
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[concat(parameters('storAccountParameters').moduleName, '-', variables('formattedTime'))]",
-            "condition": "[parameters('storAccountParameters').enabled]",
-            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
-            "dependsOn": [
-                "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('storAccountParameters').moduleName, '/', parameters('storAccountParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "storageAccountName": {
-                        "value": "[parameters('storAccountParameters').storageAccountName]"
-                    },
-                    "storageAccountKind": {
-                        "value": "[parameters('storAccountParameters').storageAccountKind]"
-                    },
-                    "storageAccountSku": {
-                        "value": "[parameters('storAccountParameters').storageAccountSku]"
-                    },
-                    "blobContainers": {
-                        "value": "[parameters('storAccountParameters').blobContainers]"
-                    },
-                    "tables": {
-                        "value": "[parameters('storAccountParameters').tables]"
-                    },
-                    "lockForDeletion": {
-                        "value": "[if(contains(parameters('storAccountParameters'), 'lockForDeletion'), parameters('storAccountParameters').lockForDeletion, parameters('lockForDeletion'))]"
-                    },
-                    "tags": {
-                        "value": "[if(contains(parameters('storAccountParameters'), 'tags'), union(parameters('tags'), parameters('storAccountParameters').tags), parameters('tags'))]"
-                    }
-                }
-            }
-        },
-        // Automation Account
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[concat(parameters('automAccountParameters').moduleName, '-', variables('formattedTime'))]",
-            "condition": "[parameters('automAccountParameters').enabled]",
-            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
-            "dependsOn": [
-                "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('automAccountParameters').moduleName, '/', parameters('automAccountParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "automationAccountName": {
-                        "value": "[parameters('automAccountParameters').automationAccountName]"
-                    },
-                    "lockForDeletion": {
-                        "value": "[if(contains(parameters('automAccountParameters'), 'lockForDeletion'), parameters('automAccountParameters').lockForDeletion, parameters('lockForDeletion'))]"
-                    },
-                    "tags": {
-                        "value": "[if(contains(parameters('automAccountParameters'), 'tags'), union(parameters('tags'), parameters('automAccountParameters').tags), parameters('tags'))]"
-                    }
-                }
-            }
-        },
-        // Recovery Services Vault
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[concat(parameters('rsvParameters').moduleName, '-', variables('formattedTime'))]",
-            "condition": "[parameters('rsvParameters').enabled]",
-            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
-            "dependsOn": [
-                "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('rsvParameters').moduleName, '/', parameters('rsvParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "recoveryVaultName": {
-                        "value": "[parameters('rsvParameters').recoveryVaultName]"
-                    },
-                    "backupPolicies": {
-                        "value": "[parameters('rsvParameters').backupPolicies]"
-                    },
-                    "lockForDeletion": {
-                        "value": "[if(contains(parameters('rsvParameters'), 'lockForDeletion'), parameters('rsvParameters').lockForDeletion, parameters('lockForDeletion'))]"
-                    },
-                    "tags": {
-                        "value": "[if(contains(parameters('rsvParameters'), 'tags'), union(parameters('tags'), parameters('rsvParameters').tags), parameters('tags'))]"
-                    }
-                }
-            }
         }
+        // // Key Vault
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-10-01",
+        //     "name": "[concat(parameters('kvParameters').moduleName, '-', variables('formattedTime'))]",
+        //     "condition": "[parameters('kvParameters').enabled]",
+        //     "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+        //     "dependsOn": [
+        //         "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('kvParameters').moduleName, '/', parameters('kvParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "keyVaultName": {
+        //                 "value": "[parameters('kvParameters').keyVaultName]"
+        //             },
+        //             "accessPolicies": {
+        //                 "value": "[parameters('kvParameters').accessPolicies]"
+        //             },
+        //             "vaultSku": {
+        //                 "value": "[parameters('kvParameters').vaultSku]"
+        //             },
+        //             "lockForDeletion": {
+        //                 "value": "[if(contains(parameters('kvParameters'), 'lockForDeletion'), parameters('kvParameters').lockForDeletion, parameters('lockForDeletion'))]"
+        //             },
+        //             "tags": {
+        //                 "value": "[if(contains(parameters('kvParameters'), 'tags'), union(parameters('tags'), parameters('kvParameters').tags), parameters('tags'))]"
+        //             }
+        //         }
+        //     }
+        // },
+        // // Storage Account
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-10-01",
+        //     "name": "[concat(parameters('storAccountParameters').moduleName, '-', variables('formattedTime'))]",
+        //     "condition": "[parameters('storAccountParameters').enabled]",
+        //     "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+        //     "dependsOn": [
+        //         "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('storAccountParameters').moduleName, '/', parameters('storAccountParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "storageAccountName": {
+        //                 "value": "[parameters('storAccountParameters').storageAccountName]"
+        //             },
+        //             "storageAccountKind": {
+        //                 "value": "[parameters('storAccountParameters').storageAccountKind]"
+        //             },
+        //             "storageAccountSku": {
+        //                 "value": "[parameters('storAccountParameters').storageAccountSku]"
+        //             },
+        //             "blobContainers": {
+        //                 "value": "[parameters('storAccountParameters').blobContainers]"
+        //             },
+        //             "tables": {
+        //                 "value": "[parameters('storAccountParameters').tables]"
+        //             },
+        //             "lockForDeletion": {
+        //                 "value": "[if(contains(parameters('storAccountParameters'), 'lockForDeletion'), parameters('storAccountParameters').lockForDeletion, parameters('lockForDeletion'))]"
+        //             },
+        //             "tags": {
+        //                 "value": "[if(contains(parameters('storAccountParameters'), 'tags'), union(parameters('tags'), parameters('storAccountParameters').tags), parameters('tags'))]"
+        //             }
+        //         }
+        //     }
+        // },
+        // // Automation Account
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-10-01",
+        //     "name": "[concat(parameters('automAccountParameters').moduleName, '-', variables('formattedTime'))]",
+        //     "condition": "[parameters('automAccountParameters').enabled]",
+        //     "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+        //     "dependsOn": [
+        //         "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('automAccountParameters').moduleName, '/', parameters('automAccountParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "automationAccountName": {
+        //                 "value": "[parameters('automAccountParameters').automationAccountName]"
+        //             },
+        //             "lockForDeletion": {
+        //                 "value": "[if(contains(parameters('automAccountParameters'), 'lockForDeletion'), parameters('automAccountParameters').lockForDeletion, parameters('lockForDeletion'))]"
+        //             },
+        //             "tags": {
+        //                 "value": "[if(contains(parameters('automAccountParameters'), 'tags'), union(parameters('tags'), parameters('automAccountParameters').tags), parameters('tags'))]"
+        //             }
+        //         }
+        //     }
+        // },
+        // // Recovery Services Vault
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-10-01",
+        //     "name": "[concat(parameters('rsvParameters').moduleName, '-', variables('formattedTime'))]",
+        //     "condition": "[parameters('rsvParameters').enabled]",
+        //     "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+        //     "dependsOn": [
+        //         "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('rsvParameters').moduleName, '/', parameters('rsvParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "recoveryVaultName": {
+        //                 "value": "[parameters('rsvParameters').recoveryVaultName]"
+        //             },
+        //             "backupPolicies": {
+        //                 "value": "[parameters('rsvParameters').backupPolicies]"
+        //             },
+        //             "lockForDeletion": {
+        //                 "value": "[if(contains(parameters('rsvParameters'), 'lockForDeletion'), parameters('rsvParameters').lockForDeletion, parameters('lockForDeletion'))]"
+        //             },
+        //             "tags": {
+        //                 "value": "[if(contains(parameters('rsvParameters'), 'tags'), union(parameters('tags'), parameters('rsvParameters').tags), parameters('tags'))]"
+        //             }
+        //         }
+        //     }
+        // }
     ],
     "outputs": {
         "sasExpiryDateTime": {

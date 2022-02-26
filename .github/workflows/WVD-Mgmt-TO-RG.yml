@@ -5,6 +5,17 @@ on:
     # branches:
     #   - avd-dev
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'sbx' 
+        type: choice
+        options:
+        - sbx
+        - test
+        - prod 
+        required: true 
 
 # env:
   # orchestrationPath: ${{ github.workspace }}/Workloads/WVD/Environments/template-orchestrated
@@ -42,16 +53,16 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{env.componentStorageAccountId}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{env.resourcegroupname}} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
       - name: Deploy Module
         id: task-deploy
         uses: azure/arm-deploy@v1
         with:
-          deploymentName: ${{ env.rgFolder }}
+          deploymentName: ${{ env.resourcegroupname }}-$(date +'%Y%m%d')
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
 
 ## Invoke Key Vault Post Deployment
   Invoke_WVDKeyVaultPostDeployment:

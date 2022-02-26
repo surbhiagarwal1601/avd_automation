@@ -29,8 +29,8 @@
       "value": {
         "enabled": true,
         "moduleName": "ResourceGroup",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "resourceGroupName": "<ReplaceWith-ResourceGroupName>"
+        "moduleVersion": "1.0.0",
+        "resourceGroupName": "myavd"
       }
     },
     // Key Vault
