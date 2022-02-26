@@ -64,8 +64,9 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
-
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{env.resourcegroupname}} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
+      
+      - run: echo ${{ steps.deploy.outputs.containerName }}
 ## Invoke Key Vault Post Deployment
 #   Invoke_WVDKeyVaultPostDeployment:
 #     name: Invoke Key Vault Post Deployment
