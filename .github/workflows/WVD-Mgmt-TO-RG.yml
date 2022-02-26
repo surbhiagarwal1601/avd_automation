@@ -49,7 +49,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           deploymentMode: Validate
-          deploymentName: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')
+          deploymentName: github-test
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
@@ -59,7 +59,7 @@ jobs:
         id: task-deploy
         uses: azure/arm-deploy@v1
         with:
-          deploymentName: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')
+          deploymentName: github-test
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
