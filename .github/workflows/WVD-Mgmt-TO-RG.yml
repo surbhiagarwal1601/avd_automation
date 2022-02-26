@@ -49,6 +49,9 @@ jobs:
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
           parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{env.resourcegroupname}} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
+      - name: Check Params
+        run: |
+          echo "Deployment Name: ${{ env.resourcegroupname }}-$(date +'%Y%m%d')"
       - name: Deploy Module
         id: task-deploy
         uses: azure/arm-deploy@v1
