@@ -7,7 +7,7 @@
       "value": {
         "enabled": false,
         "moduleName": "RoleDefinitions",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
+        "moduleVersion": "1.0.0",
         "roleName": "ReadAndStartVMs",
         "actions": [
           "Microsoft.Compute/virtualMachines/start/action",
@@ -21,7 +21,7 @@
       "value": {
         "enabled": false,
         "moduleName": "RoleAssignments",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>"
+        "moduleVersion": "1.0.0"
       }
     },
     // Resource Group
@@ -29,8 +29,8 @@
       "value": {
         "enabled": true,
         "moduleName": "ResourceGroup",
-        "moduleVersion": "1.0.0",
-        "resourceGroupName": "myavd"
+        "moduleVersion": "1.0.0"
+        // "resourceGroupName": "myavd"
       }
     },
     // Key Vault
