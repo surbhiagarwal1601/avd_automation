@@ -151,69 +151,69 @@
                     }
                 }
             }
-        },
-        // 'Start on connect' role assignment
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-08-01",
-            "name": "[concat(parameters('soCRoleAssignParameters').moduleName, '-', variables('formattedTime'))]",
-            "location": "[parameters('location')]",
-            "condition": "[parameters('soCRoleAssignParameters').enabled]",
-            "dependsOn": [
-                "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('soCRoleAssignParameters').moduleName, '/', parameters('soCRoleAssignParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "roleAssignments": {
-                        "value": [
-                            {
-                                "roleDefinitionIdOrName": "[reference(concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime')), '2021-01-01').outputs.definitionId.value]",
-                                "principalIds": "[parameters('soCWvdPrincipalIds')]"
-                            }
-                        ]
-                    }
-                }
-            }
-        },
-        // Resource Group
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]",
-            "location": "[parameters('location')]",
-            "condition": "[parameters('rgParameters').enabled]",
-            "dependsOn": [
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('rgParameters').moduleName, '/', parameters('rgParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "resourceGroupName": {
-                        "value": "[parameters('resourcegroupname')]"
-                    },
-                    "lockForDeletion": {
-                        "value": "[if(contains(parameters('rgParameters'), 'lockForDeletion'), parameters('rgParameters').lockForDeletion, parameters('lockForDeletion'))]"
-                    },
-                    "tags": {
-                        "value": "[if(contains(parameters('rgParameters'), 'tags'), union(parameters('tags'), parameters('rgParameters').tags), parameters('tags'))]"
-                    }
-                }
-            }
         }
+        // // 'Start on connect' role assignment
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2019-08-01",
+        //     "name": "[concat(parameters('soCRoleAssignParameters').moduleName, '-', variables('formattedTime'))]",
+        //     "location": "[parameters('location')]",
+        //     "condition": "[parameters('soCRoleAssignParameters').enabled]",
+        //     "dependsOn": [
+        //         "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('soCRoleAssignParameters').moduleName, '/', parameters('soCRoleAssignParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "roleAssignments": {
+        //                 "value": [
+        //                     {
+        //                         "roleDefinitionIdOrName": "[reference(concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime')), '2021-01-01').outputs.definitionId.value]",
+        //                         "principalIds": "[parameters('soCWvdPrincipalIds')]"
+        //                     }
+        //                 ]
+        //             }
+        //         }
+        //     }
+        // },
+        // Resource Group
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-10-01",
+        //     "name": "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]",
+        //     "location": "[parameters('location')]",
+        //     "condition": "[parameters('rgParameters').enabled]",
+        //     "dependsOn": [
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('rgParameters').moduleName, '/', parameters('rgParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "resourceGroupName": {
+        //                 "value": "[parameters('resourcegroupname')]"
+        //             },
+        //             "lockForDeletion": {
+        //                 "value": "[if(contains(parameters('rgParameters'), 'lockForDeletion'), parameters('rgParameters').lockForDeletion, parameters('lockForDeletion'))]"
+        //             },
+        //             "tags": {
+        //                 "value": "[if(contains(parameters('rgParameters'), 'tags'), union(parameters('tags'), parameters('rgParameters').tags), parameters('tags'))]"
+        //             }
+        //         }
+        //     }
+        // }
         // // Key Vault
         // {
         //     "type": "Microsoft.Resources/deployments",
@@ -366,16 +366,16 @@
     ],
     "outputs": {
         "deploymentName": {
-        "type": "string",
-        "value": "[deployment().name]"
+            "type": "string",
+            "value": "[deployment().name]"
         },
         "sasExpiryDateTime": {
             "type": "string",
             "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
         },
-        "subscriptionObject": {
-            "type": "object",
-            "value": "[subscription()]"
-          }
+        "roleDefId" : {
+            "type": "string",
+            "value": "[reference([concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]).outputs.definitionId.value]"
+        }
     }
 }
