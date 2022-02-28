@@ -5,7 +5,7 @@
     // 'Start on connect' role definition
     "soCRoleDefParameters": {
       "value": {
-        "enabled": false,
+        "enabled": true,
         "moduleName": "RoleDefinitions",
         "moduleVersion": "1.0.0",
         "roleName": "ReadAndStartVMs",
@@ -19,7 +19,7 @@
     // Parameter 'RoleAssignments' is constructed during deployment
     "soCRoleAssignParameters": {
       "value": {
-        "enabled": false,
+        "enabled": true,
         "moduleName": "RoleAssignments",
         "moduleVersion": "1.0.0"
       }

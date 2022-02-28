@@ -367,7 +367,7 @@
     "outputs": {
         "deploymentName": {
             "type": "string",
-            "value": "[deployment().name]"
+            "value": "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]"
         },
         "sasExpiryDateTime": {
             "type": "string",
