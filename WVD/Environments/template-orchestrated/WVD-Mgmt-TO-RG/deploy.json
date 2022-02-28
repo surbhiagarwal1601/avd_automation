@@ -122,14 +122,14 @@
         },
         // Format basetime. Removes columns, dashes and spaces
         "formattedTime": "[replace(replace(replace(parameters('baseTime'), ':', ''), '-', ''), ' ', '')]",
-        "roleDefDeployName": "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]"
+        "roleDefTemplateName": "[concat(variables('modulesPath'), parameters('soCRoleDefParameters').moduleName, '/', parameters('soCRoleDefParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]"
     },
     "resources": [
         // 'Start on connect' role definition
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-08-01",
-            "name": "[variables('roleDefDeployName')]",
+            "name": "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]",
             "location": "[parameters('location')]",
             "condition": "[parameters('soCRoleDefParameters').enabled]",
             "dependsOn": [
@@ -140,7 +140,7 @@
                     "detailLevel": "requestContent,responseContent"
                 },
                 "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('soCRoleDefParameters').moduleName, '/', parameters('soCRoleDefParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+                    "uri": "[variables('roleDefTemplateName')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -377,6 +377,10 @@
         "roleDefId" : {
             "type": "string",
             "value": "[reference(variables('roleDefDeployName')).outputs.definitionId.value]"
+        },
+        "roleDefScope" : {
+            "type": "string",
+            "value": "[reference(variables('roleDefTemplateName')).outputs.definitionScope.value]"
         }
     }
 }
