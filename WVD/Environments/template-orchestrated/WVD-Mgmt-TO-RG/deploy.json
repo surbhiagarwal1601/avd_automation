@@ -151,7 +151,7 @@
                     }
                 }
             }
-        }
+        },
         // // 'Start on connect' role assignment
         // {
         //     "type": "Microsoft.Resources/deployments",
@@ -184,36 +184,36 @@
         //     }
         // },
         // Resource Group
-        // {
-        //     "type": "Microsoft.Resources/deployments",
-        //     "apiVersion": "2020-10-01",
-        //     "name": "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]",
-        //     "location": "[parameters('location')]",
-        //     "condition": "[parameters('rgParameters').enabled]",
-        //     "dependsOn": [
-        //     ],
-        //     "properties": {
-        //         "mode": "Incremental",
-        //         "debugSetting": {
-        //             "detailLevel": "requestContent,responseContent"
-        //         },
-        //         "templateLink": {
-        //             "uri": "[concat(variables('modulesPath'), parameters('rgParameters').moduleName, '/', parameters('rgParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-        //             "contentVersion": "1.0.0.0"
-        //         },
-        //         "parameters": {
-        //             "resourceGroupName": {
-        //                 "value": "[parameters('resourcegroupname')]"
-        //             },
-        //             "lockForDeletion": {
-        //                 "value": "[if(contains(parameters('rgParameters'), 'lockForDeletion'), parameters('rgParameters').lockForDeletion, parameters('lockForDeletion'))]"
-        //             },
-        //             "tags": {
-        //                 "value": "[if(contains(parameters('rgParameters'), 'tags'), union(parameters('tags'), parameters('rgParameters').tags), parameters('tags'))]"
-        //             }
-        //         }
-        //     }
-        // }
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]",
+            "location": "[parameters('location')]",
+            "condition": "[parameters('rgParameters').enabled]",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "debugSetting": {
+                    "detailLevel": "requestContent,responseContent"
+                },
+                "templateLink": {
+                    "uri": "[concat(variables('modulesPath'), parameters('rgParameters').moduleName, '/', parameters('rgParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "resourceGroupName": {
+                        "value": "[parameters('resourcegroupname')]"
+                    },
+                    "lockForDeletion": {
+                        "value": "[if(contains(parameters('rgParameters'), 'lockForDeletion'), parameters('rgParameters').lockForDeletion, parameters('lockForDeletion'))]"
+                    },
+                    "tags": {
+                        "value": "[if(contains(parameters('rgParameters'), 'tags'), union(parameters('tags'), parameters('rgParameters').tags), parameters('tags'))]"
+                    }
+                }
+            }
+        }
         // // Key Vault
         // {
         //     "type": "Microsoft.Resources/deployments",
