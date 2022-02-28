@@ -121,14 +121,15 @@
             "signedProtocol": "https"
         },
         // Format basetime. Removes columns, dashes and spaces
-        "formattedTime": "[replace(replace(replace(parameters('baseTime'), ':', ''), '-', ''), ' ', '')]"
+        "formattedTime": "[replace(replace(replace(parameters('baseTime'), ':', ''), '-', ''), ' ', '')]",
+        "roleDefDeployName": "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]"
     },
     "resources": [
         // 'Start on connect' role definition
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-08-01",
-            "name": "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]",
+            "name": "[variables('roleDefDeployName')]",
             "location": "[parameters('location')]",
             "condition": "[parameters('soCRoleDefParameters').enabled]",
             "dependsOn": [
@@ -375,7 +376,7 @@
         },
         "roleDefId" : {
             "type": "string",
-            "value": "[reference([concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]).outputs.definitionId.value]"
+            "value": "[reference(variables('roleDefDeployName')).outputs.definitionId.value]"
         }
     }
 }
