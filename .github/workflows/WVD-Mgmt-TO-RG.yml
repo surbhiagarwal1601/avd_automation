@@ -73,8 +73,9 @@ jobs:
           parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
       
       - run: |
-          echo Template Output - sasExpiryDateTime: ${{ steps.deploy.outputs.sasExpiryDateTime }}
-          echo Template Output - subscription Object: ${{ steps.deploy.ouputs.subscriptionObject }}
+          echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
+          echo Template Output - baseTime: ${{ steps.task-deploy.ouputs.baseTime }}
+          echo Template Output - subscription Object: ${{ steps.task-deploy.ouputs.subscriptionObject }}
 ## Invoke Key Vault Post Deployment
 #   Invoke_WVDKeyVaultPostDeployment:
 #     name: Invoke Key Vault Post Deployment

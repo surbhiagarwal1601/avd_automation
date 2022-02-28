@@ -365,6 +365,10 @@
         // }
     ],
     "outputs": {
+        "baseTime": {
+        "type": "string",
+        "value": "[parameters('baseTime')]"
+        },
         "sasExpiryDateTime": {
             "type": "string",
             "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
