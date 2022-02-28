@@ -368,6 +368,10 @@
         "sasExpiryDateTime": {
             "type": "string",
             "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
-        }
+        },
+        "subscriptionObject": {
+            "type": "object",
+            "value": "[subscription()]"
+          }
     }
 }

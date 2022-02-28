@@ -72,7 +72,9 @@ jobs:
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
           parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
       
-      - run: echo ${{ steps.deploy.outputs.containerName }}
+      - run: |
+          echo Template Output - sasExpiryDateTime: ${{ steps.deploy.outputs.sasExpiryDateTime }}
+          echo Template Output - subscription Object: ${{ steps.deploy.ouputs.subscriptionObject }}
 ## Invoke Key Vault Post Deployment
 #   Invoke_WVDKeyVaultPostDeployment:
 #     name: Invoke Key Vault Post Deployment
