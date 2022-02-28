@@ -121,8 +121,7 @@
             "signedProtocol": "https"
         },
         // Format basetime. Removes columns, dashes and spaces
-        "formattedTime": "[replace(replace(replace(parameters('baseTime'), ':', ''), '-', ''), ' ', '')]",
-        "roleDefTemplateName": "[concat(variables('modulesPath'), parameters('soCRoleDefParameters').moduleName, '/', parameters('soCRoleDefParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]"
+        "formattedTime": "[replace(replace(replace(parameters('baseTime'), ':', ''), '-', ''), ' ', '')]"
     },
     "resources": [
         // 'Start on connect' role definition
@@ -140,7 +139,7 @@
                     "detailLevel": "requestContent,responseContent"
                 },
                 "templateLink": {
-                    "uri": "[variables('roleDefTemplateName')]",
+                    "uri": "[concat(variables('modulesPath'), parameters('soCRoleDefParameters').moduleName, '/', parameters('soCRoleDefParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -373,14 +372,6 @@
         "sasExpiryDateTime": {
             "type": "string",
             "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
-        },
-        "roleDefId" : {
-            "type": "string",
-            "value": "[reference(variables('roleDefDeployName')).outputs.definitionId.value]"
-        },
-        "roleDefScope" : {
-            "type": "string",
-            "value": "[reference(variables('roleDefTemplateName')).outputs.definitionScope.value]"
         }
     }
 }
