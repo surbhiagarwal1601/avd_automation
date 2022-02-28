@@ -14,5 +14,5 @@ storage_account_id=$(az storage account show --name $storage_name --query id -o 
 resourcegroupname=myAvdFromBash
 componentsStorageContainerName=components
 
-az deployment sub validate --location $location --template-file $template --parameters parameters  resourcegroupname=$resourcegroupname componentStorageAccountId=$componentStorageAccountId componentsStorageContainerName=$storage_account_id
+az deployment sub validate --location $location --template-file $template --parameters $parameters  resourcegroupname=$resourcegroupname componentStorageAccountId=$storage_account_id componentsStorageContainerName=$componentsStorageContainerName
 # az deployment sub create --location $location --template-file $template --parameters parameters 
