@@ -63,7 +63,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ env.soc_service_principals }}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds='${{ env.soc_service_principals }}'
       
       - name: Deploy Module
         id: task-deploy
@@ -73,7 +73,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ env.soc_service_principals }}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds='${{ env.soc_service_principals }}'
       
       - run: |
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
