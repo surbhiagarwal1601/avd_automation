@@ -42,7 +42,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+          source: ./.github/variables/WVD-Mgmt-TO-RG.env
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -53,19 +53,7 @@ jobs:
           echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
           echo "Parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.AZURE_CREDENTIALS_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}"
           echo "Pipeline Params: ${{ github.event.inputs.rgname }}"
-      - name: Get Windows Virtual Desktop Service Principal
-        id: task-get-sp
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.30.0
-          inlineScript: |
-            sp_client_id=$(az ad sp list --all --filter "displayname eq '${{ env.sp_name }}'" --query "[].appId" -o tsv)
-            echo $sp_client_id >> sp_client_id
-            echo ::set-output name=sp_client_id::$sp_client_id
-      - name: Show Service Principal
-        id: task-show-sp
-        run: echo the client id is ${{ steps.task-get-sp.outputs.sp_client_id }}
-
+          echo "Start VM on Connect Service Principals: ${{ env.soc_service_principals }}"
       - name: Validate Module
         id: task-validate
         uses: azure/arm-deploy@v1
@@ -75,7 +63,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ env.soc_service_principals }}
       
       - name: Deploy Module
         id: task-deploy
@@ -85,12 +73,19 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ env.soc_service_principals }}
       
       - run: |
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
           echo Template Output - deploymentName: ${{ steps.task-deploy.ouputs.deploymentName }}
-          echo Template Output - subscription Object: ${{ steps.task-deploy.ouputs.subscriptionObject }}
+      - name: Log out of Azure
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az logout
+            az cache purge
+            az account clear
 ## Invoke Key Vault Post Deployment
 #   Invoke_WVDKeyVaultPostDeployment:
 #     name: Invoke Key Vault Post Deployment
