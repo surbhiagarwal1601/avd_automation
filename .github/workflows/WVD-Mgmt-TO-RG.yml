@@ -51,9 +51,24 @@ jobs:
           echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
           echo "Parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.AZURE_CREDENTIALS_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}"
           echo "Pipeline Params: ${{ github.event.inputs.rgname }}"
+      - name: Get Windows Virtual Desktop Service Principal
+        id: task-get-sp
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            sp_client_id=$(az ad sp list --all --filter "displayname eq '${{ env.sp_name }}'" --query "[].appId" -o tsv)
+            echo $sp_client_id >> sp_client_id
+            echo ::set-output name=sp_client_id::$sp_client_id
+      - name: Show Service Principal
+        id: task-show-sp
+        needs: task-get-sp
+        run: echo the client id is ${{ steps.task-get-sp.outputs.sp_client_id }}
+
       - name: Validate Module
         id: task-validate
         uses: azure/arm-deploy@v1
+        needs: task-show-sp
         with:
           deploymentMode: Validate
           deploymentName: github-test
@@ -65,6 +80,7 @@ jobs:
       - name: Deploy Module
         id: task-deploy
         uses: azure/arm-deploy@v1
+        needs: task-show-sp
         with:
           deploymentName: github-test
           scope: subscription
