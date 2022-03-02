@@ -19,7 +19,7 @@
     // Parameter 'RoleAssignments' is constructed during deployment
     "soCRoleAssignParameters": {
       "value": {
-        "enabled": false,
+        "enabled": true,
         "moduleName": "RoleAssignments",
         "moduleVersion": "1.0.0"
       }
