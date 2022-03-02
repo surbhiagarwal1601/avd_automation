@@ -64,7 +64,7 @@ jobs:
 
             sp_client_id=$(az ad sp list --all --filter "displayname eq '${{ env.sp_name }}'" --query "[].appId" -o tsv)
             echo $sp_client_id >> sp_client_id
-            echo ::set-output name=sp_client_id::['$sp_client_id']
+            echo ::set-output name=sp_client_id::[\'$sp_client_id\']
       - name: Show Service Principal
         id: task-show-sp
         run: echo the client id is ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
