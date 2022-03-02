@@ -71,7 +71,7 @@ jobs:
             echo ::set-output name=sp_client_id::$sp_client_id
       - name: Show Service Principal
         id: task-show-sp
-        run: echo the client id is ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
+        run: echo client id(s) ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
       
       - name: Validate Module
         id: task-validate
@@ -94,9 +94,13 @@ jobs:
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
           parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds="${{steps.task-get-sp-clientd-id.outputs.sp_client_id}}"
       
-      - run: |
+      - name: Check Template Out Params
+        run: |
+          echo Template Output - socClientIds: ${{ steps.task-deploy.ouputs.socClientIds }}
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
           echo Template Output - deploymentName: ${{ steps.task-deploy.ouputs.deploymentName }}
+
+
       - name: Log out of Azure
         uses: azure/CLI@v1
         with:

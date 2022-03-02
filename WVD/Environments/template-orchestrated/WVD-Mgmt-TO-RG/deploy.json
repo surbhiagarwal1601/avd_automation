@@ -16,7 +16,7 @@
             "type": "string",
             "defaultValue": "",
             "metadata": {
-                "description": "Comma-delimited principal ids. (No spaces)"
+                "description": "Space delimited principal ids"
             }
         },
         // Resource Group
@@ -114,7 +114,7 @@
         // Location of components
         "componentsBaseUrl": "[concat('https://', split(parameters('componentStorageAccountId'), '/')[8], '.blob.core.windows.net/', parameters('componentsStorageContainerName'))]",
         "modulesPath": "[concat(variables('componentsBaseUrl'), '/Modules/ARM/')]",
-        "socClientIds": "[split(parameters('soCWvdPrincipalIds'), ',')]",
+        "socClientIds": "[split(parameters('soCWvdPrincipalIds'), ' ')]",
         // SAS token validity calculation - DO NOT CHANGE THESE VALUES !
         "accountSasProperties": {
             "signedServices": "b", //Blob (b), Queue (q), Table (t), File (f).
@@ -375,6 +375,10 @@
         "sasExpiryDateTime": {
             "type": "string",
             "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
+        },
+        "socClientIds": {
+            "type": "array",
+            "value": "[variables('socClientIds')]"
         }
     }
 }
