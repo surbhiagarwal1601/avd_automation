@@ -64,7 +64,7 @@ jobs:
 
             sp_client_id=$(az ad sp list --all --filter "displayname eq '${{ env.sp_name }}'" --query "[].appId" -o tsv)
             echo $sp_client_id >> sp_client_id
-            echo ::set-output name=sp_client_id::$sp_client_id
+            echo ::set-output name=sp_client_id::['$sp_client_id']
       - name: Show Service Principal
         id: task-show-sp
         run: echo the client id is ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
@@ -88,7 +88,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ env.soc_service_principals }}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
       
       - run: |
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
