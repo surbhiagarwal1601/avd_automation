@@ -77,7 +77,7 @@ jobs:
         with:
           azcliversion: 2.30.0
           inlineScript: |
-            storage_account_id=az storage account list --query  "[].id" -o tsv | grep wvdmgmt
+            storage_account_id=$(az storage account list --query  "[].id" -o tsv | grep wvdmgmt)
             az storage account delete -ids $storage_account_id
       - name: Validate Module
         id: task-validate
