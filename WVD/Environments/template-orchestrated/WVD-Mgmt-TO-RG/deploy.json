@@ -61,14 +61,14 @@
         },
         "componentStorageAccountId": {
             "type": "string",
-            "defaultValue": "<ReplaceWith-ComponentStorageAccountId>",
+            "defaultValue": "<Overriden by pipeline inline parameter>",
             "metadata": {
                 "description": "Optional. Resource ID of the storage account that stores all the components."
             }
         },
         "componentsStorageContainerName": {
             "type": "string",
-            "defaultValue": "<ReplaceWith-ComponentsStorageAccountContainer>",
+            "defaultValue": "<Overriden by pipeline inline parameter>",
             "metadata": {
                 "description": "Optional. Name of the storage container the module components will be stored in."
             }
@@ -240,9 +240,9 @@
                     "keyVaultName": {
                         "value": "[parameters('kvParameters').keyVaultName]"
                     },
-                    // "accessPolicies": {
-                    //     "value": "[parameters('kvParameters').accessPolicies]"
-                    // },
+                    "accessPolicies": {
+                        "value": "[parameters('kvParameters').accessPolicies]"
+                    },
                     "vaultSku": {
                         "value": "[parameters('kvParameters').vaultSku]"
                     },

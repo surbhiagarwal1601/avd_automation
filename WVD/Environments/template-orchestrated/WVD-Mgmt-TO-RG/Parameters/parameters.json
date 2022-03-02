@@ -39,24 +39,24 @@
         "enabled": true,
         "moduleName": "KeyVault",
         "moduleVersion": "1.0.0",
-        "keyVaultName": "WVD-Mgmt-TO-RG-kv-001",
-        // "accessPolicies": [
-        //   {
-        //     "tenantId": "98f3e5a8-1add-4955-a7ed-16b948862dbb",
-        //     "objectId": "<ReplaceWith-ServiceConnectionServicePrincipalObjectId>",
-        //     "permissions": {
-        //       "keys": [
-        //         "All"
-        //       ],
-        //       "secrets": [
-        //         "All"
-        //       ],
-        //       "certificates": [
-        //         "All"
-        //       ]
-        //     }
-        //   }
-        // ],
+        "keyVaultName": "WVD-Mgmt-TO-RG-kv",
+        "accessPolicies": [
+          {
+            "tenantId": "98f3e5a8-1add-4955-a7ed-16b948862dbb",
+            "objectId": "ed9baec0-fe07-454f-acd2-5fe89aee9ab8",
+            "permissions": {
+              "keys": [
+                "All"
+              ],
+              "secrets": [
+                "All"
+              ],
+              "certificates": [
+                "All"
+              ]
+            }
+          }
+        ],
         "vaultSku": "Standard"
       }
     },
@@ -134,7 +134,7 @@
                   }
                 }
               },
-              "timeZone": "India Standard Time",
+              "timeZone": "Mountain Standard Time",
               "protectedItemsCount": 0
             }
           }
@@ -144,7 +144,7 @@
     // Shared
     "tags": {
       "value": {
-        "Environment": "<ReplaceWith-Environment>",
+        "Environment": "<Override with pipeline parameter>",
         "Contact": "<ReplaceWith-Contact>",
         "PurchaseOrder": "<ReplaceWith-PurchaseOrder>",
         "CostCenter": "<ReplaceWith-CostCenter>",

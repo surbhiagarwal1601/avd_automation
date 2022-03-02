@@ -100,7 +100,6 @@ jobs:
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
           echo Template Output - deploymentName: ${{ steps.task-deploy.ouputs.deploymentName }}
 
-
       - name: Log out of Azure
         uses: azure/CLI@v1
         with:
