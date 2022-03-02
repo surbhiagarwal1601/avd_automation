@@ -71,7 +71,7 @@ jobs:
             echo ::set-output name=sp_client_id::$sp_client_id
       - name: Show Service Principal
         id: task-show-sp
-        run: echo client id(s) ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
+        run: echo client_id ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
       
       - name: Validate Module
         id: task-validate
