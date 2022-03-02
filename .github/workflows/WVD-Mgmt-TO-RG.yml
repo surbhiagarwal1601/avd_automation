@@ -54,6 +54,21 @@ jobs:
           echo "Parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.AZURE_CREDENTIALS_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}}"
           echo "Pipeline Params: ${{ github.event.inputs.rgname }}"
           echo "Start VM on Connect Service Principals: ${{ env.soc_service_principals }}"
+      
+      - name: Get Windows Virtual Desktop Service Principal ClientId
+        id: task-get-sp-clientd-id
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+
+            sp_client_id=$(az ad sp list --all --filter "displayname eq '${{ env.sp_name }}'" --query "[].appId" -o tsv)
+            echo $sp_client_id >> sp_client_id
+            echo ::set-output name=sp_client_id::$sp_client_id
+      - name: Show Service Principal
+        id: task-show-sp
+        run: echo the client id is ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
+      
       - name: Validate Module
         id: task-validate
         uses: azure/arm-deploy@v1
@@ -63,7 +78,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ env.soc_service_principals }}
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds=${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
       
       - name: Deploy Module
         id: task-deploy
