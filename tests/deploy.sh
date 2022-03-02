@@ -1,6 +1,7 @@
 #!/bin/bash
 
 location=westus2
+module_path=../Modules/ARM
 orchestrationPath=../WVD/Environments/template-orchestrated
 rgFolder=WVD-Mgmt-TO-RG
 template=$orchestrationPath/$rgFolder/deploy.json
@@ -29,3 +30,7 @@ az deployment sub create --location $location --template-file $template --parame
 
 # az deployment sub create --location westus2 --template-file ../Modules/ARM/RoleDefinitions/1.0.0/deploy.json   --parameters '@parameters.json' 
 
+# Role Assignment
+template=$module_path/RoleAssignments/1.0.0/deploy.json
+parameters=$module_path/RoleAssignments/1.0.0/Parameters/parameters.json
+az deployment sub create --location westus2 --template-file ../Modules/ARM/RoleAssignments/1.0.0/deploy.json   --parameters '@parameters.json' 

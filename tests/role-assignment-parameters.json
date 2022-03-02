@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "roleAssignments": {
+            "value": [
+                {
+                    "roleDefinitionIdOrName": "[reference(concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime')), '2021-01-01').outputs.definitionId.value]",
+                    "principalIds": "[parameters('soCWvdPrincipalIds')]"
+                }
+            ]
+        }
+    }
+}
+
