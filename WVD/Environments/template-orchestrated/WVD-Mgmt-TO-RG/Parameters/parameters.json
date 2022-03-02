@@ -38,26 +38,26 @@
       "value": {
         "enabled": true,
         "moduleName": "KeyVault",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "keyVaultName": "<ReplaceWith-KeyVaultName>",
-        "accessPolicies": [
-          {
-            "tenantId": "<ReplaceWith-TenantId>",
-            "objectId": "<ReplaceWith-ServiceConnectionServicePrincipalObjectId>",
-            "permissions": {
-              "keys": [
-                "All"
-              ],
-              "secrets": [
-                "All"
-              ],
-              "certificates": [
-                "All"
-              ]
-            }
-          }
-        ],
-        "vaultSku": "<ReplaceWith-VaultSku>"
+        "moduleVersion": "1.0.0",
+        "keyVaultName": "WVD-Mgmt-TO-RG-kv-001",
+        // "accessPolicies": [
+        //   {
+        //     "tenantId": "98f3e5a8-1add-4955-a7ed-16b948862dbb",
+        //     "objectId": "<ReplaceWith-ServiceConnectionServicePrincipalObjectId>",
+        //     "permissions": {
+        //       "keys": [
+        //         "All"
+        //       ],
+        //       "secrets": [
+        //         "All"
+        //       ],
+        //       "certificates": [
+        //         "All"
+        //       ]
+        //     }
+        //   }
+        // ],
+        "vaultSku": "Standard"
       }
     },
     // Storage Account
@@ -65,10 +65,10 @@
       "value": {
         "enabled": true,
         "moduleName": "StorageAccounts",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "storageAccountName": "<ReplaceWith-StorageAccountName>",
-        "storageAccountKind": "<ReplaceWith-StorageAccountKind>",
-        "storageAccountSku": "<ReplaceWith-StorageAccountSku>",
+        "moduleVersion": "1.0.0",
+        "storageAccountName": "wvdmgmt",
+        "storageAccountKind": "StorageV2",
+        "storageAccountSku": "Standard_LRS",
         "blobContainers": [
           {
             "name": "imagescripts",
@@ -81,13 +81,13 @@
             "roleAssignments": []
           },
           {
-            "name": "<ReplaceWith-HostPoolName>",
+            "name": "hostpool1",
             "publicAccess": "None",
             "roleAssignments": []
           }
         ],
         "tables": [
-          "<ReplaceWith-ShortenedHostPoolName>"
+          "mgmthostpool"
         ]
       }
     },
@@ -96,8 +96,8 @@
       "value": {
         "enabled": true,
         "moduleName": "AutomationAccounts",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "automationAccountName": "<ReplaceWith-AutomationAccountName>"
+          "moduleVersion": "1.0.0",
+        "automationAccountName": "mgmtautoacc"
       }
     },
     // Recovery Services Vault
@@ -105,11 +105,11 @@
       "value": {
         "enabled": true,
         "moduleName": "RecoveryServicesVaults",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "recoveryVaultName": "<ReplaceWith-RecoveryVaultName>",
+        "moduleVersion": "1.0.0",
+        "recoveryVaultName": "mgmtrecservault",
         "backupPolicies": [
           {
-            "name": "<ReplaceWith-PolicyName>",
+            "name": "mgmtrecservicepolicy",
             "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
             "properties": {
               "backupManagementType": "AzureStorage",
@@ -134,7 +134,7 @@
                   }
                 }
               },
-              "timeZone": "<ReplaceWith-TimeZone>",
+              "timeZone": "India Standard Time",
               "protectedItemsCount": 0
             }
           }
