@@ -79,7 +79,7 @@ jobs:
           inlineScript: |
             
             # Clean up Storage Account
-            storage_account_id=$(az storage account list --query  "[].id" -o tsv | grep ${{ env.avdStorageAccountName }})
+            storage_account_id=$(az storage account list --query  "[].id" -o tsv | grep wvdmgmt)
             az storage account delete --ids $storage_account_id --yes
 
       - name: Validate Module
