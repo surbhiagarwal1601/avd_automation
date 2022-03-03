@@ -83,7 +83,8 @@ jobs:
             az storage account delete --ids $storage_account_id --yes
 
             # Clean up Automation Account
-            az extension add --name automation
+            az config set extension.use_dynamic_install=yes_without_prompt
+            # az extension add --name automation
             aa_account_id=$(az automation account list --query [].id  -o tsv | grep ${{ env.automationAccountName }})
             aa_account_rg=$(echo $aa_account_id | cut -d '/' -f 5)
             az automation account delete --name $aa_account_name $aa_account_rg --yes
