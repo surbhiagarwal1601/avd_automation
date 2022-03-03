@@ -63,7 +63,7 @@ jobs:
   Deploy_Mgmt:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
-    if: github.event.inputs.enableDeploymentMasterARMTemplate
+    if:  github.event.inputs.enableDeploymentMasterARMTemplate == 'true'
     needs: Clean_Resources
     # strategy:
     #   matrix: ${{ fromJson(needs.parser.outputs.matrix) }}
@@ -150,7 +150,7 @@ jobs:
   Invoke_WVDKeyVaultPostDeployment:
     name: Invoke Key Vault Post Deployment
     needs: Deploy_Mgmt
-    if: github.event.inputs.enablePostDeploymentWVDKeyVault
+    if: github.event.inputs.enablePostDeploymentWVDKeyVault == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
