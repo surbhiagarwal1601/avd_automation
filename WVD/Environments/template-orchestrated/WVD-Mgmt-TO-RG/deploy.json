@@ -44,7 +44,7 @@
             "type": "object",
             "defaultValue": {}
         },
-        // Shared
+        // Pipeline Override Variables
         "resourcegroupname": {
             "type": "string",
             "defaultValue": "[deployment().name]",
