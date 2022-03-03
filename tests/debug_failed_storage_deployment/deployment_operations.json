@@ -1,0 +1,465 @@
+[
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/959EBCC88D7BEC26",
+    "operationId": "959EBCC88D7BEC26",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Failed",
+      "timestamp": "2022-03-03T21:08:59.3838192Z",
+      "duration": "PT0.581892S",
+      "trackingId": "4c0dd794-c884-4545-8305-587ab8d7dd10",
+      "serviceRequestId": "ed591b90-3919-4cab-abd3-b631cd4ecfb9",
+      "statusCode": "NotFound",
+      "statusMessage": {
+        "status": "Failed",
+        "error": {
+          "code": "ContainerOperationFailure",
+          "message": "The specified resource does not exist.\nRequestId:223fb695-201e-0015-0b42-2f666e000000\nTime:2022-03-03T21:08:58.9606487Z"
+        }
+      },
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt/blobServices/default",
+        "resourceType": "Microsoft.Storage/storageAccounts/blobServices",
+        "resourceName": "wvdmgmt/default"
+      },
+      "request": {
+        "content": {
+          "properties": {
+            "deleteRetentionPolicy": {
+              "enabled": true,
+              "days": 7
+            },
+            "automaticSnapshotPolicyEnabled": false
+          }
+        }
+      },
+      "response": {
+        "content": {
+          "error": {
+            "code": "ContainerOperationFailure",
+            "message": "The specified resource does not exist.\nRequestId:223fb695-201e-0015-0b42-2f666e000000\nTime:2022-03-03T21:08:58.9606487Z"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/DC1EDF8FB76502B8",
+    "operationId": "DC1EDF8FB76502B8",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Failed",
+      "timestamp": "2022-03-03T21:08:59.1808298Z",
+      "duration": "PT0.3789026S",
+      "trackingId": "de32cbea-d976-4775-a2b0-eac431493d07",
+      "serviceRequestId": "ff5e9199-7151-41a8-9c5e-56bf60d8ce42",
+      "statusCode": "NotFound",
+      "statusMessage": {
+        "status": "Failed",
+        "error": {
+          "code": "ResourceNotFound",
+          "message": "The specified resource does not exist.\nRequestId:375126d4-4002-004e-7f42-2f5f55000000\nTime:2022-03-03T21:08:59.0751910Z"
+        }
+      },
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt/tableServices/default/tables/mgmthostpool",
+        "resourceType": "Microsoft.Storage/storageAccounts/tableServices/tables",
+        "resourceName": "wvdmgmt/default/mgmthostpool"
+      },
+      "request": {
+        "content": {}
+      },
+      "response": {
+        "content": {
+          "error": {
+            "code": "ResourceNotFound",
+            "message": "The specified resource does not exist.\nRequestId:375126d4-4002-004e-7f42-2f5f55000000\nTime:2022-03-03T21:08:59.0751910Z"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/BE175508FC118FC4",
+    "operationId": "BE175508FC118FC4",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Failed",
+      "timestamp": "2022-03-03T21:08:59.1143332Z",
+      "duration": "PT0.312406S",
+      "trackingId": "0c0b52b7-c89c-4193-897e-e1fb7a3ef787",
+      "serviceRequestId": "3adee669-a1bb-429c-9dc2-59dbadf2fc81",
+      "statusCode": "NotFound",
+      "statusMessage": {
+        "status": "Failed",
+        "error": {
+          "code": "ContainerOperationFailure",
+          "message": "The specified resource does not exist.\nRequestId:7b6befd4-901e-0096-1942-2f780c000000\nTime:2022-03-03T21:08:59.0789584Z"
+        }
+      },
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt/blobServices/default/containers/imagescripts",
+        "resourceType": "Microsoft.Storage/storageAccounts/blobServices/containers",
+        "resourceName": "wvdmgmt/default/imagescripts"
+      },
+      "request": {
+        "content": {
+          "properties": {
+            "publicAccess": "None"
+          }
+        }
+      },
+      "response": {
+        "content": {
+          "error": {
+            "code": "ContainerOperationFailure",
+            "message": "The specified resource does not exist.\nRequestId:7b6befd4-901e-0096-1942-2f780c000000\nTime:2022-03-03T21:08:59.0789584Z"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/CE2A44A12C5D724D",
+    "operationId": "CE2A44A12C5D724D",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Failed",
+      "timestamp": "2022-03-03T21:08:59.1113981Z",
+      "duration": "PT0.3094709S",
+      "trackingId": "c073dead-2791-44d8-a162-5c852a66efd4",
+      "serviceRequestId": "4cc3ed39-a4db-4454-943a-2dab588fe475",
+      "statusCode": "NotFound",
+      "statusMessage": {
+        "status": "Failed",
+        "error": {
+          "code": "ContainerOperationFailure",
+          "message": "The specified resource does not exist.\nRequestId:ea23db02-001e-0070-2942-2fc82a000000\nTime:2022-03-03T21:08:59.0743764Z"
+        }
+      },
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt/blobServices/default/containers/storagejoin",
+        "resourceType": "Microsoft.Storage/storageAccounts/blobServices/containers",
+        "resourceName": "wvdmgmt/default/storagejoin"
+      },
+      "request": {
+        "content": {
+          "properties": {
+            "publicAccess": "None"
+          }
+        }
+      },
+      "response": {
+        "content": {
+          "error": {
+            "code": "ContainerOperationFailure",
+            "message": "The specified resource does not exist.\nRequestId:ea23db02-001e-0070-2942-2fc82a000000\nTime:2022-03-03T21:08:59.0743764Z"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/04C4075B9890B89A",
+    "operationId": "04C4075B9890B89A",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Failed",
+      "timestamp": "2022-03-03T21:08:59.110938Z",
+      "duration": "PT32.645857S",
+      "trackingId": "769a3a5e-466a-430f-bd02-577dd0fe9de0",
+      "serviceRequestId": "02eb2dfe-ec52-467c-b9f7-1eac3806e0a2",
+      "statusCode": "NotFound",
+      "statusMessage": {
+        "status": "Failed",
+        "error": {
+          "code": "ContainerOperationFailure",
+          "message": "The specified resource does not exist.\nRequestId:c4b88186-e01e-0068-6942-2f174d000000\nTime:2022-03-03T21:08:59.0783432Z"
+        }
+      },
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt/blobServices/default/containers/hostpool1",
+        "resourceType": "Microsoft.Storage/storageAccounts/blobServices/containers",
+        "resourceName": "wvdmgmt/default/hostpool1"
+      },
+      "request": {
+        "content": {
+          "properties": {
+            "publicAccess": "None"
+          }
+        }
+      },
+      "response": {
+        "content": {
+          "error": {
+            "code": "ContainerOperationFailure",
+            "message": "The specified resource does not exist.\nRequestId:c4b88186-e01e-0068-6942-2f174d000000\nTime:2022-03-03T21:08:59.0783432Z"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/076CFD31CA62C158",
+    "operationId": "076CFD31CA62C158",
+    "properties": {
+      "provisioningOperation": "Read",
+      "provisioningState": "Succeeded",
+      "timestamp": "2022-03-03T21:08:59.0479244Z",
+      "duration": "PT0.2459972S",
+      "trackingId": "36117f4e-08d3-45f0-9d0d-5a27d9f00151",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt",
+        "resourceType": "Microsoft.Storage/storageAccounts",
+        "resourceName": "wvdmgmt",
+        "apiVersion": "2019-04-01"
+      },
+      "response": {
+        "content": {
+          "identity": {
+            "type": "None"
+          },
+          "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+          },
+          "kind": "StorageV2",
+          "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt",
+          "name": "wvdmgmt",
+          "type": "Microsoft.Storage/storageAccounts",
+          "location": "westus2",
+          "tags": {
+            "Environment": "<Override with pipeline parameter>",
+            "Contact": "<ReplaceWith-Contact>",
+            "PurchaseOrder": "<ReplaceWith-PurchaseOrder>",
+            "CostCenter": "<ReplaceWith-CostCenter>",
+            "ServiceName": "<ReplaceWith-ServiceName>",
+            "Role": "<ReplaceWith-Role>"
+          },
+          "properties": {
+            "minimumTlsVersion": "TLS1_2",
+            "allowBlobPublicAccess": true,
+            "networkAcls": {
+              "bypass": "AzureServices",
+              "virtualNetworkRules": [],
+              "ipRules": [],
+              "defaultAction": "Allow"
+            },
+            "supportsHttpsTrafficOnly": true,
+            "encryption": {
+              "services": {
+                "file": {
+                  "enabled": true,
+                  "lastEnabledTime": "2022-03-03T21:08:27.0831888Z"
+                },
+                "blob": {
+                  "enabled": true,
+                  "lastEnabledTime": "2022-03-03T21:08:27.0831888Z"
+                }
+              },
+              "keySource": "Microsoft.Storage"
+            },
+            "accessTier": "Hot",
+            "provisioningState": "Succeeded",
+            "creationTime": "2022-03-03T21:08:27.0050642Z",
+            "primaryEndpoints": {
+              "dfs": "https://wvdmgmt.dfs.core.windows.net/",
+              "web": "https://wvdmgmt.z5.web.core.windows.net/",
+              "blob": "https://wvdmgmt.blob.core.windows.net/",
+              "queue": "https://wvdmgmt.queue.core.windows.net/",
+              "table": "https://wvdmgmt.table.core.windows.net/",
+              "file": "https://wvdmgmt.file.core.windows.net/"
+            },
+            "primaryLocation": "westus2",
+            "statusOfPrimary": "available"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/912A74F231E3BAB0",
+    "operationId": "912A74F231E3BAB0",
+    "properties": {
+      "provisioningOperation": "Action",
+      "provisioningState": "Succeeded",
+      "timestamp": "2022-03-03T21:08:59.0140635Z",
+      "duration": "PT0.2121363S",
+      "trackingId": "ffdecae3-875d-4a1c-ab94-22067e65d5e9",
+      "serviceRequestId": "fcb60ad0-fc37-45d7-b89f-c2503058a841",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt",
+        "resourceType": "Microsoft.Storage/storageAccounts",
+        "resourceName": "wvdmgmt",
+        "actionName": "listAccountSas",
+        "apiVersion": "2019-04-01"
+      },
+      "request": {},
+      "response": {
+        "content": {
+          "accountSasToken": "sv=2015-04-05&ss=bt&srt=co&sp=racuw&se=2022-03-04T05%3A08%3A25.0000000Z&spr=https&sig=f8tYv8D%2FRkBgm5FAfGdjCDi%2BoPikOFQYAvOYiaJsndw%3D"
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/9710DA492F3BF15B",
+    "operationId": "9710DA492F3BF15B",
+    "properties": {
+      "provisioningOperation": "Action",
+      "provisioningState": "Succeeded",
+      "timestamp": "2022-03-03T21:08:59.0115775Z",
+      "duration": "PT0.2096503S",
+      "trackingId": "18a21e44-2e64-4a73-95d4-17c87729ce7e",
+      "serviceRequestId": "fa53d003-8978-47d9-b30c-132135d6bfa0",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt",
+        "resourceType": "Microsoft.Storage/storageAccounts",
+        "resourceName": "wvdmgmt",
+        "actionName": "listKeys",
+        "apiVersion": "2016-12-01"
+      },
+      "request": {},
+      "response": {
+        "content": {
+          "keys": [
+            {
+              "keyName": "key1",
+              "value": "SCnHrs0fUXGU89A3fQq2mGPdVr21sSYZaL1GhNF7kCWDbFhllevteabjS6IH5hXwnSudR5K7Cxf7vgD/qNM64Q==",
+              "permissions": "FULL"
+            },
+            {
+              "keyName": "key2",
+              "value": "kqiDUpqZTMSkzu/cwztF/fIGL+r/Z5bVoXWu4nCzc357hEb6M+IZGCf/9ahWhgJDjwTqXJNPsx9Bds5HLSNrIA==",
+              "permissions": "FULL"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Resources/deployments/StorageAccounts-20220303210803Z/operations/0B7F9CD4BACE9E1C",
+    "operationId": "0B7F9CD4BACE9E1C",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Succeeded",
+      "timestamp": "2022-03-03T21:08:58.7459649Z",
+      "duration": "PT32.2808839S",
+      "trackingId": "37880ff6-5585-4299-826d-de35b7d18618",
+      "serviceRequestId": "ad014ee0-3a75-47fb-9789-3e75457e3727",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt",
+        "resourceType": "Microsoft.Storage/storageAccounts",
+        "resourceName": "wvdmgmt"
+      },
+      "request": {
+        "content": {
+          "sku": {
+            "name": "Standard_LRS"
+          },
+          "kind": "StorageV2",
+          "location": "westus2",
+          "tags": {
+            "Environment": "<Override with pipeline parameter>",
+            "Contact": "<ReplaceWith-Contact>",
+            "PurchaseOrder": "<ReplaceWith-PurchaseOrder>",
+            "CostCenter": "<ReplaceWith-CostCenter>",
+            "ServiceName": "<ReplaceWith-ServiceName>",
+            "Role": "<ReplaceWith-Role>"
+          },
+          "identity": {
+            "type": "None"
+          },
+          "properties": {
+            "encryption": {
+              "keySource": "Microsoft.Storage",
+              "services": {
+                "blob": {
+                  "enabled": true
+                },
+                "file": {
+                  "enabled": true
+                }
+              }
+            },
+            "accessTier": "Hot",
+            "supportsHttpsTrafficOnly": true,
+            "isHnsEnabled": null,
+            "minimumTlsVersion": "TLS1_2",
+            "networkAcls": null,
+            "allowBlobPublicAccess": true
+          }
+        }
+      },
+      "response": {
+        "content": {
+          "identity": {
+            "type": "None"
+          },
+          "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+          },
+          "kind": "StorageV2",
+          "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall33204/providers/Microsoft.Storage/storageAccounts/wvdmgmt",
+          "name": "wvdmgmt",
+          "type": "Microsoft.Storage/storageAccounts",
+          "location": "westus2",
+          "tags": {
+            "Environment": "<Override with pipeline parameter>",
+            "Contact": "<ReplaceWith-Contact>",
+            "PurchaseOrder": "<ReplaceWith-PurchaseOrder>",
+            "CostCenter": "<ReplaceWith-CostCenter>",
+            "ServiceName": "<ReplaceWith-ServiceName>",
+            "Role": "<ReplaceWith-Role>"
+          },
+          "properties": {
+            "privateEndpointConnections": [],
+            "minimumTlsVersion": "TLS1_2",
+            "allowBlobPublicAccess": true,
+            "networkAcls": {
+              "bypass": "AzureServices",
+              "virtualNetworkRules": [],
+              "ipRules": [],
+              "defaultAction": "Allow"
+            },
+            "supportsHttpsTrafficOnly": true,
+            "encryption": {
+              "services": {
+                "file": {
+                  "keyType": "Account",
+                  "enabled": true,
+                  "lastEnabledTime": "2022-03-03T21:08:27.0831888Z"
+                },
+                "blob": {
+                  "keyType": "Account",
+                  "enabled": true,
+                  "lastEnabledTime": "2022-03-03T21:08:27.0831888Z"
+                }
+              },
+              "keySource": "Microsoft.Storage"
+            },
+            "accessTier": "Hot",
+            "provisioningState": "Succeeded",
+            "creationTime": "2022-03-03T21:08:27.0050642Z",
+            "primaryEndpoints": {
+              "dfs": "https://wvdmgmt.dfs.core.windows.net/",
+              "web": "https://wvdmgmt.z5.web.core.windows.net/",
+              "blob": "https://wvdmgmt.blob.core.windows.net/",
+              "queue": "https://wvdmgmt.queue.core.windows.net/",
+              "table": "https://wvdmgmt.table.core.windows.net/",
+              "file": "https://wvdmgmt.file.core.windows.net/"
+            },
+            "primaryLocation": "westus2",
+            "statusOfPrimary": "available"
+          }
+        }
+      }
+    }
+  }
+]
