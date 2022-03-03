@@ -72,16 +72,7 @@ jobs:
       - name: Show Service Principal
         id: task-show-sp
         run: echo client_id ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
-      - name: Clean Up Resources
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.30.0
-          inlineScript: |
-            
-            # Clean up Storage Account
-            storage_account_id=$(az storage account list --query  "[].id" -o tsv | grep wvdmgmt)
-            az storage account delete --ids $storage_account_id --yes
-
+      
       - name: Validate Module
         id: task-validate
         uses: azure/arm-deploy@v1
