@@ -1,0 +1,121 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "value": "wvdmgmt"
+        },
+        "location": {
+            "value": "westus2"
+        },
+        "roleAssignments": {
+            "value": []
+        },
+        "managedServiceIdentity": {
+            "value": "None"
+        },
+        "userAssignedIdentities": {
+            "value": {}
+        },
+        "storageAccountKind": {
+            "value": "StorageV2"
+        },
+        "storageAccountSku": {
+            "value": "Standard_LRS"
+        },
+        "storageAccountAccessTier": {
+            "value": "Hot"
+        },
+        "azureFilesIdentityBasedAuthentication": {
+            "value": {}
+        },
+        "vNetId": {
+            "value": ""
+        },
+        "privateEndpoints": {
+            "value": []
+        },
+        "networkAcls": {
+            "value": {}
+        },
+        "blobContainers": {
+            "value": [
+                {
+                    "name": "imagescripts",
+                    "publicAccess": "None",
+                    "roleAssignments": []
+                },
+                {
+                    "name": "storagejoin",
+                    "publicAccess": "None",
+                    "roleAssignments": []
+                },
+                {
+                    "name": "hostpool1",
+                    "publicAccess": "None",
+                    "roleAssignments": []
+                }
+            ]
+        },
+        "deleteRetentionPolicy": {
+            "value": true
+        },
+        "deleteRetentionPolicyDays": {
+            "value": 7
+        },
+        "automaticSnapshotPolicyEnabled": {
+            "value": false
+        },
+        "allowBlobPublicAccess": {
+            "value": true
+        },
+        "fileShares": {
+            "value": []
+        },
+        "queues": {
+            "value": []
+        },
+        "tables": {
+            "value": [
+                "mgmthostpool"
+            ]
+        },
+        "minimumTlsVersion": {
+            "value": "TLS1_2"
+        },
+        "enableArchiveAndDelete": {
+            "value": false
+        },
+        "enableHierarchicalNamespace": {
+            "value": false
+        },
+        "moveToArchiveAfter": {
+            "value": 30
+        },
+        "deleteBlobsAfter": {
+            "value": 1096
+        },
+        "lockForDeletion": {
+            "value": false
+        },
+        "tags": {
+            "value": {
+                "Environment": "<Override with pipeline parameter>",
+                "Contact": "<ReplaceWith-Contact>",
+                "PurchaseOrder": "<ReplaceWith-PurchaseOrder>",
+                "CostCenter": "<ReplaceWith-CostCenter>",
+                "ServiceName": "<ReplaceWith-ServiceName>",
+                "Role": "<ReplaceWith-Role>"
+            }
+        },
+        "cuaId": {
+            "value": ""
+        },
+        "sasTokenValidityLength": {
+            "value": "PT8H"
+        },
+        "baseTime": {
+            "value": "2022-03-03 22:39:53Z"
+        }
+    }
+}
