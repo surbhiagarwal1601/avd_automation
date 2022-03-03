@@ -39,7 +39,8 @@
         "enabled": true,
         "moduleName": "KeyVault",
         "moduleVersion": "1.0.0",
-        "keyVaultName": "[concat('WVD-Mgmt-TO-RG-kv-',utcNow())]",
+        // leave blank for unique name
+        "keyVaultName": "", 
         "accessPolicies": [
           {
             "tenantId": "98f3e5a8-1add-4955-a7ed-16b948862dbb",
