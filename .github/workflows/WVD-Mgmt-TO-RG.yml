@@ -11,7 +11,7 @@ on:
         type: boolean
         required: false 
       old_rgname: 
-        description: 'Resource Group Name to Cleanup (Delete)'
+        description: 'Delete Previous Resource Group Name (Cleanup)'
         required: false
         type: string
       rgname:
@@ -164,6 +164,14 @@ jobs:
         with:
           creds: ${{secrets.AZURE_CREDENTIALS}}
           enable-AzPSSession: true
+      - name: Get KeyVault Name
+        id: task-get-keyvault-name
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            key_vault_name=$(az keyvault list -g ${{ github.event.inputs.rgname }} --query  "[].name" -o tsv)
+            echo ::set-output name=keyvault_name::$key_vault_name
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
         with:
@@ -173,14 +181,14 @@ jobs:
 
             $functionInput = @{
               orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
-              VaultName                    = '${{ env.keyVaultName }}'
+              VaultName                    = '${{ step.task-get-keyvault-name.ouputs.key_vault_name }}'
               domainJoin_userName          = '${{ env.domainJoinUserName }}'
-              domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVDJoinDomainUserPwd }}' -AsPlainText -Force
+              domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVD_JOIN_DOMAIN_USER_PWD }}' -AsPlainText -Force
             }
 
-            if(-not ([string]::IsNullOrEmpty('${{ secrets.localAdminPassword }}'))) {
+            if(-not ([string]::IsNullOrEmpty('${{ secrets.LOCAL_ADMIN_PASSWORD }}'))) {
               $functionInput += @{
-                localAdminPassword         = ConvertTo-SecureString '${{ secrets.localAdminPassword }}' -AsPlainText -Force
+                localAdminPassword         = ConvertTo-SecureString '${{ secrets.LOCAL_ADMIN_PASSWORD }}' -AsPlainText -Force
               }
             }
 
