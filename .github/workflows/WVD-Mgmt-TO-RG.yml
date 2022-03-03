@@ -27,12 +27,11 @@ on:
   # wvdUploadsPath: ${{ github.workspace }}/Workloads/WVD/OrchestrationSources/Uploads
 
 jobs:
-## Deploy Management resource Group Resources
-  
+
   Clean_Resources:
     name: Clean up Resources
     runs-on: ubuntu-latest
-    if:  ! github.event.inputs.old_rgname
+    if:  "!${{ github.event.inputs.old_rgname }}"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -51,7 +50,8 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             az group delete --name ${{github.event.inputs.old_rgname}} --yes
-
+  
+  ## Deploy Management resource Group Resources
   Deploy_Mgmt:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
