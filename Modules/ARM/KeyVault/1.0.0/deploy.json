@@ -234,7 +234,7 @@
         "maxNameLength": 24,
         "uniqueKeyVaultNameUntrim": "[uniqueString(concat(variables('moduleName'),parameters('baseTime')))]",
         "uniqueKeyVaultName": "[if(greater(length(variables('uniqueKeyVaultNameUntrim')),variables('maxNameLength')),substring(variables('uniqueKeyVaultNameUntrim'),0,variables('maxNameLength')),variables('uniqueKeyVaultNameUntrim'))]",
-        "keyVaultName": "[if(empty(parameters('keyVaultName')),variables('uniqueKeyVaultName'),parameters('keyVaultName'))]",
+        "keyVaultName": "[if(empty(parameters('keyVaultName')),concat('kv',variables('uniqueKeyVaultName')),parameters('keyVaultName'))]",
         "deployServiceEndpoint": "[not(empty(parameters('networkAcls')))]",
         "virtualNetworkRules": {
             "copy": [
