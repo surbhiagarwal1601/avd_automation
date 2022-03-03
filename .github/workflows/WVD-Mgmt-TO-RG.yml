@@ -2,6 +2,14 @@ name: AVD Management deployment
 on:
   workflow_dispatch:
     inputs:
+      enableDeploymentMasterARMTemplate:
+        description: 'Deploy Master Template'
+        type: boolean
+        required: false 
+      enablePostDeploymentWVDKeyVault:
+        description: 'Invoke Key Vault Post Deployment'
+        type: boolean
+        required: false 
       old_rgname: 
         description: 'Resource Group Name to Cleanup (Delete)'
         required: false
@@ -55,7 +63,7 @@ jobs:
   Deploy_Mgmt:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
-    if: always()
+    if: github.event.inputs.enableDeploymentMasterARMTemplate
     needs: Clean_Resources
     # strategy:
     #   matrix: ${{ fromJson(needs.parser.outputs.matrix) }}
@@ -137,56 +145,58 @@ jobs:
             az logout
             az cache purge
             az account clear
-## Invoke Key Vault Post Deployment
-#   Invoke_WVDKeyVaultPostDeployment:
-#     name: Invoke Key Vault Post Deployment
-#     needs: Deploy_Mgmt
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
-#       - name: Set Environment Variables
-#         uses: ./.github/actions/setvars
-#         with:
-#           varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
-#       - name: Login to Azure
-#         uses: azure/login@v1
-#         with:
-#           creds: ${{secrets.AZURE_CREDENTIALS}}
-#           enable-AzPSSession: true
-#       - name: Trigger module KeyVault post-deployment
-#         uses: azure/powershell@v1
-#         with:
-#           inlineScript: |
-#             Write-Verbose "Load function" -Verbose
-#             . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Invoke-KeyVaultPostDeployment.ps1'
 
-#             $functionInput = @{
-#               orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
-#               VaultName                    = '${{ env.keyVaultName }}'
-#               domainJoin_userName          = '${{ env.domainJoinUserName }}'
-#               domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVDJoinDomainUserPwd }}' -AsPlainText -Force
-#             }
+# Invoke Key Vault Post Deployment
+  Invoke_WVDKeyVaultPostDeployment:
+    name: Invoke Key Vault Post Deployment
+    needs: Deploy_Mgmt
+    if: github.event.inputs.enablePostDeploymentWVDKeyVault
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Trigger module KeyVault post-deployment
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Invoke-KeyVaultPostDeployment.ps1'
 
-#             if(-not ([string]::IsNullOrEmpty('${{ secrets.localAdminPassword }}'))) {
-#               $functionInput += @{
-#                 localAdminPassword         = ConvertTo-SecureString '${{ secrets.localAdminPassword }}' -AsPlainText -Force
-#               }
-#             }
+            $functionInput = @{
+              orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
+              VaultName                    = '${{ env.keyVaultName }}'
+              domainJoin_userName          = '${{ env.domainJoinUserName }}'
+              domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVDJoinDomainUserPwd }}' -AsPlainText -Force
+            }
 
-#             # # Only required to enable Native AD identity-based access for file shares
-#             # if(-not ([string]::IsNullOrEmpty('$(storageJoinUserName)'))) {
-#             #   $functionInput += @{
-#             #     storageJoin_userName       = '$(storageJoinUserName)'
-#             #     storageJoin_pwd            = ConvertTo-SecureString "$(StorageJoinUserPwd)" -AsPlainText -Force
-#             #   }
-#             # }
+            if(-not ([string]::IsNullOrEmpty('${{ secrets.localAdminPassword }}'))) {
+              $functionInput += @{
+                localAdminPassword         = ConvertTo-SecureString '${{ secrets.localAdminPassword }}' -AsPlainText -Force
+              }
+            }
 
-#             Write-Verbose "Invoke task with" -Verbose
-#             $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+            # # Only required to enable Native AD identity-based access for file shares
+            # if(-not ([string]::IsNullOrEmpty('$(storageJoinUserName)'))) {
+            #   $functionInput += @{
+            #     storageJoin_userName       = '$(storageJoinUserName)'
+            #     storageJoin_pwd            = ConvertTo-SecureString "$(StorageJoinUserPwd)" -AsPlainText -Force
+            #   }
+            # }
 
-#             Invoke-KeyVaultPostDeployment @functionInput -Verbose
-#           azPSVersion: "latest"
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Invoke-KeyVaultPostDeployment @functionInput -Verbose
+          azPSVersion: "latest"
 
 # ## Invoke Automation Account Post Deployment
 #   Invoke_AutomationAccountPostDeployment:
