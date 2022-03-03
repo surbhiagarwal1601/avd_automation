@@ -127,6 +127,7 @@ jobs:
           echo Template Output - socClientIds: ${{ steps.task-deploy.ouputs.socClientIds }}
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
           echo Template Output - deploymentName: ${{ steps.task-deploy.ouputs.deploymentName }}
+          echo Template Output - keyVaultResourceId: ${{ steps.task-deploy.ouputs.keyVaultResourceId }}
 
       - name: Log out of Azure
         uses: azure/CLI@v1
