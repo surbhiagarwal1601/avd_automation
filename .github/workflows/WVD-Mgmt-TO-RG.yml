@@ -149,7 +149,7 @@ jobs:
 # Invoke Key Vault Post Deployment
   Invoke_WVDKeyVaultPostDeployment:
     name: Invoke Key Vault Post Deployment
-    needs: Deploy_Mgmt
+    # needs: Deploy_Mgmt
     if: ${{ github.event.inputs.enablePostDeploymentWVDKeyVault == 'true' }}
     runs-on: ubuntu-latest
     steps:
