@@ -382,7 +382,7 @@
         },
         "keyVaultResourceId": {
             "type": "string",
-            "value": "[if(parameters('kvParameters').enabled, reference('[concat(parameters('kvParameters').moduleName, '-', variables('formattedTime'))]').outputs.keyVaultResourceId.value,'')]"
+            "value": "[if(parameters('kvParameters').enabled, reference(concat(parameters('kvParameters').moduleName, '-', variables('formattedTime'))).outputs.keyVaultResourceId.value,'')]"
         }
     }
 }
