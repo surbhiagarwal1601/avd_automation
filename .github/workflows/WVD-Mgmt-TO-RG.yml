@@ -2,6 +2,10 @@ name: AVD Management deployment
 on:
   workflow_dispatch:
     inputs:
+      old_rgname: 
+        description: 'Resource Group Name to Cleanup (Delete)'
+        required: false
+        type: string
       rgname:
         description: 'Target Resource Group Name'
         required: true
@@ -25,10 +29,34 @@ on:
 jobs:
 ## Deploy Management resource Group Resources
   
+  Clean_Resources:
+    name: Clean up Resources
+    runs-on: ubuntu-latest
+    if:  ! github.event.inputs.old_rgname
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/WVD-Mgmt-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS_Y3QJT}}
+      - name: Remove Resources
+        id: task-remove-resources
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az group delete --name ${{github.event.inputs.old_rgname}} --yes
 
   Deploy_Mgmt:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
+    if: always()
+    needs: Clean_Resources
     # strategy:
     #   matrix: ${{ fromJson(needs.parser.outputs.matrix) }}
     #   fail-fast: false
