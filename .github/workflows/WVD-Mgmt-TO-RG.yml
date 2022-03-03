@@ -78,15 +78,14 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             # Clean up Storage Account
-            storage_account_id=$(az storage account list --query  "[].id" -o tsv | grep wvdmgmt)
+            storage_account_id=$(az storage account list --query  "[].id" -o tsv | grep ${{ env.avdStorageAccountName }})
             az storage account delete --ids $storage_account_id --yes
 
             # Clean up Automation Account
-            aa_account_name=mgmtautoacc
-            aa_account_id=$(az automation account list --query [].id  -o tsv | grep $aa_account_name)
+            aa_account_id=$(az automation account list --query [].id  -o tsv | grep ${{ env.automationAccountName }})
             aa_account_rg=$(echo $aa_account_id | cut -d '/' -f 5)
             az automation account delete --name $aa_account_name $aa_account_rg --yes
-            
+
       - name: Validate Module
         id: task-validate
         uses: azure/arm-deploy@v1
@@ -108,7 +107,7 @@ jobs:
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
           parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID_Y3QJT}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds="${{steps.task-get-sp-clientd-id.outputs.sp_client_id}}"
       
-      - name: Check Template Out Params
+      - name: Check Template Output Params
         run: |
           echo Template Output - socClientIds: ${{ steps.task-deploy.ouputs.socClientIds }}
           echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
