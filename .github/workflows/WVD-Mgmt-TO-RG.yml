@@ -31,7 +31,7 @@ jobs:
   Clean_Resources:
     name: Clean up Resources
     runs-on: ubuntu-latest
-    if:  "!${{ github.event.inputs.old_rgname }}"
+    if: github.event.inputs.old_rgname
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
