@@ -9,7 +9,7 @@ on:
       enablePostDeploymentWVDKeyVault:
         description: 'Invoke Key Vault Post Deployment'
         type: boolean
-        required: false 
+        required: true 
       old_rgname: 
         description: 'Delete Previous Resource Group Name (Cleanup)'
         required: false
