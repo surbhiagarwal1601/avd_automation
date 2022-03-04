@@ -67,7 +67,7 @@ jobs:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }}
-    needs: Clean_Resources
+    # needs: Clean_Resources
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -146,7 +146,7 @@ jobs:
   Invoke_WVDKeyVaultPostDeployment:
     name: Invoke Key Vault Post Deployment
     if: ${{ github.event.inputs.enablePostDeploymentWVDKeyVault == 'true' }}
-    needs: Deploy_Mgmt
+    # needs: Deploy_Mgmt
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -214,7 +214,7 @@ jobs:
 ## Invoke Automation Account Post Deployment
   Invoke_AutomationAccountPostDeployment:
     name: Invoke Automation Account Post Deployment
-    needs: Deploy_Mgmt
+    # needs: Deploy_Mgmt
     if: ${{ github.event.inputs.enablePostDeploymentAutomationAccount == 'true' }}
     runs-on: windows-latest
     env:
@@ -236,6 +236,20 @@ jobs:
         with:
           creds: ${{secrets.AZURE_CREDENTIALS}}
           enable-AzPSSession: true
+      - name: Get KeyVault Name
+        id: task-get-keyvault-name
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Getting KeyVault Name" -Verbose
+            
+            Write-Verbose "Calling Get-AzKeyVault -ResourceGroupName '${{ github.event.inputs.rgname }}'" -Verbose
+            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
+
+            Write-Verbose ("Key Vault Name is {0}" -f $KeyVault.VaultName) -Verbose
+
+            Write-Verbose "Setting environment variable KeyVaultName=$($KeyVault.VaultName) to $Env:GITHUB_ENV" -Verbose
+            echo "KeyVaultName=$($KeyVault.VaultName)" >> $Env:GITHUB_ENV
       - name: Trigger module AutomationAccount post-deployment
         uses: azure/powershell@v1
         with:
