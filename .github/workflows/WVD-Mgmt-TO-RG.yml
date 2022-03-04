@@ -166,12 +166,12 @@ jobs:
           enable-AzPSSession: true
       - name: Get KeyVault Name
         id: task-get-keyvault-name
-        uses: azure/powershell@v1
+        uses: azure/CLI@v1
         with:
+          azcliversion: 2.30.0
           inlineScript: |
-            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
-            Write-Output "::set-output name=keyvault_name::$($KeyVault.VaultName)"
-          azPSVersion: "latest"
+            key_vault_name=$(az keyvault list --resource-group ${{ github.event.inputs.rgname }} --query  "[].name" -o tsv )
+            echo ::set-output name=keyvault_name::$key_vault_name
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
         with:
