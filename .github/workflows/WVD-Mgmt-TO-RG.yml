@@ -176,6 +176,7 @@ jobs:
           azPSVersion: "latest"
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
+        needs: task-get-keyvault-name
         with:
           inlineScript: |
             Write-Verbose "Load function" -Verbose
