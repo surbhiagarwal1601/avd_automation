@@ -11,11 +11,15 @@ on:
         type: boolean
         required: true 
       enablePostDeploymentAutomationAccount:
-        description: 'Automation Accuont Post Deployment'
+        description: 'Automation Account Post Deployment'
+        type: boolean
+        required: true 
+      deletePreviousResourceGroup:
+        description: 'Delete Previous Resource Group'
         type: boolean
         required: true 
       old_rgname: 
-        description: 'Delete Previous Resource Group Name (Cleanup)'
+        description: 'Previous Resource Group Name'
         required: false
         type: string
       rgname:
@@ -63,7 +67,7 @@ jobs:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }}
-    needs: Clean_Resources
+    # needs: Clean_Resources
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
