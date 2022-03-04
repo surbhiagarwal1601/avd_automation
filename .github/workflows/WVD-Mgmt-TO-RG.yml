@@ -172,6 +172,9 @@ jobs:
           inlineScript: |
             key_vault_name=$(az keyvault list --resource-group ${{ github.event.inputs.rgname }} --query  "[].name" -o tsv )
             echo ::set-output name=keyvault_name::$key_vault_name
+      - name: Check Template Output Params
+        run: |
+          echo key_vault_name ${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
         with:
