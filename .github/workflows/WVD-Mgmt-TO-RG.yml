@@ -193,7 +193,7 @@ jobs:
           azPSVersion: "latest"
       - name: Check Template Output Params
         run: |
-          cat '${{ toJSON(github.env) }}'
+          cat ${{ github.env }}
           echo '${{ toJSON(steps.task-get-keyvault-name.outputs) }}'
           echo key_vault_name ${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}
       - name: Trigger module KeyVault post-deployment
