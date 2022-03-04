@@ -1,4 +1,4 @@
-name: AVD Management deployment
+name: Management RG Deployment
 on:
   workflow_dispatch:
     inputs:
