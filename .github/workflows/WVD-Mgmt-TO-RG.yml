@@ -170,7 +170,10 @@ jobs:
         with:
           azcliversion: 2.30.0
           inlineScript: |
+            az account subscription list
+            
             key_vault_name=$(az keyvault list --resource-group ${{ github.event.inputs.rgname }} --query  "[].name" -o tsv )
+            echo key_vault_name $key_vault_name
             echo ::set-output name=keyvault_name::$key_vault_name
       - name: Check Template Output Params
         run: |
