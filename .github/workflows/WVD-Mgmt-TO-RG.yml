@@ -42,7 +42,7 @@ jobs:
   Clean_Resources:
     name: Clean up Resources
     runs-on: ubuntu-latest
-    if: github.event.inputs.old_rgname
+    if: ${{ github.event.inputs.deletePreviousResourceGroup == 'true' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -185,7 +185,7 @@ jobs:
 
             $functionInput = @{
               orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
-              # VaultName                    = '${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}'
+              # VaultName                  = '${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}'
               VaultName                    = $Env:KeyVaultName
               domainJoin_userName          = '${{ env.domainJoinUserName }}'
               domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVD_JOIN_DOMAIN_USER_PWD }}' -AsPlainText -Force
@@ -217,6 +217,13 @@ jobs:
     needs: Deploy_Mgmt
     if: ${{ github.event.inputs.enablePostDeploymentAutomationAccount == 'true' }}
     runs-on: windows-latest
+    env:
+      ScalingRunbookName: ScalingRunbook
+      ScalingWebhookName: AVDAutoScaleWebhook
+      RunAsConnectionSPName: avdScalingRunAsPrincipal
+      RunAsSelfSignedCertSecretName: avdScalingRunAsPrincipalCert-Secret 
+      AutoAccountRunAsCertExpiryInMonths: 24
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -238,12 +245,12 @@ jobs:
 
             $functionInput = @{
               orchestrationFunctionsPath         = '${{ env.orchestrationFunctionsPath }}'
-              AutomationAccountName              = '${{ env.AutomationAccountName }}'
-              AutomationAccountRGName            = '${{ env.resourcegroupname }}'
+              AutomationAccountName              = '${{ env.automationAccountName }}'
+              AutomationAccountRGName            = '${{ github.event.inputs.rgname }}'
               ScalingRunbookName                 = '${{ env.ScalingRunbookName }}'
               WebhookName                        = '${{ env.ScalingWebhookName }}'
               RunAsConnectionSPName              = '${{ env.RunAsConnectionSPName }}'
-              KeyVaultName                       = '${{ env.keyVaultName }}'
+              KeyVaultName                       = '${{ env:KeyVaultName }}'
               RunAsSelfSignedCertSecretName      = '${{ env.RunAsSelfSignedCertSecretName }}'
               AutoAccountRunAsCertExpiryInMonths = '${{ env.AutoAccountRunAsCertExpiryInMonths }}'
               tempPath                           = '${{ runner.temp }}'

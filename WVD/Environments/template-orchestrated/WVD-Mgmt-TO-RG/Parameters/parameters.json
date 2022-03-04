@@ -98,8 +98,8 @@
       "value": {
         "enabled": true,
         "moduleName": "AutomationAccounts",
-          "moduleVersion": "1.0.0",
-        "automationAccountName": "mgmtautoacc"
+        "moduleVersion": "1.0.0",
+        "automationAccountName": "avd-scaling-autoaccount"
       }
     },
     // Recovery Services Vault
