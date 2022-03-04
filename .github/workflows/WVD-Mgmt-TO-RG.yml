@@ -194,26 +194,31 @@ jobs:
 
             Write-Verbose ("Key Vault Name is {0}" -f $KeyVault.VaultName) -Verbose
 
-            Write-Verbose ("Setting output to '::set-output name=keyvault_name::{0}'" -f $KeyVault.VaultName) -Verbose
-            Write-Output ("::set-output name=keyvault_name::{0}" -f $KeyVault.VaultName)
+            # # Set output via echo
+            # Write-Verbose ("Setting output to '::set-output name=keyvault_name::{0}'" -f $KeyVault.VaultName) -Verbose
+            # Write-Output ("::set-output name=keyvault_name::{0}" -f $KeyVault.VaultName)
             
-            # Write-Verbose "Setting environment to $Env:GITHUB_ENV" -Verbose
-            # echo $KeyVault.VaultName >> $Env:GITHUB_ENV
+            # Set Output via env
+            Write-Verbose "Setting environment to $Env:GITHUB_ENV" -Verbose
+            echo "KeyVaultName=$KeyVault.VaultName" >> $Env:GITHUB_ENV
 
             echo $KeyVault
-            echo '${{ toJSON(github.env) }}'
-            echo '${{ toJSON(job) }}'
-            echo '${{ toJSON(steps) }}'
-            echo GITHUB_ENV $Env:GITHUB_ENV
-            cat $Env:GITHUB_ENV
+            Write-Verbose ("github.env {0}" -f ${{ github.env }}) -Verbose
+            Write-Verbose ("toJSON(job) {0}" -f ${{ toJSON(job) }}) -Verbose
+            Write-Verbose ("toJSON(steps) {0}" -f ${{ toJSON(steps) }}) -Verbose
+            Write-Verbose ("GITHUB_ENV {0}" -f $Env:GITHUB_ENV) -Verbose
+            Write-Verbose "get-content $Env:GITHUB_ENV" -Verbose
+            get-content $Env:GITHUB_ENV
+
+            Write-Verbose "Done" -Verbose
             
           azPSVersion: "latest"
       - name: Check Template Output Params
         run: |
           echo '--------Start of the script--------'
-          cat ${{ github.env }}
-          echo '${{ toJSON(steps.task-get-keyvault-name.outputs) }}'
-          echo key_vault_name ${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}
+          echo GITHUB_ENV $GITHUB_ENV
+          echo env KeyVaultName $KeyVaultName
+          echo output key_vault_name ${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}
           echo '--------End of the script--------'
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
@@ -224,7 +229,7 @@ jobs:
 
             $functionInput = @{
               orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
-              VaultName                    = 'kvz7usdpdycchtc'
+              VaultName                    = '${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}'
               domainJoin_userName          = '${{ env.domainJoinUserName }}'
               domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVD_JOIN_DOMAIN_USER_PWD }}' -AsPlainText -Force
             }
