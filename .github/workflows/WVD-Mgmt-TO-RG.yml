@@ -169,8 +169,10 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
-            echo ::set-output name=keyvault_name::$($KeyVault.VaultName)
+            Get-AzContext
+            Get-AzSubscription
+            # $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
+            echo ::set-output name=keyvault_name::"kvz7usdpdycchtc"
           azPSVersion: "latest"
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
