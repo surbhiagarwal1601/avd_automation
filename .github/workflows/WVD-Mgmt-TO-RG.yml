@@ -196,7 +196,7 @@ jobs:
 
             $functionInput = @{
               orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
-              VaultName                    = '${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}'
+              VaultName                    = 'kvz7usdpdycchtc'
               domainJoin_userName          = '${{ env.domainJoinUserName }}'
               domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVD_JOIN_DOMAIN_USER_PWD }}' -AsPlainText -Force
             }
