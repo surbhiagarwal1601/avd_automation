@@ -204,8 +204,8 @@ jobs:
             echo '${{ toJSON(github.env) }}'
             echo '${{ toJSON(job) }}'
             echo '${{ toJSON(steps) }}'
-            echo GITHUB_ENV ${{ GITHUB_ENV }}
-            cat ${{ GITHUB_ENV }}
+            echo GITHUB_ENV $Env:GITHUB_ENV
+            cat $Env:GITHUB_ENV
             
           azPSVersion: "latest"
       - name: Check Template Output Params
