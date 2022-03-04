@@ -67,7 +67,7 @@ jobs:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }}
-    # needs: Clean_Resources
+    needs: Clean_Resources
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
