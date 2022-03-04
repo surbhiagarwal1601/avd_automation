@@ -250,6 +250,7 @@ jobs:
 
             Write-Verbose "Setting environment variable KeyVaultName=$($KeyVault.VaultName) to $Env:GITHUB_ENV" -Verbose
             echo "KeyVaultName=$($KeyVault.VaultName)" >> $Env:GITHUB_ENV
+          azPSVersion: "latest"
       - name: Trigger module AutomationAccount post-deployment
         uses: azure/powershell@v1
         with:
