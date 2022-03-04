@@ -197,8 +197,8 @@ jobs:
             Write-Verbose ("Setting output to '::set-output name=keyvault_name::{0}'" -f $KeyVault.VaultName) -Verbose
             Write-Output ("::set-output name=keyvault_name::{0}" -f $KeyVault.VaultName)
             
-            # Write-Verbose "Setting environment to ${{ GITHUB_ENV }}" -Verbose
-            # echo $KeyVault.VaultName >> $GITHUB_ENV
+            # Write-Verbose "Setting environment to $Env:GITHUB_ENV" -Verbose
+            # echo $KeyVault.VaultName >> $Env:GITHUB_ENV
 
             echo $KeyVault
             echo '${{ toJSON(github.env) }}'
