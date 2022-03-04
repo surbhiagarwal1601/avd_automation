@@ -200,13 +200,13 @@ jobs:
             
             # Set Output via env
             Write-Verbose "Setting environment to $Env:GITHUB_ENV" -Verbose
-            echo "KeyVaultName=$KeyVault.VaultName" >> $Env:GITHUB_ENV
+            echo "KeyVaultName=$($KeyVault.VaultName)" >> $Env:GITHUB_ENV
 
             echo $KeyVault
             Write-Verbose ("github.env {0}" -f '${{ github.env }}') -Verbose
             Write-Verbose ("toJSON(job) {0}" -f '${{ toJSON(job) }}') -Verbose
             Write-Verbose ("toJSON(steps) {0}" -f '${{ toJSON(steps) }}') -Verbose
-            Write-Verbose ("GITHUB_ENV {0}" -f '$Env:GITHUB_ENV') -Verbose
+            Write-Verbose ("GITHUB_ENV {0}" -f $Env:GITHUB_ENV) -Verbose
             Write-Verbose "get-content $Env:GITHUB_ENV" -Verbose
             get-content $Env:GITHUB_ENV
 
@@ -229,7 +229,8 @@ jobs:
 
             $functionInput = @{
               orchestrationFunctionsPath   = '${{ env.orchestrationFunctionsPath }}'
-              VaultName                    = '${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}'
+              # VaultName                    = '${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}'
+              VaultName                    = '$Env:KeyVaultName'
               domainJoin_userName          = '${{ env.domainJoinUserName }}'
               domainJoin_pwd               = ConvertTo-SecureString '${{ secrets.WVD_JOIN_DOMAIN_USER_PWD }}' -AsPlainText -Force
             }
