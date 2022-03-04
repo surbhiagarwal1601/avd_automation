@@ -179,10 +179,10 @@ jobs:
         id: task-get-keyvault-name
         uses: azure/powershell@v1
         with:
-          azcliversion: 2.30.0
           inlineScript: |
             $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
             # Write-Output "::set-output name=keyvault_name::$($KeyVault.VaultName)"
+            echo GITHUB_ENV $GITHUB_ENV
             echo $KeyVault.VaultName >> $GITHUB_ENV
           azPSVersion: "latest"
       - name: Check Template Output Params
