@@ -250,7 +250,7 @@ jobs:
               ScalingRunbookName                 = '${{ env.ScalingRunbookName }}'
               WebhookName                        = '${{ env.ScalingWebhookName }}'
               RunAsConnectionSPName              = '${{ env.RunAsConnectionSPName }}'
-              KeyVaultName                       = '${{ env:KeyVaultName }}'
+              KeyVaultName                       = $Env:KeyVaultName
               RunAsSelfSignedCertSecretName      = '${{ env.RunAsSelfSignedCertSecretName }}'
               AutoAccountRunAsCertExpiryInMonths = '${{ env.AutoAccountRunAsCertExpiryInMonths }}'
               tempPath                           = '${{ runner.temp }}'
