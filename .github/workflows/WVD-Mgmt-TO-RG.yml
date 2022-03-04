@@ -162,7 +162,7 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{secrets.AZURE_CREDENTIALS}}
+          creds: ${{secrets.AZURE_CREDENTIALS_Y3QJT}}
           enable-AzPSSession: true
       - name: Get KeyVault Name
         id: task-get-keyvault-name
@@ -172,7 +172,7 @@ jobs:
             Get-AzContext
             Get-AzSubscription
             # $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
-            echo ::set-output name=keyvault_name::"kvz7usdpdycchtc"
+            Write-Output ::set-output name=keyvault_name::"kvz7usdpdycchtc"
           azPSVersion: "latest"
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
