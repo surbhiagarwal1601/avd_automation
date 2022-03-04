@@ -180,22 +180,41 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
+            Write-Verbose "Getting KeyVault Name" -Verbose
+            
+            $functionInput = @{
+              ResourceGroupName   = '${{ github.event.inputs.rgname }}'
+            }
+
+            Write-Verbose "Calling Get-AzKeyVault with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+
             $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
-            # Write-Output "::set-output name=keyvault_name::$($KeyVault.VaultName)"
-            echo $KeyVault.VaultName >> $GITHUB_ENV
+
+            Write-Verbose ("Key Vault Name is {0}" -f $KeyVault.VaultName) -Verbose
+
+            Write-Verbose ("Setting output to '::set-output name=keyvault_name::{0}'" -f $KeyVault.VaultName) -Verbose
+            Write-Output ("::set-output name=keyvault_name::{0}" -f $KeyVault.VaultName)
+            
+            # Write-Verbose "Setting environment to ${{ GITHUB_ENV }}" -Verbose
+            # echo $KeyVault.VaultName >> $GITHUB_ENV
 
             echo $KeyVault
             echo '${{ toJSON(github.env) }}'
             echo '${{ toJSON(job) }}'
             echo '${{ toJSON(steps) }}'
-            echo GITHUB_ENV $GITHUB_ENV
+            echo GITHUB_ENV ${{ GITHUB_ENV }}
+            cat ${{ GITHUB_ENV }}
             
           azPSVersion: "latest"
       - name: Check Template Output Params
         run: |
+          echo '--------Start of the script--------'
           cat ${{ github.env }}
           echo '${{ toJSON(steps.task-get-keyvault-name.outputs) }}'
           echo key_vault_name ${{ steps.task-get-keyvault-name.ouputs.key_vault_name }}
+          echo '--------End of the script--------'
       - name: Trigger module KeyVault post-deployment
         uses: azure/powershell@v1
         with:
