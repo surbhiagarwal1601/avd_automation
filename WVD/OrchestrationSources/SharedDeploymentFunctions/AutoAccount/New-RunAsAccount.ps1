@@ -32,7 +32,6 @@ function New-RunAsAccount {
         . "$PSScriptRoot/New-CustomSelfSignedCertificate.ps1"
         . "$PSScriptRoot/New-AutomationCertificateAsset.ps1"
         . "$PSScriptRoot/New-AutomationConnectionAsset.ps1"
-        . "$PSScriptRoot/Get-PasswordCredential.ps1"
     }
 
     process {
@@ -50,8 +49,8 @@ function New-RunAsAccount {
         $SelfSignedCertSecret = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SelfSignedCertSecretName -ErrorAction 'SilentlyContinue'
         if (-not $SelfSignedCertSecret) {
             Write-Verbose ("No cert secret '{0}' found in key vault '{1}'. Generating new." -f $SelfSignedCertSecretName, $KeyVaultName) -Verbose
-            $generatedCredential = Get-PasswordCredential
-            $selfSignedCertPlainPassword = $generatedCredential.Password
+            $generatedPassword = ([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((New-Guid)))) + "="
+            $selfSignedCertPlainPassword = $generatedPassword
             $selfSignedCertPassword = ConvertTo-SecureString $selfSignedCertPlainPassword -AsPlainText -Force
             Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name $SelfSignedCertSecretName -SecretValue $selfSignedCertPassword
         }
