@@ -67,7 +67,7 @@ jobs:
     name: Deploy Management Resources
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }}
-    # needs: Clean_Resources
+    needs: Clean_Resources
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -146,7 +146,7 @@ jobs:
   Invoke_WVDKeyVaultPostDeployment:
     name: Invoke Key Vault Post Deployment
     if: ${{ github.event.inputs.enablePostDeploymentWVDKeyVault == 'true' }}
-    # needs: Deploy_Mgmt
+    needs: Deploy_Mgmt
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -214,7 +214,7 @@ jobs:
 ## Invoke Automation Account Post Deployment
   Invoke_AutomationAccountPostDeployment:
     name: Invoke Automation Account Post Deployment
-    # needs: Deploy_Mgmt
+    needs: Invoke_WVDKeyVaultPostDeployment
     if: ${{ github.event.inputs.enablePostDeploymentAutomationAccount == 'true' }}
     runs-on: windows-latest
     env:
