@@ -31,6 +31,7 @@ function New-ConnectionServicePrincipal {
             Write-Verbose 'Create an Azure AD application' -Verbose
             # $Application = New-AzADApplication -DisplayName $ApplicationDisplayName -HomePage ("http://" + $applicationDisplayName) -IdentifierUris ("http://" + $keyId) 
             $Application = New-AzADApplication -DisplayName $ApplicationDisplayName -HomePage ("http://" + $tenantName + ".onmicrosoft.com/" + $applicationDisplayName) -IdentifierUris ("http://" + $tenantName + ".onmicrosoft.com/" + $applicationDisplayName) 
+            Write-Verbose $Application -Verbose
 
             Write-Verbose 'Set app credential' -Verbose
             $null = New-AzADAppCredential -ApplicationId $Application.ApplicationId -CertValue $keyValue -StartDate $PfxCert.NotBefore -EndDate $PfxCert.NotAfter
