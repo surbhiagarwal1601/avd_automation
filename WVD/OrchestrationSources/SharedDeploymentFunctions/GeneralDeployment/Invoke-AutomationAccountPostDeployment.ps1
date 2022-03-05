@@ -85,6 +85,9 @@ function Invoke-AutomationAccountPostDeployment {
         [Parameter(Mandatory)]
         [string] $tempPath,
 
+        [Parameter(Mandatory)]
+        [string] $tenantName,        
+
         [Parameter(Mandatory = $false)]
         [string] $LAWorkspaceName = ""
     )
@@ -139,6 +142,7 @@ function Invoke-AutomationAccountPostDeployment {
                 SelfSignedCertSecretName           = $RunAsSelfSignedCertSecretName
                 AutoAccountRunAsCertExpiryInMonths = $AutoAccountRunAsCertExpiryInMonths
                 tempPath                           = $tempPath
+                tenantName                         = $tenantName
             }
             New-RunAsAccount @runAsInputObject -Verbose
         }

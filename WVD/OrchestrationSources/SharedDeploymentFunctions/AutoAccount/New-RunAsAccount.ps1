@@ -23,7 +23,11 @@ function New-RunAsAccount {
         [int] $AutoAccountRunAsCertExpiryInMonths = 12,
 
         [Parameter(Mandatory)]
-        [string] $tempPath
+        [string] $tempPath,
+
+        [Parameter(Mandatory)]
+        [string] $tenantName
+        
     )
 
     begin {
@@ -72,7 +76,7 @@ function New-RunAsAccount {
         Write-Verbose "===============================" -Verbose
         Write-Verbose "== HANDLE SERVICE PRINCIPAL  ==" -Verbose
         $PfxCert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList @($PfxCertPathForRunAsAccount, $selfSignedCertPlainPassword)
-        $ApplicationId = New-ConnectionServicePrincipal -PfxCert $PfxCert -applicationDisplayName $ApplicationDisplayName
+        $ApplicationId = New-ConnectionServicePrincipal -PfxCert $PfxCert -tenantName $tenantName -applicationDisplayName $ApplicationDisplayName
 
         Write-Verbose "==================================" -Verbose
         Write-Verbose "== RENEW AUTOMATION CERTIFICATE ==" -Verbose

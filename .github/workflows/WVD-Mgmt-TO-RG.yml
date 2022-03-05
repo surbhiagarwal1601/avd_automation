@@ -223,6 +223,7 @@ jobs:
       RunAsConnectionSPName: avdScalingRunAsPrincipal
       RunAsSelfSignedCertSecretName: avdScalingRunAsPrincipalCert-Secret 
       AutoAccountRunAsCertExpiryInMonths: 24
+      TenantName: y3qjt
 
     steps:
       - name: Checkout repository
@@ -269,6 +270,7 @@ jobs:
               RunAsSelfSignedCertSecretName      = '${{ env.RunAsSelfSignedCertSecretName }}'
               AutoAccountRunAsCertExpiryInMonths = '${{ env.AutoAccountRunAsCertExpiryInMonths }}'
               tempPath                           = '${{ runner.temp }}'
+              tenantName                           = '${{ env.TenantName }}'
               # LAWorkspaceName                    = '${{ env.LAWorkspaceName }}'
             }
 

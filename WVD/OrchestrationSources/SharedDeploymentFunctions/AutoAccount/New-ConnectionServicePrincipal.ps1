@@ -7,6 +7,9 @@ function New-ConnectionServicePrincipal {
         [Parameter(Mandatory)]
         [string] $applicationDisplayName,
 
+        [Parameter(Mandatory)]
+        [string] $tenantName,
+
         [Parameter(Mandatory = $false)]
         [string] $subscriptionId = (Get-AzContext).Subscription.Id
     )
@@ -24,9 +27,10 @@ function New-ConnectionServicePrincipal {
             Write-Verbose ("Service principal '{0}' not existing. Creating new." -f $applicationDisplayName) -Verbose
 
             $keyId = (New-Guid).Guid
-
+            
             Write-Verbose 'Create an Azure AD application' -Verbose
-            $Application = New-AzADApplication -DisplayName $ApplicationDisplayName -HomePage ("http://" + $applicationDisplayName) -IdentifierUris ("http://" + $keyId) 
+            # $Application = New-AzADApplication -DisplayName $ApplicationDisplayName -HomePage ("http://" + $applicationDisplayName) -IdentifierUris ("http://" + $keyId) 
+            $Application = New-AzADApplication -DisplayName $ApplicationDisplayName -HomePage ("http://" + $tenantName + ".onmicrosoft.com/" + $applicationDisplayName) -IdentifierUris ("http://" + $tenantName + ".onmicrosoft.com/" + $applicationDisplayName) 
 
             Write-Verbose 'Set app credential' -Verbose
             $null = New-AzADAppCredential -ApplicationId $Application.ApplicationId -CertValue $keyValue -StartDate $PfxCert.NotBefore -EndDate $PfxCert.NotAfter
