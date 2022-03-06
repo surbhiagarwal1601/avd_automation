@@ -60,7 +60,14 @@ jobs:
         with:
           azcliversion: 2.30.0
           inlineScript: |
+            # Remove Management Resource Group
             az group delete --name ${{github.event.inputs.old_rgname}} --yes
+            
+            # Remove app id
+            run_as_connection_sp_name=${{ env.RunAsConnectionSPName }}
+            run_as_connection_app_id=$(az ad app list --filter "displayName eq '$run_as_connection_sp_name'" --query "[].appId" -o tsv)
+            az ad app delete --id run_as_connection_app_id
+
   
   ## Deploy Management resource Group Resources
   Deploy_Mgmt:
@@ -220,7 +227,7 @@ jobs:
     env:
       ScalingRunbookName: ScalingRunbook
       ScalingWebhookName: AVDAutoScaleWebhook
-      RunAsConnectionSPName: avdScalingRunAsPrincipal
+      # RunAsConnectionSPName: avdScalingRunAsPrincipal
       RunAsSelfSignedCertSecretName: avdScalingRunAsPrincipalCert-Secret 
       AutoAccountRunAsCertExpiryInMonths: 24
       TenantName: y3qjt
