@@ -61,7 +61,14 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             # Remove Management Resource Group
-            az group delete --name ${{github.event.inputs.old_rgname}} --yes
+            {
+              echo Deleting resource group ${{github.event.inputs.old_rgname}}
+              az group delete --name ${{github.event.inputs.old_rgname}} --yes &&
+              echo Done Deleting resource group ${{github.event.inputs.old_rgname}}
+              
+            } || {
+              echo Failed Deleting resource group ${{github.event.inputs.old_rgname}}
+            }
             
             # Remove app id
             run_as_connection_sp_name=${{ env.RunAsConnectionSPName }}
