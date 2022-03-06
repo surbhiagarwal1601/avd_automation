@@ -76,7 +76,7 @@ function New-RunAsAccount {
         Write-Verbose "===============================" -Verbose
         Write-Verbose "== HANDLE SERVICE PRINCIPAL  ==" -Verbose
         $PfxCert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList @($PfxCertPathForRunAsAccount, $selfSignedCertPlainPassword)
-        $ApplicationId = New-ConnectionServicePrincipal -PfxCert $PfxCert -tenantName $tenantName -applicationDisplayName $ApplicationDisplayName
+        $SpObjectId = New-ConnectionServicePrincipal -PfxCert $PfxCert -tenantName $tenantName -applicationDisplayName $ApplicationDisplayName
 
         Write-Verbose "==================================" -Verbose
         Write-Verbose "== RENEW AUTOMATION CERTIFICATE ==" -Verbose
@@ -98,7 +98,7 @@ function New-RunAsAccount {
         $ctx = Get-AzContext  
 
         $ConnectionFieldValues = @{
-            ApplicationId         = $ApplicationId
+            ApplicationId         = $SpObjectId
             TenantId              = $ctx.Tenant.Id
             CertificateThumbprint = $PfxCert.Thumbprint
             SubscriptionId        = $ctx.Subscription.Id 
