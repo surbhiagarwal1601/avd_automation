@@ -70,10 +70,15 @@ jobs:
               echo Failed Deleting resource group ${{github.event.inputs.old_rgname}}
             }
             
-            # Remove app id
-            run_as_connection_sp_name=${{ env.RunAsConnectionSPName }}
-            run_as_connection_app_id=$(az ad app list --filter "displayName eq '$run_as_connection_sp_name'" --query "[].appId" -o tsv)
-            az ad app delete --id $run_as_connection_app_id
+            # Remove app id    
+            {        
+              run_as_connection_sp_name=${{ env.RunAsConnectionSPName }}
+              echo Removing app $run_as_connection_sp_name
+              run_as_connection_app_id=$(az ad app list --filter "displayName eq '$run_as_connection_sp_name'" --query "[].appId" -o tsv)
+              az ad app delete --id $run_as_connection_app_id
+              } || {
+              echo Failed Deleting app $run_as_connection_sp_name
+            }
 
   
   ## Deploy Management resource Group Resources
