@@ -1,0 +1,68 @@
+name: Automation Account Post Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      enableDeploymentMasterARMTemplate:
+        description: 'Deploy Master Template'
+        type: boolean
+        required: false 
+jobs:
+
+  CreateRunAsAccount:
+    name: Create Run As Account
+    runs-on: windows-latest
+    env:
+      KeyVaultName: 
+      AutomationAppName: AvdAutomationScaling
+      TenantName: y3qjt
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Create Azure AD Application
+        id: task-create-azadapp
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Create Azure AD Application" -Verbose
+
+            # Provide these values for your new Azure AD app:
+            # $appName is the display name for your app, must be unique in your directory
+            # $uri does not need to be a real URI
+            # $secret is a password you create
+            $KeyVaultName = ${{ env.KeyVaultName }}
+            
+            $TenantName = ${{ env.TenantName }}
+            $AutomationAccountName = '${{ env.AutomationAppName }}' + $(get-date -format "yyyyMMddhhmm")
+            $AutomationAccountSecretName =  "{0}-Secret" -f $AutomationAppName
+
+            $app_uri = $("http://{0}.onmicrosoft.com/{1}" -f $TenantName, $AutomationAccountName )
+
+            $AutomationAccountSecret = Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $AutomationAccountSecretName
+
+            if (-not $AutomationAccountSecret) {
+              $AutomationAccountSecret = ([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((New-Guid)))) + "="
+              Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name $AutomationAccountSecretName -SecretValue $AutomationAccountSecret
+            }
+            
+            # Create the Azure AD app
+            $azureAdApplication = New-AzureRmADApplication -DisplayName $AutomationAccountName -HomePage $app_uri -IdentifierUris $app_uri -Password $automationAccountSecret
+
+            New-AzADApplication -SigninAudience AzureADandPersonalMicrosoftAccount
+            
+            Write-Verbose "Calling Get-AzKeyVault -ResourceGroupName '${{ github.event.inputs.rgname }}'" -Verbose
+            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
+
+            Write-Verbose ("Key Vault Name is {0}" -f $KeyVault.VaultName) -Verbose
+
+            Write-Verbose "Setting environment variable KeyVaultName=$($KeyVault.VaultName) to $Env:GITHUB_ENV" -Verbose
+            echo "KeyVaultName=$($KeyVault.VaultName)" >> $Env:GITHUB_ENV
+          azPSVersion: "latest"

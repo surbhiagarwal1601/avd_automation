@@ -24,7 +24,7 @@
 $AutomationAccountName='avd-scaling-autoaccount'
 $tenantName = "y3qjt"
 #  The string value for the host or the api path segment.
-$applicationDisplayName = 'avdScalingRunAsPrincipal4'
+$applicationDisplayName = 'avdScalingRunAsPrincipal'
 $CertifcateAssetName = "AzureRunAsCertificate"
 $SelfSignedCertSecretName='avdScalingRunAsPrincipal-Secret'
 $tempPath="C:/tmp/"
