@@ -130,22 +130,22 @@ function Invoke-AutomationAccountPostDeployment {
         }
         Write-Verbose "Automation account configured" -Verbose
 
-        Write-Verbose "##############################" -Verbose
-        Write-Verbose "## 3 - HANDLE RUNAS ACCOUNT ##" -Verbose
-        Write-Verbose "##############################" -Verbose
-        if ($PSCmdlet.ShouldProcess("RunAs account up", "Set")) {
-            $runAsInputObject = @{
-                AutomationAccountName              = $AutomationAccountName
-                AutomationAccountRGName            = $AutomationAccountRGName
-                ApplicationDisplayName             = $RunAsConnectionSPName
-                KeyVaultName                       = $KeyVaultName
-                SelfSignedCertSecretName           = $RunAsSelfSignedCertSecretName
-                AutoAccountRunAsCertExpiryInMonths = $AutoAccountRunAsCertExpiryInMonths
-                tempPath                           = $tempPath
-                tenantName                         = $tenantName
-            }
-            New-RunAsAccount @runAsInputObject -Verbose
-        }
+        # Write-Verbose "##############################" -Verbose
+        # Write-Verbose "## 3 - HANDLE RUNAS ACCOUNT ##" -Verbose
+        # Write-Verbose "##############################" -Verbose
+        # if ($PSCmdlet.ShouldProcess("RunAs account up", "Set")) {
+        #     $runAsInputObject = @{
+        #         AutomationAccountName              = $AutomationAccountName
+        #         AutomationAccountRGName            = $AutomationAccountRGName
+        #         ApplicationDisplayName             = $RunAsConnectionSPName
+        #         KeyVaultName                       = $KeyVaultName
+        #         SelfSignedCertSecretName           = $RunAsSelfSignedCertSecretName
+        #         AutoAccountRunAsCertExpiryInMonths = $AutoAccountRunAsCertExpiryInMonths
+        #         tempPath                           = $tempPath
+        #         tenantName                         = $tenantName
+        #     }
+        #     New-RunAsAccount @runAsInputObject -Verbose
+        # }
     }
     
     end {
