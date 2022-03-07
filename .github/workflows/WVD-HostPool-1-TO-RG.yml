@@ -29,7 +29,7 @@ on:
       rgname:
         description: 'Target Resource Group Name'
         required: true
-        default: 'myAvdWorkFlowCall'
+        default: 'myAvdHostPool'
         type: string
       environment:
         description: 'Environment to deploy to'
@@ -43,7 +43,7 @@ on:
 
 jobs:
   Update_AssetsStorageAccount:
-    Name: Update Assets Storage Account
+    name: Update Assets Storage Account
     if: ${{ github.event.inputs.enableJobUpdateAssetsStorageAccount == 'true' }}
     runs-on: windows-latest
     steps:
