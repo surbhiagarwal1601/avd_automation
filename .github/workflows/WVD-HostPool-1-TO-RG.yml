@@ -1,0 +1,82 @@
+name: AVD Host Pool 01 Resource Group Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      enableJobUpdateAssetsStorageAccount:
+        description: 'Update Assets Storage Account'
+        type: boolean
+        required: false 
+      enableJobSyncSessionHostVMs:
+        description: 'Sync Session Host States'
+        type: boolean
+        required: true 
+      enableDeploymentMasterARMTemplate:
+        description: 'Deploy Resources'
+        type: boolean
+        required: true 
+      enableRestartVMsAfterExtensionsDeployment:
+        description: 'Restart VMs after Extension Deployment'
+        type: boolean
+        required: true 
+      enableJobSessionHostImageLifecycle:
+        description: 'Run Session Host Image Lifecycle'
+        type: boolean
+        required: true
+      old_rgname: 
+        description: 'Previous Resource Group Name'
+        required: false
+        type: string
+      rgname:
+        description: 'Target Resource Group Name'
+        required: true
+        default: 'myAvdWorkFlowCall'
+        type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'sbx' 
+        type: choice
+        options:
+        - sbx
+        - test
+        - prod 
+
+jobs:
+  Update_AssetsStorageAccount:
+    Name: Update Assets Storage Account
+    if: ${{ github.event.inputs.enableJobUpdateAssetsStorageAccount == 'true' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/WVD-HostPool-1-TO-RG.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Upload latest configuration files to assets storage account
+        id: task-post-deploy-storage-accounts
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/Storage/Update-AssetsStorageAccount.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
+              wvdUploadsPath             = '${{ env.wvdUploadsPath }}'
+              resourceGroupPath          = '${{ env.rgFolderPath }}'
+              storageContainerMapPath    = '${{ env.rgFolderPath }}/${{ env.storageContainerMapPath }}'
+              hostPoolName               = '${{ env.HostPoolName }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Update-AssetsStorageAccount @functionInput -Verbose
+          errorActionPreference: stop
+          azPSVersion: "latest"
