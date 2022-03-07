@@ -1,0 +1,32 @@
+name: Grant User Keyvault Permission
+on:
+  workflow_dispatch:
+    inputs:
+      user-object-id:
+        description: 'User ObjectId'
+        type: string
+        required: true 
+      resource-group-name:
+        description: 'Resource Group Name'
+        type: string
+        required: true 
+
+jobs:
+  set-permission:
+    name: Set Key Vault Permission
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: Set Permissions
+        id: task-remove-resources
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            key_vault_name=$(az keyvault list --resource-group ${{github.event.inputs.resource-group-name}} --query "[].name" -o tsv)
+            az keyvault set-policy --name $key_vault_name --object-id ${{github.event.inputs.user-object-id}} --secret-permissions all --key-permissions all --certificate-permissions all
+
+
