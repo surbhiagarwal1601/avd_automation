@@ -34,12 +34,12 @@ function New-ConnectionServicePrincipal {
             Write-Verbose $Application -Verbose
 
             Write-Verbose 'Set app credential' -Verbose
-            $null = New-AzADAppCredential -ObjectId  $Application.objectId -CertValue $keyValue -StartDate $PfxCert.NotBefore -EndDate $PfxCert.NotAfter
+            $null = New-AzADAppCredential -ObjectId  $Application.id -CertValue $keyValue -StartDate $PfxCert.NotBefore -EndDate $PfxCert.NotAfter
         
             Write-Verbose 'Create SP' -Verbose
-            $null = New-AzADServicePrincipal -ObjectId  $Application.objectId # -Scope "/subscriptions/$subscriptionId" -Role 'Contributor'
+            $null = New-AzADServicePrincipal -ObjectId  $Application.id # -Scope "/subscriptions/$subscriptionId" -Role 'Contributor'
 
-            $serviceprincipal = Get-AzADServicePrincipal -ObjectId $Application.objectId
+            $serviceprincipal = Get-AzADServicePrincipal -ObjectId $Application.id
         }
         else {
             Write-Verbose ("Service principal '{0}' already existing. Updating certifiate." -f $applicationDisplayName) -Verbose
@@ -48,7 +48,7 @@ function New-ConnectionServicePrincipal {
             $null = Remove-AzADAppCredential -ObjectId $servicePrincipal.ObjectId -Force
             $null = New-AzADAppCredential -ObjectId $servicePrincipal.ObjectId -CertValue $keyValue -StartDate $PfxCert.NotBefore -EndDate $PfxCert.NotAfter
         }
-        return $servicePrincipal.ObjectId
+        return $servicePrincipal.id
     }
 
     end {
