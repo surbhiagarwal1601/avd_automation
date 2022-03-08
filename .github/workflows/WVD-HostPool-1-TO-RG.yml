@@ -69,8 +69,8 @@ jobs:
             $functionInput = @{
               orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
               wvdUploadsPath             = '${{ env.wvdUploadsPath }}'
-              resourceGroupPath          = '${{ env.rgFolderPath }}'
-              storageContainerMapPath    = '${{ env.rgFolderPath }}/${{ env.storageContainerMapPath }}'
+              resourceGroupPath          = '${{ env.orchestrationPath }}/${{ env.rgFolder }}'
+              storageContainerMapPath    = '${{ env.orchestrationPath }}/${{ env.rgFolder }}/${{ env.storageContainerMapPath }}'
               hostPoolName               = '${{ env.HostPoolName }}'
             }
 
