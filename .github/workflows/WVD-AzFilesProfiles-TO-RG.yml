@@ -1,0 +1,28 @@
+name: AVD Profile StorageAccount deployment
+on:
+  # push:
+  #   # branches-ignore:
+  #   branches:
+  #     - avd-dev
+  workflow_dispatch:
+
+env:
+  # orchestrationPath: ${{ github.workspace }}/Workloads/WVD/Environments/template-orchestrated
+  # orchestrationFunctionsPath: ${{ github.workspace }}/Workloads/WVD/OrchestrationSources/SharedDeploymentFunctions
+  # wvdUploadsPath: ${{ github.workspace }}/Workloads/WVD/OrchestrationSources/Uploads
+  varFilePath: ./.github/variables/WVD-AzFilesProfiles-TO-RG.env
+
+jobs:
+## Get identityApproach
+  Get_identityApproach:
+    name: Get identityApproach
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Set Environment Variables
+      uses: ./.github/actions/setvars
+      with:
+        varFilePath: ${{ env.varFilePath }}
+    outputs:
+      identityApproach: ${{ env.identityApproach }}
