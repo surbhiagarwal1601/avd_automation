@@ -26,10 +26,10 @@ on:
         description: 'Previous Resource Group Name'
         required: false
         type: string
-      rgname:
+      resourceGroupName:
         description: 'Target Resource Group Name'
         required: true
-        default: 'myAvdHostPool'
+        default: 'AVD-HostPool-01-TO-RG'
         type: string
       environment:
         description: 'Environment to deploy to'
@@ -40,6 +40,43 @@ on:
         - sbx
         - test
         - prod 
+env:
+  ## GENERAL ##
+  rgFolder: WVD-HostPool-01-TO-RG  
+  storageContainerMapPath: Parameters/Uploads/assets.config.json
+  location: westus2
+
+  # ResourceGroup related
+  # resourceGroupName: AVD-HostPool-RG - From User Input
+
+  # Host Pool related
+  HostPoolName: avd-hp
+
+  # Imaging
+  ## Custom Image
+  # If a custom image reference is provided, it is picked up instead of any provided marketplace image information. If not used, should be set to '' (empty)
+  # Is used for the host-pool image update process (if enabled)
+  customImageReferenceId: ''
+
+  ## Marketplace Image
+  # Is used for the host-pool image update process (if enabled)
+  publisher: MicrosoftWindowsServer
+  offer: WindowsServer
+  sku: 2016-Datacenter
+  version: latest
+  imagelocation: '' # Required if not using the 'customImageReferenceId' and 'version' equals 'latest'
+
+  # Image Lifecycle related
+  # -----------------------
+  DeleteVMDeadline: '' # In 'yyyyMMddHHmm'. The deadline after which outdated VMs are delete
+  LogoffDeadline: '' # In 'yyyyMMddHHmm'. The deadline after which users are log-off by force
+  LogOffMessageTitle: '' # PopUp title shown to users if they are warned of an upcoming imminent log-off
+  LogOffMessageBody: 'Forcing Log off to update os.' # PopUp text shown to users if they are warned of an upcoming imminent log-off
+  UtcOffset: -13 #<ReplaceWith-UtcOffset> # Time difference to UTC. Enabled handling of different time zones.
+  LAWorkspaceName: '' # Name of an OMS workspace to send host-pool image update process logs to
+  stateStorageAccountName: avdtoassetsstore #<ReplaceWith-StateStorageAccountName>
+  stateTableName: avdtohp # <ReplaceWith-StateTableName>
+  
 
 jobs:
   Update_AssetsStorageAccount:
@@ -52,7 +89,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          source: ./.github/variables/WVD-HostPool-1-TO-RG.env
+          source: ./.github/variables/globals.env
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -78,5 +115,499 @@ jobs:
             $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
 
             Update-AssetsStorageAccount @functionInput -Verbose
+          errorActionPreference: stop
+          azPSVersion: "latest"
+  
+  Debug_Update_AssetsStorageAccount_Output:
+    runs-on: ubuntu-latest
+    needs: Update_AssetsStorageAccount
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+          echo Update_AssetsStorageAccount ${{ github.event.inputs.Update_AssetsStorageAccount }}
+          echo Update_AssetsStorageAccount is true ${{ github.event.inputs.Update_AssetsStorageAccount == 'true' }} 
+
+          echo Update_AssetsStorageAccount results ${{ needs.Update_AssetsStorageAccount.result }}    
+          echo Update_AssetsStorageAccount contains success ${{ contains(needs.Update_AssetsStorageAccount.result, 'success')}}
+          echo Update_AssetsStorageAccount contains skipped ${{ contains(needs.Update_AssetsStorageAccount.result, 'skipped')}}
+          echo Update_AssetsStorageAccount contains failure ${{ contains(needs.Update_AssetsStorageAccount.result, 'failure')}}
+  
+  
+  Sync_HostPoolVMs:
+    name: Sync Session Host VMs
+    if: ${{ github.event.inputs.enableJobSyncSessionHostVMs == 'true' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Install Az Table
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            if(-not (Get-Module AzTable -ListAvailable)) {
+                Write-Verbose "Installing module 'AzTable'" -Verbose
+                Install-Module AzTable -Repository PSGallery -Force -Scope CurrentUser
+            } else {
+                Write-Verbose "Module 'AzTable' already installed" -Verbose
+            }
+          azPSVersion: "latest"
+      - name: Sync Session Host VMs
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/Storage/Sync-SessionHostEntry.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
+              hostPoolResourceGroupName  = '${{ github.event.inputs.resourceGroupName }}'
+            }
+
+            if(-not ([String]::IsNullOrEmpty('${{ env.stateStorageAccountName }}'))) { $functionInput['stateStorageAccountName'] = '${{ env.stateStorageAccountName }}' }
+            if(-not ([String]::IsNullOrEmpty('${{ env.stateTableName }}'))) { $functionInput['stateTableName'] = '${{ env.stateTableName }}' }
+
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Sync-SessionHostEntry @functionInput -Verbose
+          errorActionPreference: stop
+          azPSVersion: "latest"
+  
+
+  Debug_Sync_HostPoolVMs_Output:
+    runs-on: ubuntu-latest
+    needs: Sync_HostPoolVMs
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+          echo enableJobSyncSessionHostVMs ${{ github.event.inputs.enableJobSyncSessionHostVMs }}
+          echo enableJobSyncSessionHostVMs is true ${{ github.event.inputs.enableJobSyncSessionHostVMs == 'true' }} 
+
+          echo Sync_HostPoolVMs results ${{ needs.Sync_HostPoolVMs.result }}    
+          echo Sync_HostPoolVMs contains success ${{ contains(needs.Sync_HostPoolVMs.result, 'success')}}
+          echo Sync_HostPoolVMs contains skipped ${{ contains(needs.Sync_HostPoolVMs.result, 'skipped')}}
+          echo Sync_HostPoolVMs contains failure ${{ contains(needs.Sync_HostPoolVMs.result, 'failure')}}
+  
+  Deploy_HostPool:
+    name: Host Pool
+    needs: [Update_AssetsStorageAccount, Sync_HostPoolVMs]
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enableDeploymentMasterARMTemplate == 'true')
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableWvdResources
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+      purgeRgDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+  
+  Debug_Deploy_HostPool_Output:
+    runs-on: ubuntu-latest
+    needs: Deploy_HostPool
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+          echo enableDeploymentMasterARMTemplate ${{ github.event.inputs.enableDeploymentMasterARMTemplate }}
+          echo enableDeploymentMasterARMTemplate is true ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }} 
+
+          echo Deploy_HostPool results ${{ needs.Deploy_HostPool.result }}    
+          echo Deploy_HostPool contains success ${{ contains(needs.Deploy_HostPool.result, 'success')}}
+          echo Deploy_HostPool contains skipped ${{ contains(needs.Deploy_HostPool.result, 'skipped')}}
+          echo Deploy_HostPool contains failure ${{ contains(needs.Deploy_HostPool.result, 'failure')}}
+  
+  Deploy_VirtualMachines:
+    name: Virtual Machines (Session Hosts)
+    needs: Deploy_HostPool
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enableDeploymentMasterARMTemplate == 'true') &&
+      success('Deploy_HostPool')
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableVmResources
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+  
+  Debug_Deploy_VirtualMachines:
+    runs-on: ubuntu-latest
+    needs: Deploy_VirtualMachines
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+
+          echo enableDeploymentMasterARMTemplate ${{ github.event.inputs.enableDeploymentMasterARMTemplate }}
+          echo enableDeploymentMasterARMTemplate is true ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }} 
+          
+          echo Update_AssetsStorageAccount results ${{ needs.Update_AssetsStorageAccount.result }}
+          echo Update_AssetsStorageAccount contains success ${{ contains(needs.Update_AssetsStorageAccount.result, 'success') }}
+          echo Update_AssetsStorageAccount contains skipped ${{ contains(needs.Update_AssetsStorageAccount.result, 'skipped') }}
+          echo Update_AssetsStorageAccount contains failure ${{ contains(needs.Update_AssetsStorageAccount.result, 'failure') }}
+          echo Update_AssetsStorageAccount contains cancelled ${{ contains(needs.Update_AssetsStorageAccount.result, 'cancelled') }}
+
+          echo Sync_HostPoolVMs results ${{ needs.Sync_HostPoolVMs.result }}    
+          echo Sync_HostPoolVMs contains success ${{ contains(needs.Sync_HostPoolVMs.result, 'success')}}
+          echo Sync_HostPoolVMs contains skipped ${{ contains(needs.Sync_HostPoolVMs.result, 'skipped')}}
+          echo Sync_HostPoolVMs contains failure ${{ contains(needs.Sync_HostPoolVMs.result, 'failure')}}
+          echo Sync_HostPoolVMs contains cancelled ${{ contains(needs.Sync_HostPoolVMs.result, 'cancelled')}}
+
+          echo Deploy_VirtualMachines Result ${{ needs.Deploy_VirtualMachines.result }}
+          echo Deploy_VirtualMachines contains success ${{ contains(needs.Deploy_VirtualMachines.result, 'success')}}
+          echo Deploy_VirtualMachines contains skipped ${{ contains(needs.Deploy_VirtualMachines.result, 'skipped')}}
+          echo Deploy_VirtualMachines contains failure ${{ contains(needs.Deploy_VirtualMachines.result, 'failure')}}
+          echo Deploy_VirtualMachines contains cancelled ${{ contains(needs.Deploy_VirtualMachines.result, 'cancelled')}}
+
+          echo Deploy_VirtualMachinesRetry1 Result ${{ needs.Deploy_VirtualMachinesRetry1.result }}
+          echo Deploy_VirtualMachinesRetry1 contains success ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'success')}}
+          echo Deploy_VirtualMachinesRetry1 contains skipped ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'skipped')}}
+          echo Deploy_VirtualMachinesRetry1 contains failure ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'failure')}}
+          echo Deploy_VirtualMachinesRetry1 contains cancelled ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'cancelled')}}
+
+          echo Deploy_VirtualMachinesRetry2 Result ${{ needs.Deploy_VirtualMachinesRetry2.result }}
+          echo Deploy_VirtualMachinesRetry2 contains success ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'success')}}
+          echo Deploy_VirtualMachinesRetry2 contains skipped ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'skipped')}}
+          echo Deploy_VirtualMachinesRetry2 contains failure ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'failure')}}
+          echo Deploy_VirtualMachinesRetry2 contains cancelled ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'cancelled')}}
+
+  Deploy_VirtualMachinesRetry1:
+    name: Retry 1 - Virtual Machines (Session Hosts)
+    needs: Deploy_VirtualMachines
+    if: |
+      !cancelled() && 
+      !(contains(needs.Deploy_VirtualMachines.result, 'skipped')) &&
+      (!success('Deploy_VirtualMachines') || failure('Deploy_VirtualMachines'))
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableVmResources
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+      purgeFailedResources: true
+      waitForDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+  
+  Debug_Deploy_VirtualMachinesRetry1s:
+    runs-on: ubuntu-latest
+    needs: Deploy_VirtualMachinesRetry1
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+
+          echo enableDeploymentMasterARMTemplate ${{ github.event.inputs.enableDeploymentMasterARMTemplate }}
+          echo enableDeploymentMasterARMTemplate is true ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }} 
+          
+          echo Deploy_VirtualMachinesRetry1 results ${{ needs.Deploy_VirtualMachinesRetry1.result }}
+          echo Deploy_VirtualMachinesRetry1 contains success ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'success') }}
+          echo Deploy_VirtualMachinesRetry1 contains skipped ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'skipped') }}
+          echo Deploy_VirtualMachinesRetry1 contains failure ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'failure') }}
+          echo Deploy_VirtualMachinesRetry1 contains cancelled ${{ contains(needs.Deploy_VirtualMachinesRetry1.result, 'cancelled') }}
+  
+  Deploy_VirtualMachinesRetry2:
+    name: Retry 2 - Virtual Machines (Session Hosts)
+    needs: Deploy_VirtualMachinesRetry1
+    if: |
+      !cancelled() && 
+      !(contains(needs.Deploy_VirtualMachinesRetry1.result, 'skipped')) &&
+      (        
+        !success('Deploy_VirtualMachinesRetry1') || 
+        failure('Deploy_VirtualMachinesRetry1')
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableVmResources
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+      purgeFailedResources: true
+      waitForDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+  
+  Debug_Deploy_VirtualMachinesRetry2:
+    runs-on: ubuntu-latest
+    needs: Deploy_VirtualMachinesRetry2
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+
+          echo enableDeploymentMasterARMTemplate ${{ github.event.inputs.enableDeploymentMasterARMTemplate }}
+          echo enableDeploymentMasterARMTemplate is true ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }} 
+          
+          echo Deploy_VirtualMachinesRetry2 results ${{ needs.Deploy_VirtualMachinesRetry2.result }}
+          echo Deploy_VirtualMachinesRetry2 contains success ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'success') }}
+          echo Deploy_VirtualMachinesRetry2 contains skipped ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'skipped') }}
+          echo Deploy_VirtualMachinesRetry2 contains failure ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'failure') }}
+          echo Deploy_VirtualMachinesRetry2 contains cancelled ${{ contains(needs.Deploy_VirtualMachinesRetry2.result, 'cancelled') }}
+
+  Deploy_VMExtensions:
+    name: Deploy Virtual Machine Extensions
+    needs: [Update_AssetsStorageAccount, Sync_HostPoolVMs, Deploy_VirtualMachines, Deploy_VirtualMachinesRetry1, Deploy_VirtualMachinesRetry2]
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enableDeploymentMasterARMTemplate  == 'true') && 
+      (
+        (contains(needs.Deploy_VirtualMachines.result, 'success')) ||
+        (contains(needs.Deploy_VirtualMachinesRetry1.result, 'success')) ||
+        (contains(needs.Deploy_VirtualMachinesRetry2.result, 'success')) 
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableVmExtensions
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+   
+  Deploy_VMExtensionsRetry01:
+    name: Retry 1 - Deploy Virtual Machine Extensions
+    needs: [Deploy_VMExtensions]
+    if: |
+      !cancelled() && 
+      !(contains(needs.Deploy_VMExtensions.result, 'skipped')) &&
+      (        
+        !success('Deploy_VMExtensions') || 
+        failure('Deploy_VMExtensions')
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableVmExtensions
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+      purgeFailedResources: true
+      waitForDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+   
+  Deploy_VMExtensionsRetry02:
+    name: Retry 2 - Deploy Virtual Machine Extensions
+    needs: [Deploy_VMExtensionsRetry01]
+    if: |
+      !cancelled() && 
+      !(contains(needs.Deploy_VMExtensionsRetry01.result, 'skipped')) &&
+      (        
+        !success('Deploy_VMExtensionsRetry01') || 
+        failure('Deploy_VMExtensionsRetry01')
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableVmExtensions
+      restartVMsAfterExtensionsDeployment: ${{ github.event.inputs.enableRestartVMsAfterExtensionsDeployment == 'true' }}
+      purgeFailedResources: true
+      waitForDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+
+  Deploy_VMHostPoolJoin:
+    name: Deploy Virtual Machine Host Pool Extension
+    needs: [Deploy_VMExtensions, Deploy_VMExtensionsRetry01, Deploy_VMExtensionsRetry02]
+    if: |
+      !failure() && !cancelled() && 
+
+      (github.event.inputs.enableDeploymentMasterARMTemplate  == 'true') && 
+      (
+        (contains(needs.Deploy_VMExtensions.result, 'success')) ||
+        (contains(needs.Deploy_VMExtensionsRetry01.result, 'success')) ||
+        (contains(needs.Deploy_VMExtensionsRetry02.result, 'success')) 
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableHostPoolJoin
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+
+  Deploy_VMHostPoolJoinRetry01:
+    name: Retry 1 - Virtual Machine Host Pool Extension
+    needs: [Deploy_VMHostPoolJoin]
+    if: |
+      !cancelled() && 
+      !(contains(needs.Deploy_VMHostPoolJoin.result, 'skipped')) &&
+      (        
+        !success('Deploy_VMHostPoolJoin') || 
+        failure('Deploy_VMHostPoolJoin')
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableHostPoolJoin
+      purgeFailedResources: true
+      waitForDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+
+  Deploy_VMHostPoolJoinRetry02:
+    name: Retry 2 - Virtual Machine Host Pool Extension
+    needs: [Deploy_VMHostPoolJoinRetry01]
+    if: |
+      !cancelled() && 
+      !(contains(needs.Deploy_VMHostPoolJoinRetry01.result, 'skipped')) &&
+      (        
+        !success('Deploy_VMHostPoolJoinRetry01') || 
+        failure('Deploy_VMHostPoolJoinRetry01')
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enableHostPoolJoin
+      purgeFailedResources: true
+      waitForDeployments: true
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+
+  Deploy_AppsAndScaling:
+    name: Deploy WVD Applications and Scaling
+    needs: [Deploy_VMHostPoolJoin, Deploy_VMHostPoolJoinRetry01, Deploy_VMHostPoolJoinRetry02]
+    if: |
+      !failure() && !cancelled() && 
+
+      (github.event.inputs.enableDeploymentMasterARMTemplate  == 'true') && 
+      (
+        (contains(needs.Deploy_VMHostPoolJoin.result, 'success')) ||
+        (contains(needs.Deploy_VMHostPoolJoinRetry01.result, 'success')) ||
+        (contains(needs.Deploy_VMHostPoolJoinRetry02.result, 'success')) 
+      )
+    uses: ./.github/workflows/deploy.yml
+    with:
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      UtcOffset: -13
+      rgFolder: WVD-HostPool-01-TO-RG
+      location: westus2
+      jsonParameterToEnable: enablePostVmResources
+    secrets:
+      AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+      COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
+
+  Deploy_ImageLifecycleUpdate:
+    name: Invoke Session Host Image Lifecycle
+    needs: [Deploy_AppsAndScaling]
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enableJobSessionHostImageLifecycle  == 'true') &&
+      success('Deploy_AppsAndScaling')
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Install required module
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $reqModules = @('Az.DesktopVirtualization', 'OMSIngestionAPI', 'Az.StorageTable')
+            foreach($reqModule in $reqModules) {
+              if(-not ($installed = Get-Module $reqModule -ListAvailable)) {
+                  Write-Verbose "Installing module [$reqModule]" -Verbose
+                  Install-Module $reqModule -Repository PSGallery -Force -Scope CurrentUser
+              } else {
+                  Write-Verbose ("Module $reqModule already installed with version [{0}]" -f $installed.Version) -Verbose
+              }
+            }
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Run image lifecycle update
+        id: ImageLifecycleUpdate
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Invoke-UpdateHostPool.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
+              HostPoolName               = '${{ env.HostPoolName }}'
+              HostPoolRGName             = '${{ github.event.inputs.resourceGroupName }}'
+              LogoffDeadline             = '${{ env.LogoffDeadline }}'
+              LogOffMessageTitle         = '${{ env.LogOffMessageTitle }}'
+              LogOffMessageBody          = '${{ env.LogOffMessageBody }}'
+              UtcOffset                  = '${{ env.UtcOffset }}'
+              customImageReferenceId     = '${{ env.customImageReferenceId }}'
+              MarketplaceImageVersion    = '${{ env.version }}'
+              MarketplaceImagePublisher  = '${{ env.publisher }}'
+              MarketplaceImageOffer      = '${{ env.offer }}'
+              MarketplaceImageSku        = '${{ env.sku }}'
+              MarketplaceImageLocation   = '${{ env.imagelocation }}'
+              DeleteVMDeadline           = '${{ env.DeleteVMDeadline }}'
+              stateStorageAccountName    = '${{ env.stateStorageAccountName }}'
+              stateTableName             = '${{ env.stateTableName }}'
+              LAWorkspaceName            = '${{ env.LAWorkspaceName }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Invoke-UpdateHostPool @functionInput -Verbose
           errorActionPreference: stop
           azPSVersion: "latest"

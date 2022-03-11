@@ -1,0 +1,314 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "westus2"
+        },
+        "tags": {
+            "value": {}
+        },
+        "vmName": {
+            "value": "iac001"
+        },
+        "vmLoopIndex": {
+            "value": 1
+        },
+        "vmComputerNames": {
+            "value": {}
+        },
+        "vmComputerNamesTransformation": {
+            "value": "none"
+        },
+        "useAvailabilityZone": {
+            "value": false
+        },
+        "availabilityZone": {
+            "value": "2"
+        },
+        "plan": {
+            "value": {}
+        },
+        "nicConfigurations": {
+            "value": [
+                {
+                    "nicSuffix": "-nic-01",
+                    "ipConfigurations": [
+                        {
+                            "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_avd_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-westus2",
+                            "name": "ipconfig1"
+                        }
+                    ]
+                }
+            ]
+        },
+        "lockForDeletion": {
+            "value": false
+        },
+        "diagnosticSettingName": {
+            "value": "service"
+        },
+        "diagnosticStorageAccountId": {
+            "value": ""
+        },
+        "workspaceId": {
+            "value": ""
+        },
+        "eventHubAuthorizationRuleId": {
+            "value": ""
+        },
+        "eventHubName": {
+            "value": ""
+        },
+        "diagnosticsMetrics": {
+            "value": [
+                {
+                    "category": "AllMetrics",
+                    "timeGrain": null,
+                    "enabled": true,
+                    "retentionPolicy": {
+                        "enabled": true,
+                        "days": 365
+                    }
+                }
+            ]
+        },
+        "diagnosticLogsRetentionInDays": {
+            "value": 365
+        },
+        "vmSize": {
+            "value": "Standard_D2s_v5"
+        },
+        "imageReference": {
+            "value": {
+                "value": {
+                    "offer": "WindowsServer",
+                    "version": "latest",
+                    "sku": "2016-Datacenter",
+                    "publisher": "MicrosoftWindowsServer"
+                }
+            }
+        },
+        "osDisk": {
+            "value": {
+                "managedDisk": {
+                    "storageAccountType": "Premium_LRS"
+                },
+                "diskSizeGB": "128",
+                "createOption": "fromImage"
+            }
+        },
+        "dataDisks": {
+            "value": []
+        },
+        "enableServerSideEncryption": {
+            "value": false
+        },
+        "ultraSSDEnabled": {
+            "value": false
+        },
+        "adminUsername": {
+            "value": null
+        },
+        "adminPassword": {
+            "value": null
+        },
+        "customData": {
+            "value": ""
+        },
+        "windowsConfiguration": {
+            "value": {}
+        },
+        "linuxConfiguration": {
+            "value": {}
+        },
+        "certificatesToBeInstalled": {
+            "value": []
+        },
+        "allowExtensionOperations": {
+            "value": true
+        },
+        "bootDiagnosticStorageAccountName": {
+            "value": ""
+        },
+        "bootDiagnosticStorageAccountUri": {
+            "value": ".blob.core.windows.net/"
+        },
+        "avSetNames": {
+            "value": [
+                "avd-avSet-westus-001"
+            ]
+        },
+        "maxNumberOfVmsPerAvSet": {
+            "value": 200
+        },
+        "maxNumberOfVmsPerDeployment": {
+            "value": 50
+        },
+        "bulkVMdeploymentLoopIndex": {
+            "value": 0
+        },
+        "proximityPlacementGroupName": {
+            "value": ""
+        },
+        "vmPriority": {
+            "value": "Regular"
+        },
+        "enableEvictionPolicy": {
+            "value": false
+        },
+        "dedicatedHostId": {
+            "value": ""
+        },
+        "licenseType": {
+            "value": ""
+        },
+        "domainName": {
+            "value": ""
+        },
+        "domainJoinUser": {
+            "value": "domainJoinUser@y3qjt.onmicrosoft.com"
+        },
+        "domainJoinOU": {
+            "value": ""
+        },
+        "domainJoinRestart": {
+            "value": false
+        },
+        "domainJoinOptions": {
+            "value": 3
+        },
+        "domainJoinPassword": {
+            "value": null
+        },
+        "enableMicrosoftAntiMalware": {
+            "value": false
+        },
+        "microsoftAntiMalwareSettings": {
+            "value": {}
+        },
+        "enableWindowsMMAAgent": {
+            "value": false
+        },
+        "enableLinuxMMAAgent": {
+            "value": false
+        },
+        "enableWindowsDiskEncryption": {
+            "value": false
+        },
+        "forceUpdateTag": {
+            "value": "1.0"
+        },
+        "keyVaultUri": {
+            "value": ""
+        },
+        "keyVaultId": {
+            "value": ""
+        },
+        "keyEncryptionKeyURL": {
+            "value": ""
+        },
+        "diskKeyEncryptionAlgorithm": {
+            "value": "RSA-OAEP"
+        },
+        "diskEncryptionVolumeType": {
+            "value": "All"
+        },
+        "resizeOSDisk": {
+            "value": false
+        },
+        "enableLinuxDiskEncryption": {
+            "value": false
+        },
+        "enableWindowsDependencyAgent": {
+            "value": false
+        },
+        "enableLinuxDependencyAgent": {
+            "value": false
+        },
+        "enableNetworkWatcherWindows": {
+            "value": false
+        },
+        "enableNetworkWatcherLinux": {
+            "value": false
+        },
+        "identity": {
+            "value": {
+                "type": "None",
+                "userAssignedIdentities": null
+            }
+        },
+        "dscConfiguration": {
+            "value": {}
+        },
+        "windowsScriptExtensionFileData": {
+            "value": []
+        },
+        "windowsScriptExtensionCommandToExecute": {
+            "value": null
+        },
+        "cseStorageAccountName": {
+            "value": ""
+        },
+        "cseStorageAccountKey": {
+            "value": ""
+        },
+        "cseManagedIdentity": {
+            "value": {}
+        },
+        "maxPriceForLowPriorityVm": {
+            "value": null
+        },
+        "accountSasProperties": {
+            "value": {
+                "signedServices": "b",
+                "signedPermission": "r",
+                "signedExpiry": "2022-03-10T07:28:24Z",
+                "signedResourceTypes": "o",
+                "signedProtocol": "https"
+            }
+        },
+        "roleAssignments": {
+            "value": []
+        },
+        "builtInRoleNames": {
+            "value": {
+                "Avere Cluster Create": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/a7b1b19a-0e83-4fe5-935c-faaefbfd18c3",
+                "Avere Cluster Runtime Operator": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/e078ab98-ef3a-4c9a-aba7-12f5172b45d0",
+                "Avere Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/4f8fab4f-1852-4a58-a46a-8eaf358af14a",
+                "Avere Operator": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/c025889f-8102-4ebf-b32c-fc0c6f0c6bd9",
+                "Azure Service Deploy Release Management Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/21d96096-b162-414a-8302-d8354f9d91b2",
+                "Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+                "CAL-Custom-Role": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/7b266cd7-0bba-4ae2-8423-90ede5e1e898",
+                "DevTest Labs User": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/76283e04-6283-4c54-8f91-bcf1374a3c64",
+                "Log Analytics Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+                "Log Analytics Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/73c42c96-874c-492b-b04d-ab87d138a893",
+                "masterreader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/a48d7796-14b4-4889-afef-fbb65a93e5a2",
+                "Managed Application Contributor Role": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/641177b8-a67a-45b9-a033-47bc880bb21e",
+                "Managed Application Operator Role": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/c7393b34-138c-406f-901b-d8cf2b17e6ae",
+                "Managed Applications Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/b9331d33-8a36-4f8c-b097-4f54124fdb44",
+                "Microsoft OneAsset Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/fd1bb084-1503-4bd2-99c0-630220046786",
+                "Monitoring Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+                "Monitoring Metrics Publisher": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb",
+                "Monitoring Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+                "Owner": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
+                "Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7",
+                "Reservation Purchaser": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/f7b75c60-3036-4b75-91c3-6b41c27c1689",
+                "Resource Policy Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/36243c78-bf99-498c-9df9-86d9f8d28608",
+                "User Access Administrator": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9",
+                "Virtual Machine Administrator Login": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/1c0163c0-47e6-4577-8991-ea5c82e286e4",
+                "Virtual Machine Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
+                "Virtual Machine User Login": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/fb879df8-f326-4884-b1cf-06f3ad86be52"
+            }
+        },
+        "backupVaultName": {
+            "value": ""
+        },
+        "backupVaultResourceGroup": {
+            "value": ""
+        },
+        "backupPolicyName": {
+            "value": "DefaultPolicy"
+        }
+    }
+}

@@ -4,10 +4,10 @@
   "parameters": {
     // Shared
     "wvdLocation": {
-      "value": "<ReplaceWith-WvdLocation>"
+      "value": "" // updated by pipeline
     },
     "workspaceId": {
-      "value": "<ReplaceWith-WorkspaceId>"
+      "value": "" // updated by pipeline
     },
     "enableWvdResources": {
       "value": false // updated by pipeline
@@ -24,13 +24,19 @@
     "enablePostVmResources": {
       "value": false // updated by pipeline
     },
+    "componentStorageAccountId":{
+      "value": "" // updated by pipeline
+    },
+    "componentsStorageContainerName": {
+      "value": "" // updated by pipeline
+    },
     // Resource Group
     "rgParameters": {
       "value": {
         "enabled": true,
         "moduleName": "ResourceGroup",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "resourceGroupName": "<ReplaceWith-ResourceGroupName>"
+        "moduleVersion": "1.0.0",
+        "resourceGroupName": "" // updated by pipeline
       }
     },
     // Host Pool
@@ -38,16 +44,16 @@
       "value": {
         "enabled": true,
         "moduleName": "WvdHostPools",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "name": "<ReplaceWith-Name>",
-        "hostpoolFriendlyName": "<ReplaceWith-HostpoolFriendlyName>",
-        "hostpoolDescription": "<ReplaceWith-HostpoolDescription>",
-        "hostpoolType": "<ReplaceWith-HostpoolType>",
+        "moduleVersion": "1.0.0",
+        "name": "avd-hp",
+        "hostpoolFriendlyName": "AVD-HostPool",
+        "hostpoolDescription": "Primary HostPool",
+        "hostpoolType": "Pooled",
         "personalDesktopAssignmentType": "",
-        "maxSessionLimit": <ReplaceWith-MaxSessionLimit>,
-        "loadBalancerType": "<ReplaceWith-LoadBalancerType>",
+        "maxSessionLimit": 30,
+        "loadBalancerType": "DepthFirst",
         "customRdpProperty": "audiocapturemode:i:1;audiomode:i:0;camerastoredirect:s:*;drivestoredirect:s:;redirectclipboard:i:1;redirectcomports:i:1;redirectprinters:i:1;redirectsmartcards:i:1;screen mode id:i:2;",
-        "validationEnviroment": <ReplaceWith-ValidationEnviroment>,
+        "validationEnviroment": true,
         "startVMOnConnect": false
       }
     },
@@ -56,36 +62,21 @@
       "value": {
         "enabled": true,
         "moduleName": "WvdApplicationGroups",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
+        "moduleVersion": "1.0.0",
         "agParametersArray": [
           // Desktop
           {
-            "name": "<ReplaceWith-Name>",
+            "name": "sxx-az-avdag-wus-x-001",
             "appGroupType": "Desktop",
-            "appGroupFriendlyName": "<ReplaceWith-AppGroupFriendlyName>",
-            "appGroupDescription": "<ReplaceWith-AppGroupDescription>",
+            "appGroupFriendlyName": "Remote Applications 1",
+            "appGroupDescription": "This is my first Remote Applications bundle",
             "roleAssignments": [
-              {
-                "roleDefinitionIdOrName": "Desktop Virtualization User",
-                "principalIds": [
-                  "<ReplaceWith-PrincipalId>"
-                ]
-              }
-            ]
-          },
-          // RemoteApp
-          {
-            "name": "<ReplaceWith-Name>",
-            "appGroupType": "RemoteApp",
-            "appGroupFriendlyName": "<ReplaceWith-AppGroupFriendlyName>",
-            "appGroupDescription": "<ReplaceWith-AppGroupDescription>",
-            "roleAssignments": [
-              {
-                "roleDefinitionIdOrName": "Desktop Virtualization User",
-                "principalIds": [
-                  "<ReplaceWith-PrincipalId>"
-                ]
-              }
+            //   {
+            //     "roleDefinitionIdOrName": "Desktop Virtualization User",
+            //     "principalIds": [
+            //       "<ReplaceWith-PrincipalId>"
+            //     ]
+            //   }
             ]
           }
         ]
@@ -96,10 +87,10 @@
       "value": {
         "enabled": true,
         "moduleName": "WvdWorkspaces",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "name": "<ReplaceWith-Name>",
-        "workspaceFriendlyName": "<ReplaceWith-WorkspaceFriendlyName>",
-        "workspaceDescription": "<ReplaceWith-WorkspaceDescription>"
+        "moduleVersion": "1.0.0",
+        "name": "sxx-az-avdws-wus-x-001",
+        "workspaceFriendlyName": "My first WVD Workspace",
+        "workspaceDescription": "This is My first WVD Workspace"
       }
     },
     // Virtual Machines (Session Hosts)
@@ -107,65 +98,66 @@
       "value": {
         "enabled": true,
         "moduleName": "VirtualMachines",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "vmNamePrefix": "<ReplaceWith-VmNamePrefix>",
-        "vmNumberOfInstances": <ReplaceWith-VmNumberOfInstances>,
-        "vmInitialNumber": <ReplaceWith-VmInitialNumber>,
-        "vmSize": "<ReplaceWith-VmSize>", //e.g. "Standard_D2s_v3"
+        "moduleVersion": "1.0.0",
+        "vmNamePrefix": "iac",
+        "vmNumberOfInstances": 2,
+        "vmInitialNumber": 0,
+        "vmSize": "Standard_D2s_v5",
         "imageReference": {
-          "id": "<ReplaceWith-Id>"
-          //"publisher": "<ReplaceWith-Publisher>",
-          //"offer": "<ReplaceWith-Offer>",
-          //"sku": "<ReplaceWith-Sku>",
-          //"version": "<ReplaceWith-Version>"
+            
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "2016-Datacenter",
+              "version": "latest"
+         
         },
         "osDisk": {
           "createOption": "fromImage",
-          "diskSizeGB": "<ReplaceWith-DiskSizeGB>",
+          "diskSizeGB": "128",
           "managedDisk": {
-            "storageAccountType": "<ReplaceWith-StorageAccountType>"
+            "storageAccountType": "Premium_LRS"
           }
         },
-        "adminUsername": "<ReplaceWith-AdminUsername>",
+        "adminUsername": "localAdminUser",
         "adminPassword": {
           "keyVault": {
-            "id": "<ReplaceWith-Id>"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall371231/providers/Microsoft.KeyVault/vaults/kvng2gfnoz2zgrq"
           },
-          "secretName": "<ReplaceWith-SecretName>"
+          "secretName": "localAdmin-Password"
         },
-        "availabilitySetName": "<ReplaceWith-AvailabilitySetName>",
-        "maxNumberOfVmsPerAvSet": <ReplaceWith-MaxNumberOfVmsPerAvSet>,
+        "availabilitySetName": "avd-avSet-westus",
+        // "maxNumberOfVmsPerAvSet": <ReplaceWith-MaxNumberOfVmsPerAvSet>,
         // "useAvailabilityZone": <ReplaceWith-UseAvailabilityZone>,
-        "windowsConfiguration": {
-          "timeZone": "<ReplaceWith-TimeZone>"
-        },
+        // "windowsConfiguration": {
+        //   "timeZone": "<ReplaceWith-TimeZone>"
+        // },
         "nicConfigurations": [
           {
-            "nicSuffix": "<ReplaceWith-NicSuffix>", //e.g. -nic-01
+            "nicSuffix": "-nic-01", //e.g. -nic-01
             "ipConfigurations": [
               {
-                "name": "<ReplaceWith-Name>",
-                "subnetId": "<ReplaceWith-SubnetId>"
+                "name": "ipconfig1",
+                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_avd_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-westus2"
               }
             ]
           }
         ],
-        "domainName": "<ReplaceWith-DomainName>",
-        "domainJoinUser": "<ReplaceWith-DomainJoinUser>",
+        "domainName": "y3qjt.onmicrosoft.com",
+        "domainJoinUser": "domainJoinUser@y3qjt.onmicrosoft.com",
         "domainJoinPassword": {
           "keyVault": {
-            "id": "<ReplaceWith-Id>"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall371231/providers/Microsoft.KeyVault/vaults/kvng2gfnoz2zgrq"
           },
-          "secretName": "<ReplaceWith-SecretName>"
+          "secretName": "domainJoinUser-Password"
         },
-        "domainJoinOU": "<ReplaceWith-DomainJoinOU>",
-        "domainJoinRestart": true, // Required to pull GPOs
-        "windowsScriptExtensionFileData": [
-          {
-            "uri": "<ReplaceWith-Uri>",
-            "storageAccountId": "<ReplaceWith-StorageAccountId>"
-          }
-        ]
+        // "domainJoinOU": "<ReplaceWith-DomainJoinOU>",
+        "domainJoinRestart": false // Required to pull GPOs
+        // "windowsScriptExtensionFileData": [
+        //   {
+        //     "uri": "<ReplaceWith-Uri>",
+        //     "storageAccountId": "<ReplaceWith-StorageAccountId>"
+        //   }
+        // ]
       }
     },
     // Applications
@@ -173,21 +165,21 @@
       "value": {
         "enabled": true,
         "moduleName": "WvdApplications",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
+        "moduleVersion": "1.0.0",
         "appParametersArray": [
           {
-            "appGroupName": "<ReplaceWith-AppGroupName>",
+            "appGroupName": "WorkRelatedApps",
             "applications": [
               {
-                "name": "<ReplaceWith-Name>",
-                "description": "<ReplaceWith-Description>",
-                "friendlyName": "<ReplaceWith-FriendlyName>",
-                "filePath": "<ReplaceWith-FilePath>",
-                "commandLineSetting": "<ReplaceWith-CommandLineSetting>",
+                "name": "notepad",
+                "description": "Notepad by ARM template",
+                "friendlyName": "Notepad",
+                "filePath": "C:\\Windows\\System32\\notepad.exe",
+                "commandLineSetting": "DoNotAllow",
                 "commandLineArguments": "",
-                "showInPortal": <ReplaceWith-ShowInPortal>,
-                "iconPath": "<ReplaceWith-IconPath>",
-                "iconIndex": <ReplaceWith-IconIndex>
+                "showInPortal": true,
+                "iconPath": "C:\\Windows\\System32\\notepad.exe",
+                "iconIndex": 0
               }
               // Example Teams
               //   ,{
@@ -211,7 +203,7 @@
       "value": {
         "enabled": true,
         "moduleName": "WvdScalingScheduler",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
+        "moduleVersion": "1.0.0",
         "logicAppName": "<ReplaceWith-LogicAppName>",
         "webhookURI": {
           "keyVault": {
@@ -234,7 +226,7 @@
           "stateStorageAccountName": "<ReplaceWith-StateStorageAccountName>",
           "stateTableName": "<ReplaceWith-StateTableName>"
         },
-        "recurrenceInterval": <ReplaceWith-RecurrenceInterval>
+        "recurrenceInterval": 15
       }
     }
     // ,

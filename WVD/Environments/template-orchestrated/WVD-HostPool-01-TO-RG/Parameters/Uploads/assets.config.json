@@ -1,7 +1,7 @@
 {
     "storageContainerMaps": [
         {
-            "storageAccount": "<ReplaceWith-StorageAccount>"
+            "storageAccount": "wvdmgmt"
             // EXAMPLE
             // "containerMaps": [
             //     {

@@ -49,7 +49,7 @@
                     "ipConfigurations": [
                         {
                             "name": "ipconfig1",
-                            "subnetId": "/subscriptions/8629be3b-96bc-482d-a04b-ffff597c65a2/resourceGroups/dependencies-rg/providers/Microsoft.Network/virtualNetworks/sxx-az-vnet-weu-x-002/subnets/sxx-az-subnet-weu-x-001",
+                            "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_avd_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-westus2",
                             // "enablePublicIP": true,
                             // "publicIpNameSuffix": "-pip-01"
                         }

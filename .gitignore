@@ -1,1 +1,4 @@
 locals.env
+tests/debug_deploy_wvd_resources/parameters.updated.json
+tests/debug_deploy_wvd_resources/deploy.json
+WVD/Environments/template-orchestrated/WVD-HostPool-01-TO-RG/Parameters/parameters.updated.json

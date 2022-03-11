@@ -69,14 +69,12 @@
         },
         "componentStorageAccountId": {
             "type": "string",
-            "defaultValue": "<ReplaceWith-ComponentStorageAccountId>",
             "metadata": {
                 "description": "Optional. Resource ID of the storage account that stores all the components."
             }
         },
         "componentsStorageContainerName": {
             "type": "string",
-            "defaultValue": "<ReplaceWith-ComponentsStorageAccountContainer>",
             "metadata": {
                 "description": "Optional. Name of the storage container the module components will be stored in."
             }
@@ -523,14 +521,14 @@
                         "value": "[if(and(parameters('enableVmExtensions'),contains(parameters('vmParameters'), 'windowsScriptExtensionFileData')), parameters('vmParameters').windowsScriptExtensionFileData, json('[]'))]"
                     },
                     "windowsScriptExtensionCommandToExecute": {
-                        // // Option 1 -  Disable CSE
-                        // "value": ""
+                        // Option 1 -  Disable CSE
+                        "value": ""
 
                         // // Option 2 - Enable ANF Profile management
                         // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{}\"')]"
 
                         // // Option 3 (default) - Enable Azure files Profile management with Single storage account
-                        "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName01>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId01>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]"
+                        // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName01>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId01>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]"
 
                         // // Option 4 - Enable Azure files Profile management with Two storage accounts
                         // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName01>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId01>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''} ;[pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName02>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId02>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]"
