@@ -1,0 +1,76 @@
+name: Deploy Resources
+
+on:
+  workflow_call:
+    inputs:
+      resourceGroupName:
+        required: true
+        type: string
+      rgFolder:
+        required: true
+        type: string
+      location:
+        required: true
+        type: string
+      Update_AssetsStorageAccount:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      COMPONENT_STORAGE_ACCOUNT_ID:
+        required: true
+
+jobs:
+  Deploy_Resources:
+    name: Deploy Resources
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Upload latest configuration files to assets storage account
+        id: task-post-deploy-storage-accounts
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/Storage/Update-AssetsStorageAccount.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
+              wvdUploadsPath             = '${{ env.wvdUploadsPath }}'
+              resourceGroupPath          = '${{ env.orchestrationPath }}/${{ env.rgFolder }}'
+              storageContainerMapPath    = '${{ env.orchestrationPath }}/${{ env.rgFolder }}/${{ env.storageContainerMapPath }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Update-AssetsStorageAccount @functionInput -Verbose
+          errorActionPreference: stop
+          azPSVersion: "latest"
+  
+  Debug_Update_AssetsStorageAccount_Output:
+    runs-on: ubuntu-latest
+    needs: Update_AssetsStorageAccount
+    if: ${{ always() }}     
+    steps:
+      - run: |
+          echo job_id ${{ github.job }}
+          echo job.status ${{ job.status }}
+          echo Update_AssetsStorageAccount ${{ github.event.inputs.Update_AssetsStorageAccount }}
+          echo Update_AssetsStorageAccount is true ${{ github.event.inputs.Update_AssetsStorageAccount == 'true' }} 
+
+          echo Update_AssetsStorageAccount results ${{ needs.Update_AssetsStorageAccount.result }}    
+          echo Update_AssetsStorageAccount contains success ${{ contains(needs.Update_AssetsStorageAccount.result, 'success')}}
+          echo Update_AssetsStorageAccount contains skipped ${{ contains(needs.Update_AssetsStorageAccount.result, 'skipped')}}
+          echo Update_AssetsStorageAccount contains failure ${{ contains(needs.Update_AssetsStorageAccount.result, 'failure')}}
