@@ -42,8 +42,8 @@ jobs:
     uses: ./.github/workflows/Update-StorageAccountAssets.yml
     with:
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
-      rgFolder: ${{ env.wvdUploadsPath }}
-      location: ${{ env.location }}
+      rgFolder: WVD-AzFilesProfiles-TO-RG
+      location: westus2
     secrets:
       AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
       COMPONENT_STORAGE_ACCOUNT_ID: ${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}
