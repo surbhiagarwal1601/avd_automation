@@ -74,6 +74,43 @@ az network vnet subnet create -g $rg_name -n $subnet_avd --vnet-name $vnet_avd  
 # # create p2s vpn
 # az network p2s-vpn-gateway create -g $rg_name -n MyP2SVPNGateway --scale-unit 2 --vhub MyVhub --vpn-server-config MyVPNServerConfig --address-space 10.0.0.0/24 11.0.0.0/24
 
+
+
+# Peer networks
+# Get the id for myVirtualNetwork1.
+vnet_core_id=$(az network vnet show \
+  --resource-group $rg_name \
+  --name $vnet_core \
+  --query id --out tsv)
+
+# Get the id for myVirtualNetwork2.
+vnet_avd_id=$(az network vnet show \
+  --resource-group $rg_name \
+  --name $vnet_avd \
+  --query id \
+  --out tsv)
+
+az network vnet peering create \
+  --name $vnet_core-$vnet_avd \
+  --resource-group $rg_name \
+  --vnet-name $vnet_core \
+  --remote-vnet $vnet_avd_id \
+  --allow-vnet-access
+
+az network vnet peering create \
+  --name $vnet_avd-$vnet_core \
+  --resource-group $rg_name \
+  --vnet-name $vnet_avd \
+  --remote-vnet $vnet_core_id \
+  --allow-vnet-access
+
+# Verify peering
+az network vnet peering show \
+  --name $vnet_core-$vnet_avd \
+  --resource-group $rg_name \
+  --vnet-name $vnet_core \
+  --query peeringState
+
 ```
 ### Log Analytics Workspace 
 
@@ -235,6 +272,7 @@ $Vnet= New-AzVirtualNetwork `
   -Name $VnetName `
   -AddressPrefix 10.0.0.0/16 `
   -Subnet $AaddsSubnet,$WorkloadSubnet
+
 
 ```
 
