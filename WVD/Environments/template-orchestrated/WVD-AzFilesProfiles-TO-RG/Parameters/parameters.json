@@ -7,17 +7,17 @@
       "value": {
         "enabled": true,
         "moduleName": "ResourceGroup",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "resourceGroupName": "<ReplaceWith-ResourceGroupName>",
+        "moduleVersion": "1.0.0",
+        // "resourceGroupName": "<ReplaceWith-ResourceGroupName>",
         // Native AD only
-        // "roleAssignments": [
+        "roleAssignments": [
         //   {
         //     "roleDefinitionIdOrName": "Reader",
         //     "principalIds": [
         //       "<ReplaceWith-PrincipalIDs>"
         //     ]
         //   }
-        // ]
+        ]
       }
     },
     // Storage Accounts
@@ -25,27 +25,27 @@
       "value": {
         "enabled": true,
         "moduleName": "StorageAccounts",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "identityApproach": "<ReplaceWith-IdentityApproach>",
+        "moduleVersion": "1.0.0",
+        "identityApproach": "AD",
         "saParametersArray": [
           {
-            "storageAccountName": "<ReplaceWith-StorageAccountName>",
-            "storageAccountKind": "<ReplaceWith-StorageAccountKind>",
-            "storageAccountSku": "<ReplaceWith-StorageAccountSku>",
+            "storageAccountName": "chanuserprofilesstorage",
+            "storageAccountKind": "StorageV2",
+            "storageAccountSku": "Standard_LRS",
             "fileShares": [
               {
-                "name": "<ReplaceWith-Name>",
-                "shareQuota": "<ReplaceWith-ShareQuota>",
+                "name": "userprofile",
+                "shareQuota": "100",
                 "roleAssignments": [
-                  {
-                    "roleDefinitionIdOrName": "Storage File Data SMB Share Contributor",
-                    "principalIds": [
-                      "<ReplaceWith-PrincipalIds>"
-                    ]
-                  }
+                  // {
+                  //   "roleDefinitionIdOrName": "Storage File Data SMB Share Contributor",
+                  //   "principalIds": [
+                  //     "<ReplaceWith-PrincipalIds>"
+                  //   ]
+                  // }
                 ]
               }
-            ],
+            ]
             // Native AD only
             // "roleAssignments": [
             //   {

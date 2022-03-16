@@ -83,6 +83,13 @@
             "metadata": {
                 "description": "Optional. Tags to be applied on all resources/resource groups in this deployment."
             }
+        },
+         "resourcegroupname": {
+            "type": "string",
+            "defaultValue": "[deployment().name]",
+            "metadata": {
+                "description": "Resource Group Name."
+            }
         }
     },
     "variables": {
@@ -126,7 +133,7 @@
                 },
                 "parameters": {
                     "resourceGroupName": {
-                        "value": "[parameters('rgParameters').resourceGroupName]"
+                        "value": "[parameters('resourcegroupname')]"
                     },
                     "roleAssignments": {
                         "value": "[if(contains(parameters('rgParameters'), 'roleAssignments'), parameters('rgParameters').roleAssignments, json('[]'))]"
@@ -146,7 +153,7 @@
             "apiVersion": "2020-10-01",
             "name": "[concat(parameters('storAccountParameters').moduleName, '-', variables('formattedTime'), '-', copyIndex())]",
             "condition": "[and(parameters('enableVmResources'), parameters('storAccountParameters').enabled)]",
-            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+            "resourceGroup": "[parameters('resourcegroupname')]",
             "dependsOn": [
                 "[concat(deployment().name, '-', parameters('rgParameters').moduleName)]"
             ],
@@ -190,85 +197,85 @@
                     }
                 }
             }
-        },
-        // Virtual Machines (Helper VM)
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[concat(parameters('vmParameters').moduleName, '-', variables('formattedTime'))]",
-            "condition": "[and(or(parameters('enableVmResources'), parameters('enableVmExtensions')), equals(parameters('storAccountParameters').identityApproach, 'AD'), parameters('vmParameters').enabled)]",
-            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
-            "dependsOn": [
-                "storagecopy"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "debugSetting": {
-                    "detailLevel": "requestContent,responseContent"
-                },
-                "templateLink": {
-                    "uri": "[concat(variables('modulesPath'), parameters('vmParameters').moduleName, '/', parameters('vmParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "vmNames": {
-                        "value": "[parameters('vmParameters').vmNames]"
-                    },
-                    "vmSize": {
-                        "value": "[parameters('vmParameters').vmSize]"
-                    },
-                    "managedServiceIdentity": {
-                        "value": "[parameters('vmParameters').managedServiceIdentity]"
-                    },
-                    "imageReference": {
-                        "value": "[parameters('vmParameters').imageReference]"
-                    },
-                    "osDisk": {
-                        "value": "[parameters('vmParameters').osDisk]"
-                    },
-                    "adminUsername": {
-                        "value": "[parameters('vmParameters').adminUsername]"
-                    },
-                    "adminPassword": {
-                        "reference": "[parameters('vmParameters').adminPassword]"
-                    },
-                    "nicConfigurations": {
-                        "value": "[parameters('vmParameters').nicConfigurations]"
-                    },
-                    "domainName": {
-                        "value": "[parameters('vmParameters').domainName]"
-                    },
-                    "domainJoinUser": {
-                        "value": "[parameters('vmParameters').domainJoinUser]"
-                    },
-                    "domainJoinPassword": {
-                        "reference": "[parameters('vmParameters').domainJoinPassword]"
-                    },
-                    "domainJoinOU": {
-                        "value": "[parameters('vmParameters').domainJoinOU]"
-                    },
-                    "domainJoinRestart": {
-                        "value": "[parameters('vmParameters').domainJoinRestart]"
-                    },
-                    "windowsConfiguration": {
-                        "value": "[if(contains(parameters('vmParameters'), 'windowsConfiguration'), parameters('vmParameters').windowsConfiguration, json('null'))]"
-                    },
-                    "lockForDeletion": {
-                        "value": "[if(contains(parameters('vmParameters'), 'lockForDeletion'), parameters('vmParameters').lockForDeletion, parameters('lockForDeletion'))]"
-                    },
-                    "tags": {
-                        "value": "[if(contains(parameters('vmParameters'), 'tags'), union(parameters('tags'), parameters('vmParameters').tags), parameters('tags'))]"
-                    },
-                    "windowsScriptExtensionFileData": {
-                        "value": "[if(contains(parameters('vmParameters'), 'windowsScriptExtensionFileData'), parameters('vmParameters').windowsScriptExtensionFileData, json('[]'))]"
-
-                    },
-                    "windowsScriptExtensionCommandToExecute": {
-                        "value": "[if(parameters('enableVmExtensions'),concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{}\"'), '')]"
-                        }
-                }
-            }
         }
+        // Virtual Machines (Helper VM)
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-10-01",
+        //     "name": "[concat(parameters('vmParameters').moduleName, '-', variables('formattedTime'))]",
+        //     "condition": "[and(or(parameters('enableVmResources'), parameters('enableVmExtensions')), equals(parameters('storAccountParameters').identityApproach, 'AD'), parameters('vmParameters').enabled)]",
+        //     "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+        //     "dependsOn": [
+        //         "storagecopy"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "debugSetting": {
+        //             "detailLevel": "requestContent,responseContent"
+        //         },
+        //         "templateLink": {
+        //             "uri": "[concat(variables('modulesPath'), parameters('vmParameters').moduleName, '/', parameters('vmParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "vmNames": {
+        //                 "value": "[parameters('vmParameters').vmNames]"
+        //             },
+        //             "vmSize": {
+        //                 "value": "[parameters('vmParameters').vmSize]"
+        //             },
+        //             "managedServiceIdentity": {
+        //                 "value": "[parameters('vmParameters').managedServiceIdentity]"
+        //             },
+        //             "imageReference": {
+        //                 "value": "[parameters('vmParameters').imageReference]"
+        //             },
+        //             "osDisk": {
+        //                 "value": "[parameters('vmParameters').osDisk]"
+        //             },
+        //             "adminUsername": {
+        //                 "value": "[parameters('vmParameters').adminUsername]"
+        //             },
+        //             "adminPassword": {
+        //                 "reference": "[parameters('vmParameters').adminPassword]"
+        //             },
+        //             "nicConfigurations": {
+        //                 "value": "[parameters('vmParameters').nicConfigurations]"
+        //             },
+        //             "domainName": {
+        //                 "value": "[parameters('vmParameters').domainName]"
+        //             },
+        //             "domainJoinUser": {
+        //                 "value": "[parameters('vmParameters').domainJoinUser]"
+        //             },
+        //             "domainJoinPassword": {
+        //                 "reference": "[parameters('vmParameters').domainJoinPassword]"
+        //             },
+        //             "domainJoinOU": {
+        //                 "value": "[parameters('vmParameters').domainJoinOU]"
+        //             },
+        //             "domainJoinRestart": {
+        //                 "value": "[parameters('vmParameters').domainJoinRestart]"
+        //             },
+        //             "windowsConfiguration": {
+        //                 "value": "[if(contains(parameters('vmParameters'), 'windowsConfiguration'), parameters('vmParameters').windowsConfiguration, json('null'))]"
+        //             },
+        //             "lockForDeletion": {
+        //                 "value": "[if(contains(parameters('vmParameters'), 'lockForDeletion'), parameters('vmParameters').lockForDeletion, parameters('lockForDeletion'))]"
+        //             },
+        //             "tags": {
+        //                 "value": "[if(contains(parameters('vmParameters'), 'tags'), union(parameters('tags'), parameters('vmParameters').tags), parameters('tags'))]"
+        //             },
+        //             "windowsScriptExtensionFileData": {
+        //                 "value": "[if(contains(parameters('vmParameters'), 'windowsScriptExtensionFileData'), parameters('vmParameters').windowsScriptExtensionFileData, json('[]'))]"
+
+        //             },
+        //             "windowsScriptExtensionCommandToExecute": {
+        //                 "value": "[if(parameters('enableVmExtensions'),concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{}\"'), '')]"
+        //                 }
+        //         }
+        //     }
+        // }
     ],
     "outputs": {
         "sasExpiryDateTime": {
