@@ -143,7 +143,7 @@
           }
         ],
         "domainName": "y3qjt.onmicrosoft.com",
-        "domainJoinUser": "domainJoinUser@y3qjt.onmicrosoft.com",
+        "domainJoinUser": "azure_virtual_desktop_domain_join_service_principal@y3qjt.onmicrosoft.com",
         "domainJoinPassword": {
           "keyVault": {
             "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall371231/providers/Microsoft.KeyVault/vaults/kvng2gfnoz2zgrq"

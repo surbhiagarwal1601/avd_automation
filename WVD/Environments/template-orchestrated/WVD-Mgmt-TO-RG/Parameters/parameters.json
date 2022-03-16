@@ -30,8 +30,7 @@
         "enabled": true,
         "moduleName": "ResourceGroup",
         "moduleVersion": "1.0.0"
-        // "resourceGroupName": "myavd" 
-        // override in pipeline
+        // "resourceGroupName": "myavd"  // override in pipeline
       }
     },
     // Key Vault

@@ -18,14 +18,14 @@ on:
         description: 'Delete Previous Resource Group'
         type: boolean
         required: true 
-      old_rgname: 
+      old_resourceGroupName: 
         description: 'Previous Resource Group Name'
         required: false
         type: string
-      rgname:
+      resourceGroupName:
         description: 'Target Resource Group Name'
         required: true
-        default: 'myAvdWorkFlowCall'
+        default: 'AVD-Mgmt-RG'
         type: string
       environment:
         description: 'Environment to deploy to'
@@ -36,6 +36,12 @@ on:
         - sbx
         - test
         - prod 
+env:
+  ## GENERAL ##
+  rgFolder: WVD-Mgmt-TO-RG
+  RunAsConnectionSPName: avdScalingRunAsPrincipal
+  soc_service_principal_ids: azure_virtual_desktop_service_principal azure_virtual_desktop_service_principal2
+  avdStorageAccountName: avdaaddstoassetsstore
 
 jobs:
 
@@ -49,7 +55,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          source: ./.github/variables/WVD-Mgmt-TO-RG.env
+          source: ./.github/variables/globals.env
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -62,12 +68,12 @@ jobs:
           inlineScript: |
             # Remove Management Resource Group
             {
-              echo Deleting resource group ${{github.event.inputs.old_rgname}}
-              az group delete --name ${{github.event.inputs.old_rgname}} --yes &&
-              echo Done Deleting resource group ${{github.event.inputs.old_rgname}}
+              echo Deleting resource group ${{github.event.inputs.old_resourceGroupName}}
+              az group delete --name ${{github.event.inputs.old_resourceGroupName}} --yes &&
+              echo Done Deleting resource group ${{github.event.inputs.old_resourceGroupName}}
               
             } || {
-              echo Failed Deleting resource group ${{github.event.inputs.old_rgname}}
+              echo Failed Deleting resource group ${{github.event.inputs.old_resourceGroupName}}
             }
             
             # Remove app id    
@@ -80,49 +86,76 @@ jobs:
               echo Failed Deleting app $run_as_connection_sp_name
             }
 
-  
   ## Deploy Management resource Group Resources
   Deploy_Mgmt:
-    name: Deploy Management Resources
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }}
+    name: Deploy Management Resources
     needs: Clean_Resources
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enableDeploymentMasterARMTemplate == 'true')    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          source: ./.github/variables/WVD-Mgmt-TO-RG.env
+          source: ./.github/variables/globals.env
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{secrets.AZURE_CREDENTIALS}}
-      - name: Check Params
-        run: |
-          echo "Deployment Name: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')"
-          echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
-          echo "Parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.AZURE_CREDENTIALS}} componentsStorageContainerName=${{env.componentsStorageContainerName}}"
-          echo "Pipeline Params: ${{ github.event.inputs.rgname }}"
-          echo "Start VM on Connect Service Principals: ${{ env.soc_service_principals }}"
+          enable-AzPSSession: true
+      # - name: Get Windows Virtual Desktop Service Principal ClientId
+      #   id: task-get-sp-clientd-id
+      #   uses: azure/CLI@v1
+      #   with:
+      #     azcliversion: 2.30.0
+      #     inlineScript: |
+      #       query_filter=
+      #       for client_id in ${{ env.soc_service_principals }}; do 
+      #           query_filter="${query_filter}displayname eq '${client_id}' or "
+      #       done
+      #       # remove trailing or
+      #       query_filter=${query_filter:0:$#-4}
+      #       sp_client_id=$(az ad sp list --all --filter "$query_filter" --query "[].objectId" -o tsv)
+      #       echo ::set-output name=sp_client_id::$sp_client_id
       
-      - name: Get Windows Virtual Desktop Service Principal ClientId
-        id: task-get-sp-clientd-id
-        uses: azure/CLI@v1
+      # - name: Show Service Principal
+      #   id: task-show-sp
+      #   run: echo client_id ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
+
+      - name: Update Parameters
+        id: step-update-parameters
+        uses: azure/powershell@v1
         with:
-          azcliversion: 2.30.0
           inlineScript: |
-            query_filter=
-            for client_id in ${{ env.soc_service_principals }}; do 
-                query_filter="${query_filter}displayname eq '${client_id}' or "
-            done
-            # remove trailing or
-            query_filter=${query_filter:0:$#-4}
-            sp_client_id=$(az ad sp list --all --filter "$query_filter" --query "[].objectId" -o tsv)
-            echo ::set-output name=sp_client_id::$sp_client_id
-      - name: Show Service Principal
-        id: task-show-sp
-        run: echo client_id ${{ steps.task-get-sp-clientd-id.outputs.sp_client_id }}
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $paramsRaw = Get-Content $parameterFilePath -Raw
+            $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+            $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+            
+            # Replace with Pipeline parameters
+            $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+            $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+            $json.parameters.location.value = "${{ env.location }}"
+            $json.parameters.resourcegroupname.value = "${{ github.event.inputs.resourceGroupName }}"
+            $json.parameters.soCWvdPrincipalIds.value = "${{ env.soc_service_principal_ids s}}" 
+
+            ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+
+            # Save Param file so next step can pick up
+            echo ::set-output name=parameterUpdatedFilePath::$parameterUpdatedFilePath
+            
+            # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
+            # if ($ValidationErrors) {
+            #   Write-Error "Template is not valid."
+            # }
+          azPSVersion: "latest"
       
       - name: Validate Module
         id: task-validate
@@ -133,7 +166,7 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds="${{steps.task-get-sp-clientd-id.outputs.sp_client_id}}"
+          parameters: ${{ steps.step-update-parameters.outputs.parameterUpdatedFilePath }}"
       
       - name: Deploy Module
         id: task-deploy
@@ -143,23 +176,23 @@ jobs:
           scope: subscription
           region: ${{ env.LOCATION }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}} soCWvdPrincipalIds="${{steps.task-get-sp-clientd-id.outputs.sp_client_id}}"
+          parameters: ${{ steps.step-update-parameters.outputs.parameterUpdatedFilePath }}"
       
-      - name: Check Template Output Params
-        run: |
-          echo Template Output - socClientIds: ${{ steps.task-deploy.ouputs.socClientIds }}
-          echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
-          echo Template Output - deploymentName: ${{ steps.task-deploy.ouputs.deploymentName }}
-          echo Template Output - keyVaultResourceId: ${{ steps.task-deploy.ouputs.keyVaultResourceId }}
+      # - name: Check Template Output Params
+      #   run: |
+      #     echo Template Output - socClientIds: ${{ steps.task-deploy.ouputs.socClientIds }}
+      #     echo Template Output - sasExpiryDateTime: ${{ steps.task-deploy.outputs.sasExpiryDateTime }}
+      #     echo Template Output - deploymentName: ${{ steps.task-deploy.ouputs.deploymentName }}
+      #     echo Template Output - keyVaultResourceId: ${{ steps.task-deploy.ouputs.keyVaultResourceId }}
 
-      - name: Log out of Azure
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.30.0
-          inlineScript: |
-            az logout
-            az cache purge
-            az account clear
+      # - name: Log out of Azure
+      #   uses: azure/CLI@v1
+      #   with:
+      #     azcliversion: 2.30.0
+      #     inlineScript: |
+      #       az logout
+      #       az cache purge
+      #       az account clear
 
 # Invoke Key Vault Post Deployment
   Invoke_WVDKeyVaultPostDeployment:
@@ -186,8 +219,8 @@ jobs:
           inlineScript: |
             Write-Verbose "Getting KeyVault Name" -Verbose
             
-            Write-Verbose "Calling Get-AzKeyVault -ResourceGroupName '${{ github.event.inputs.rgname }}'" -Verbose
-            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
+            Write-Verbose "Calling Get-AzKeyVault -ResourceGroupName '${{ github.event.inputs.resourceGroupName }}'" -Verbose
+            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.resourceGroupName }}"
 
             Write-Verbose ("Key Vault Name is {0}" -f $KeyVault.VaultName) -Verbose
 
@@ -239,7 +272,6 @@ jobs:
     env:
       ScalingRunbookName: ScalingRunbook
       ScalingWebhookName: AVDAutoScaleWebhook
-      # RunAsConnectionSPName: avdScalingRunAsPrincipal
       RunAsSelfSignedCertSecretName: avdScalingRunAsPrincipalCert-Secret 
       AutoAccountRunAsCertExpiryInMonths: 24
       TenantName: y3qjt
@@ -263,8 +295,8 @@ jobs:
           inlineScript: |
             Write-Verbose "Getting KeyVault Name" -Verbose
             
-            Write-Verbose "Calling Get-AzKeyVault -ResourceGroupName '${{ github.event.inputs.rgname }}'" -Verbose
-            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.rgname }}"
+            Write-Verbose "Calling Get-AzKeyVault -ResourceGroupName '${{ github.event.inputs.resourceGroupName }}'" -Verbose
+            $KeyVault = Get-AzKeyVault -ResourceGroupName "${{ github.event.inputs.resourceGroupName }}"
 
             Write-Verbose ("Key Vault Name is {0}" -f $KeyVault.VaultName) -Verbose
 
@@ -281,7 +313,7 @@ jobs:
             $functionInput = @{
               orchestrationFunctionsPath         = '${{ env.orchestrationFunctionsPath }}'
               AutomationAccountName              = '${{ env.automationAccountName }}'
-              AutomationAccountRGName            = '${{ github.event.inputs.rgname }}'
+              AutomationAccountRGName            = '${{ github.event.inputs.resourceGroupName }}'
               ScalingRunbookName                 = '${{ env.ScalingRunbookName }}'
               WebhookName                        = '${{ env.ScalingWebhookName }}'
               RunAsConnectionSPName              = '${{ env.RunAsConnectionSPName }}'

@@ -44,7 +44,6 @@ env:
   ## GENERAL ##
   rgFolder: WVD-HostPool-01-TO-RG  
   storageContainerMapPath: Parameters/Uploads/assets.config.json
-  location: westus2
 
   # ResourceGroup related
   # resourceGroupName: AVD-HostPool-RG - From User Input
