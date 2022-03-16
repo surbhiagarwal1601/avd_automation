@@ -132,7 +132,7 @@ jobs:
           inlineScript: |
             $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
             $parameterFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             $paramsRaw = Get-Content $parameterFilePath -Raw
             $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
             $json = ConvertFrom-Json $paramsSanitized -AsHashTable
@@ -142,15 +142,20 @@ jobs:
             $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
             $json.parameters.location.value = "${{ env.location }}"
             $json.parameters.resourcegroupname.value = "${{ github.event.inputs.resourceGroupName }}"
-            $json.parameters.soCWvdPrincipalIds.value = "${{ env.soc_service_principal_ids s}}" 
+            $json.parameters.soCWvdPrincipalIds.value = "${{ env.soc_service_principal_ids }}" 
 
+            New-Item -Path $parameterUpdatedFilePath -Force
             ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
 
+            echo "Parameters updated path:" $parameterUpdatedFilePath
             # Save Param file so next step can pick up
             echo ::set-output name=parameterUpdatedFilePath::$parameterUpdatedFilePath
-            
+
+            $text = Get-Content $parameterUpdatedFilePath -Raw 
+            echo "contents are:" $text
+
             # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
             # if ($ValidationErrors) {
             #   Write-Error "Template is not valid."
@@ -164,9 +169,9 @@ jobs:
           deploymentMode: Validate
           deploymentName: github-test
           scope: subscription
-          region: ${{ env.LOCATION }}
+          region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ steps.step-update-parameters.outputs.parameterUpdatedFilePath }}"
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json componentStorageAccountId=/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_management_westus2/providers/Microsoft.Storage/storageAccounts/stdiacmodules/blobServices/default
       
       - name: Deploy Module
         id: task-deploy
@@ -174,9 +179,9 @@ jobs:
         with:
           deploymentName: github-test
           scope: subscription
-          region: ${{ env.LOCATION }}
+          region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ steps.step-update-parameters.outputs.parameterUpdatedFilePath }}"
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json componentStorageAccountId=/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_management_westus2/providers/Microsoft.Storage/storageAccounts/stdiacmodules/blobServices/default
       
       # - name: Check Template Output Params
       #   run: |
