@@ -201,7 +201,7 @@ jobs:
             $ValidationErrors = $null
             
             az deployment sub create \
-            --name ${{github.event.inputs.old_resourceGroupName}}-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT-validate \
+            --name ${{github.event.inputs.old_resourceGroupName}}-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT \
             --location "${{ inputs.location }}" \
             --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
             --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
