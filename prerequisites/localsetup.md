@@ -17,7 +17,7 @@ These are the instructions used to create the avd_automation repo
     * Create new Resource Group (rg_devops_iac_westus2)
     ```bash
     rg_region=westus2
-    rg_name=rg_devops_iac_$rg_region
+    rg_name=rg_management_$rg_region
     az group create -n $rg_name -l $rg_region
     ```
     * Create a storage account (stdiacmodules)
@@ -41,7 +41,7 @@ These are the instructions used to create the avd_automation repo
     azcopy copy ./Modules "$storage_endpoint$container_name/?$sas" --recursive=true
     ```
 * Prep Pipeline
-    * Replace module version inWVD/Environment/.../..RG/Parameters/parameters.json 
+    * Replace module version in WVD/Environment/.../..RG/Parameters/parameters.json 
 * Set up the deployment Pipelines
     * Migrate ADO pipeline to Github Action
         * Copy WVD-Mgmt-TO-RG.yml to .github\workflows folder

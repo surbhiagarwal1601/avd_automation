@@ -368,10 +368,6 @@
         }
     ],
     "outputs": {
-        "deploymentName": {
-            "type": "string",
-            "value": "[concat(parameters('soCRoleDefParameters').moduleName, '-', variables('formattedTime'))]"
-        },
         "sasExpiryDateTime": {
             "type": "string",
             "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
