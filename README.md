@@ -317,6 +317,14 @@ az ad sp create-for-rbac --name $storage_join_sp_name  --sdk-auth
 
 ```
 
+Storage Joined Service Account: 
+```bash
+
+soc_sp_name=avd_start_on_connect_sp
+az ad sp create-for-rbac --name $soc_sp_name  --sdk-auth
+
+```
+
 Add Domain Join User to AAD DC Administrators Group
 ```bash
 # Get Group Id

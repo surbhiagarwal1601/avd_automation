@@ -40,7 +40,7 @@ env:
   ## GENERAL ##
   rgFolder: WVD-Mgmt-TO-RG
   RunAsConnectionSPName: avdScalingRunAsPrincipal
-  soc_service_principal_ids: azure_virtual_desktop_service_principal azure_virtual_desktop_service_principal2
+  soc_service_principal_ids: 7c43926c-b40b-43c0-bf5b-2b2cc6689750
   avdStorageAccountName: avdaaddstoassetsstore
   domainJoinUserName: avd_domain_join_sp
   storageJoinUserName: avd_storage_join_sp
@@ -149,6 +149,7 @@ jobs:
             $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
             $json.parameters.location.value = "${{ env.location }}"
             $json.parameters.resourcegroupname.value = "${{ github.event.inputs.resourceGroupName }}"
+            
             $json.parameters.soCWvdPrincipalIds.value = "${{ env.soc_service_principal_ids }}" 
 
             New-Item -Path $parameterUpdatedFilePath -Force
@@ -174,7 +175,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           deploymentMode: Validate
-          deploymentName: github-test
+          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_RUN_ATTEMPT }}-validate
           scope: subscription
           region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
@@ -184,7 +185,7 @@ jobs:
         id: task-deploy
         uses: azure/arm-deploy@v1
         with:
-          deploymentName: github-test
+          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_RUN_ATTEMPT }}
           scope: subscription
           region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
