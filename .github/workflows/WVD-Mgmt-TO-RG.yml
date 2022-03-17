@@ -263,7 +263,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+          varFilePath: ./.github/variables/globals.env
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -339,7 +339,7 @@ jobs:
       - name: Set Environment Variables
         uses: ./.github/actions/setvars
         with:
-          varFilePath: ./.github/variables/WVD-Mgmt-TO-RG.env
+          varFilePath: ./.github/variables/globals.env
       - name: Login to Azure
         uses: azure/login@v1
         with:
