@@ -172,24 +172,66 @@ jobs:
       
       - name: Validate Module
         id: task-validate
-        uses: azure/arm-deploy@v1
+        uses: azure/powershell@v1
         with:
-          deploymentMode: Validate
-          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}-validate
-          scope: subscription
-          region: ${{ env.location }}
-          template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json 
-      
+          inlineScript: |
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            
+            $ValidationErrors = $null
+            
+            az deployment sub validate \
+            --name ${{github.event.inputs.old_resourceGroupName}}-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT-validate \
+            --location "${{ inputs.location }}" \
+            --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
+            --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+            
+            if ($ValidationErrors) {
+              Write-Error "Template is not valid."
+            }
+
       - name: Deploy Module
         id: task-deploy
-        uses: azure/arm-deploy@v1
+        uses: azure/powershell@v1
         with:
-          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}
-          scope: subscription
-          region: ${{ env.location }}
-          template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+          inlineScript: |
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            
+            $ValidationErrors = $null
+            
+            az deployment sub create \
+            --name ${{github.event.inputs.old_resourceGroupName}}-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT-validate \
+            --location "${{ inputs.location }}" \
+            --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
+            --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+            
+            if ($ValidationErrors) {
+              Write-Error "Template is not valid."
+            }
+
+
+
+      # - name: Validate Module
+      #   id: task-validate
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     deploymentMode: Validate
+      #     deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}-validate
+      #     scope: subscription
+      #     region: ${{ env.location }}
+      #     template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
+      #     parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json 
+      
+      # - name: Deploy Module
+      #   id: task-deploy
+      #   uses: azure/arm-deploy@v1
+      #   with:
+      #     deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}
+      #     scope: subscription
+      #     region: ${{ env.location }}
+      #     template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
+      #     parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
       
       # - name: Check Template Output Params
       #   run: |
