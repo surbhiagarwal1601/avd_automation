@@ -39,17 +39,14 @@ on:
 env:
   ## GENERAL ##
   rgFolder: WVD-Mgmt-TO-RG
-  RunAsConnectionSPName: avdScalingRunAsPrincipal
   soc_service_principal_ids: 7c43926c-b40b-43c0-bf5b-2b2cc6689750
   avdStorageAccountName: avdaaddstoassetsstore
   domainJoinUserName: avd_domain_join_sp
   storageJoinUserName: avd_storage_join_sp
   automationAccountName: avd-scaling-autoaccount
   componentsStorageContainerName: components
-  RunAsSelfSignedCertSecretName : RunAsSelfSignedCertSecretName 
-  AutoAccountRunAsCertExpiryInMonths : 24
-
-
+  
+  
 jobs:
 
   Clean_Resources:
@@ -81,16 +78,6 @@ jobs:
               
             } || {
               echo Failed Deleting resource group ${{github.event.inputs.old_resourceGroupName}}
-            }
-            
-            # Remove app id    
-            {        
-              run_as_connection_sp_name=${{ env.RunAsConnectionSPName }}
-              echo Removing app $run_as_connection_sp_name
-              run_as_connection_app_id=$(az ad app list --filter "displayName eq '$run_as_connection_sp_name'" --query "[].appId" -o tsv)
-              az ad app delete --id $run_as_connection_app_id
-              } || {
-              echo Failed Deleting app $run_as_connection_sp_name
             }
 
   ## Deploy Management resource Group Resources
@@ -333,9 +320,13 @@ jobs:
     env:
       ScalingRunbookName: ScalingRunbook
       ScalingWebhookName: AVDAutoScaleWebhook
-      RunAsSelfSignedCertSecretName: avdScalingRunAsPrincipalCert-Secret 
-      AutoAccountRunAsCertExpiryInMonths: 24
-      TenantName: y3qjt
+      RunAsConnectionSPName: avd_scaling_run_as_sp
+      RunAsSelfSignedCertSecretName : avdScalingRunAsPrincipalCert-Secret 
+      RunAsAppServicePrincipalId :  e8e7d9ab-971d-41c5-a442-6a5084741688
+      RunAsTenantId : 98f3e5a8-1add-4955-a7ed-16b948862dbb
+      RunAsCertificateThumbprint: 381B79F66D21166090BCA3D15AAEDE8F8B6C77DA
+      RunAsSubscriptionId : b0c05537-02c7-4099-b9af-ab0702d33d39
+      LAWorkspaceName: log-analytics-dad42fd927a
 
     steps:
       - name: Checkout repository
@@ -380,10 +371,12 @@ jobs:
               RunAsConnectionSPName              = '${{ env.RunAsConnectionSPName }}'
               KeyVaultName                       = $Env:KeyVaultName
               RunAsSelfSignedCertSecretName      = '${{ env.RunAsSelfSignedCertSecretName }}'
-              AutoAccountRunAsCertExpiryInMonths = '${{ env.AutoAccountRunAsCertExpiryInMonths }}'
-              tempPath                           = '${{ runner.temp }}'
-              tenantName                           = '${{ env.TenantName }}'
-              # LAWorkspaceName                    = '${{ env.LAWorkspaceName }}'
+              RunAsSelfSignedCertSecret          = ${{ secrets.RUN_AS_CERT_SECRET }}
+              RunAsAppServicePrincipalId         = '${{ env.RunAsAppServicePrincipalId }}'
+              RunAsTenantId                      = '${{ env.RunAsTenantId }}'
+              RunAsCertificateThumbprint         = '${{ env.RunAsCertificateThumbprint }}'
+              RunAsSubscriptionId                = '${{ env.RunAsSubscriptionId }}'
+              LAWorkspaceName                    = '${{ env.LAWorkspaceName }}'
             }
 
             Write-Verbose "Invoke task with" -Verbose

@@ -301,27 +301,23 @@ Enable Password Synch
 
 First configure self-service password reset
 
-Domain Joined Service Account: 
-```bash
 
+```bash
+# Domain Joined Service Account: 
 domain_join_sp_name=avd_domain_join_sp
 az ad sp create-for-rbac --name $domain_join_sp_name  --sdk-auth
 
-```
-
-Storage Joined Service Account: 
-```bash
-
+# Storage Joined Service Account: 
 storage_join_sp_name=avd_storage_join_sp
 az ad sp create-for-rbac --name $storage_join_sp_name  --sdk-auth
 
-```
-
-Storage Joined Service Account: 
-```bash
-
+# Start on Connect Service Account: 
 soc_sp_name=avd_start_on_connect_sp
 az ad sp create-for-rbac --name $soc_sp_name  --sdk-auth
+
+# Run as Connection Service Account: 
+scaling_sp_name=avd_scaling_run_as_sp
+az ad sp create-for-rbac --name $scaling_sp_name  --sdk-auth
 
 ```
 

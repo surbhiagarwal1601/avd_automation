@@ -80,13 +80,19 @@ function Invoke-AutomationAccountPostDeployment {
         [string] $RunAsSelfSignedCertSecretName,
 
         [Parameter(Mandatory)]
-        [int] $AutoAccountRunAsCertExpiryInMonths,
+        [string] $RunAsSelfSignedCertSecret,        
 
         [Parameter(Mandatory)]
-        [string] $tempPath,
+        [string] $RunAsAppServicePrincipalId,
 
         [Parameter(Mandatory)]
-        [string] $tenantName,        
+        [string] $RunAsTenantId,
+
+        [Parameter(Mandatory)]
+        [string] $RunAsCertificateThumbprint,
+
+        [Parameter(Mandatory)]
+        [string] $RunAsSubscriptionId,
 
         [Parameter(Mandatory = $false)]
         [string] $LAWorkspaceName = ""
@@ -130,6 +136,41 @@ function Invoke-AutomationAccountPostDeployment {
         }
         Write-Verbose "Automation account configured" -Verbose
 
+        Write-Verbose "######################################" -Verbose
+        Write-Verbose "## 3 - Create Automation Connection ##" -Verbose
+        Write-Verbose "######################################" -Verbose
+          
+        $ConnectionTypeName = "AzureServicePrincipal"
+
+        $servicePrincipal = Get-AzADServicePrincipal -DisplayName $RunAsConnectionSPName
+        $ApplicationId = $servicePrincipal.id
+
+        $ConnectionFieldValues = @{
+            ApplicationId         = $RunAsAppServicePrincipalId
+            TenantId              = $RunAsTenantId
+            CertificateThumbprint = $RunAsCertificateThumbprint
+            SubscriptionId        = $RunAsSubscriptionId 
+        }
+
+        $ConnectionInputObject = @{
+            ResourceGroupName     = $AutomationAccountRGName
+            AutomationAccountName = $AutomationAccountName  
+            Name                  = 'AzureRunAsConnection'
+            ConnectionTypeName    = $ConnectionTypeName
+            ConnectionFieldValues = $ConnectionFieldValues
+        }
+        New-AzAutomationConnection @ConnectionInputObject
+
+
+        Write-Verbose "##################################" -Verbose
+        Write-Verbose "## 4 - Update Cert Secret to KV ##" -Verbose
+        Write-Verbose "##################################" -Verbose
+
+        Write-Verbose ("No cert secret '{0}' found in key vault '{1}'. Generating new." -f $RunAsSelfSignedCertSecretName, $KeyVaultName) -Verbose
+        $selfSignedCertPassword = ConvertTo-SecureString $RunAsSelfSignedCertSecret -AsPlainText -Force
+        Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name $RunAsSelfSignedCertSecretName -SecretValue $selfSignedCertPassword
+
+        
         # Write-Verbose "##############################" -Verbose
         # Write-Verbose "## 3 - HANDLE RUNAS ACCOUNT ##" -Verbose
         # Write-Verbose "##############################" -Verbose

@@ -2,3 +2,5 @@ locals.env
 tests/debug_deploy_wvd_resources/parameters.updated.json
 tests/debug_deploy_wvd_resources/deploy.json
 WVD/Environments/template-orchestrated/WVD-HostPool-01-TO-RG/Parameters/parameters.updated.json
+tests/automation_account_run_as_account/avd-scaling-autoaccountAzureRunAsCertificate.pfx
+tests/automation_account_run_as_account/avd-scaling-autoaccountAzureRunAsCertificate.cer
