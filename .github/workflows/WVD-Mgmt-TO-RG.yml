@@ -181,10 +181,10 @@ jobs:
             $ValidationErrors = $null
             
             az deployment sub validate \
-            --name ${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate \
-            --location "${{ inputs.location }}" \
-            --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
-            --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+              --name ${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate \
+              --location "${{ inputs.location }}" \
+              --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
+              --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
             
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
@@ -202,10 +202,10 @@ jobs:
             $ValidationErrors = $null
             
             az deployment sub create \
-            --name ${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}} \
-            --location "${{ inputs.location }}" \
-            --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
-            --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+              --name ${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}} \
+              --location "${{ inputs.location }}" \
+              --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json 
+              --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
             
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
