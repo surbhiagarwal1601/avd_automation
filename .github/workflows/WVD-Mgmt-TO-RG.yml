@@ -326,7 +326,6 @@ jobs:
       RunAsTenantId : 98f3e5a8-1add-4955-a7ed-16b948862dbb
       RunAsCertificateThumbprint: 381B79F66D21166090BCA3D15AAEDE8F8B6C77DA
       RunAsSubscriptionId : b0c05537-02c7-4099-b9af-ab0702d33d39
-      LAWorkspaceName: log-analytics-dad42fd927a
 
     steps:
       - name: Checkout repository
