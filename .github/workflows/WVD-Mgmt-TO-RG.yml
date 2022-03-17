@@ -164,7 +164,7 @@ jobs:
             $text = Get-Content $parameterUpdatedFilePath -Raw 
             echo "contents are:" $text
 
-            # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
+            # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
             # if ($ValidationErrors) {
             #   Write-Error "Template is not valid."
             # }
@@ -179,8 +179,12 @@ jobs:
             Write-Verbose 'Handling subscription level deployment' -Verbose
             
             $ValidationErrors = $null
+
+            deployment_name=${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             
-            az deployment sub validate --name ${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate  --location "${{ inputs.location }}" --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json  --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+            az deployment sub validate --location "${{ inputs.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
             
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
@@ -197,8 +201,12 @@ jobs:
             
             $ValidationErrors = $null
             
-            az deployment sub create --name ${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}  --location "${{ inputs.location }}" --template-file ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json --parameters @${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
+            deployment_name=${{github.event.inputs.resourceGroupName}}-${{github.run_id}}-${{github.run_id}}-validate
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             
+            az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters $parameterUpdatedFilePath
+           
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
             }
