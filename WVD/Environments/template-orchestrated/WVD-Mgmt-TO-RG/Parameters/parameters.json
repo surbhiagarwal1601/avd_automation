@@ -83,7 +83,7 @@
         "enabled": true,
         "moduleName": "StorageAccounts",
         "moduleVersion": "1.0.0",
-        "storageAccountName": "avdaaddstoassetsstore",
+        "storageAccountName": "avdassetsstore",
         "storageAccountKind": "StorageV2",
         "storageAccountSku": "Standard_LRS",
         "blobContainers": [
