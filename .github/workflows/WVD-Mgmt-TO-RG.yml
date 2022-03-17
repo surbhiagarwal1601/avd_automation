@@ -178,7 +178,7 @@ jobs:
           scope: subscription
           region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json componentStorageAccountId=/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_management_westus2/providers/Microsoft.Storage/storageAccounts/stdiacmodules/blobServices/default
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json 
       
       - name: Deploy Module
         id: task-deploy
@@ -188,7 +188,7 @@ jobs:
           scope: subscription
           region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json componentStorageAccountId=/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_management_westus2/providers/Microsoft.Storage/storageAccounts/stdiacmodules/blobServices/default
+          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json
       
       # - name: Check Template Output Params
       #   run: |
