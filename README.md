@@ -371,7 +371,7 @@ These are the Service Principals used in the Solution
 
 * Azure Virtual Desktop service principal (Has role for Start VM on Connect)
 * DevOps Deployment Service Principal
-* Automation RunAs Connection Service Principal. [See Create RunAs Connection](.tests/automation_account_run_as_account/create_runas_account.ps1)
+* Automation RunAs Connection Service Principal. [See Create RunAs Connection](./tests/automation_account_run_as_account/create_runas_account.ps1)
     * Generate password called selfSignedCertPassword value of ToBase64String(New-Guid + '=')
     * Submit Request for New Identity
         * Request for Cert Authn using a certificate with the supplied secret
