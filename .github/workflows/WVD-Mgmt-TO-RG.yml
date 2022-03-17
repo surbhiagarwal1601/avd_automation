@@ -46,7 +46,6 @@ env:
   storageJoinUserName: avd_storage_join_sp
   automationAccountName: avd-scaling-autoaccount
   componentsStorageContainerName: components
-  RunAsConnectionSPName : avdScalingRunAsPrincipal
   RunAsSelfSignedCertSecretName : RunAsSelfSignedCertSecretName 
   AutoAccountRunAsCertExpiryInMonths : 24
 
