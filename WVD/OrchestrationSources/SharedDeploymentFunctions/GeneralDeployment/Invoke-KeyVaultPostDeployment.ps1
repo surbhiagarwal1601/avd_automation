@@ -73,7 +73,7 @@ function Invoke-KeyvaultPostDeployment {
 
         $DomainJoinUserSecretInputObject = @{
             VaultName          = $vaultName
-            secretName         = "$domainJoin_userName-Password"
+            secretName         = "domainJoinUser-Password"
             GenerateIfMissing  = $false
             customSecret       = $domainJoin_pwd
         }
