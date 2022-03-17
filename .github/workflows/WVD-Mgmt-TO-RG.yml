@@ -254,7 +254,9 @@ jobs:
 # Invoke Key Vault Post Deployment
   Invoke_WVDKeyVaultPostDeployment:
     name: Invoke Key Vault Post Deployment
-    if: ${{ github.event.inputs.enablePostDeploymentWVDKeyVault == 'true' }}
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enablePostDeploymentWVDKeyVault == 'true')
     needs: Deploy_Mgmt
     runs-on: ubuntu-latest
     steps:
@@ -324,7 +326,9 @@ jobs:
   Invoke_AutomationAccountPostDeployment:
     name: Invoke Automation Account Post Deployment
     needs: Invoke_WVDKeyVaultPostDeployment
-    if: ${{ github.event.inputs.enablePostDeploymentAutomationAccount == 'true' }}
+    if: |
+      !failure() && !cancelled() && 
+      (github.event.inputs.enablePostDeploymentAutomationAccount == 'true')
     runs-on: windows-latest
     env:
       ScalingRunbookName: ScalingRunbook
