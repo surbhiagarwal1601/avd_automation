@@ -370,7 +370,7 @@ jobs:
               RunAsConnectionSPName              = '${{ env.RunAsConnectionSPName }}'
               KeyVaultName                       = $Env:KeyVaultName
               RunAsSelfSignedCertSecretName      = '${{ env.RunAsSelfSignedCertSecretName }}'
-              RunAsSelfSignedCertSecret          = ${{ secrets.RUN_AS_CERT_SECRET }}
+              RunAsSelfSignedCertSecret          = '${{ secrets.RUN_AS_CERT_SECRET }}'
               RunAsAppServicePrincipalId         = '${{ env.RunAsAppServicePrincipalId }}'
               RunAsTenantId                      = '${{ env.RunAsTenantId }}'
               RunAsCertificateThumbprint         = '${{ env.RunAsCertificateThumbprint }}'
