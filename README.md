@@ -315,7 +315,7 @@ az ad sp create-for-rbac --name $storage_join_sp_name  --sdk-auth
 soc_sp_name=avd_start_on_connect_sp
 az ad sp create-for-rbac --name $soc_sp_name  --sdk-auth
 
-# Run as Connection Service Account: 
+# Automation Run as Connection Service Account: 
 scaling_sp_name=avd_scaling_run_as_sp
 az ad sp create-for-rbac --name $scaling_sp_name  --sdk-auth
 
@@ -338,7 +338,7 @@ az ad group member add --group "$aad_dc_admin_group_name" --member-id $avd_domai
 
 ```
 
-Add user to UVD User Group
+Add users to AVD User Group
 ```bash
 # Create Group
 avd_user_group="AVD Users"
@@ -365,13 +365,18 @@ az ad group member add --group "$avd_user_group" --member-id $avd_user_object_id
 > Add-AzureADGroupMember -ObjectId $GroupObjectId.ObjectId -RefObjectId $UserObjectId.ObjectId
 ```
 
-
 ## Service Principal
 
 These are the Service Principals used in the Solution
 
 * Azure Virtual Desktop service principal (Has role for Start VM on Connect)
 * DevOps Deployment Service Principal
+* Automation RunAs Connection Service Principal. [See Create RunAs Connection](.tests/automation_account_run_as_account/create_runas_account.ps1)
+    * Generate password called selfSignedCertPassword value of ToBase64String(New-Guid + '=')
+    * Submit Request for New Identity
+        * Request for Cert Authn using a certificate with the supplied secret
+        * Request the ApplicationId and CertificateThumbprint
+
 
 # DevOps Enablement (GitHub Actions)
 
