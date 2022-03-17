@@ -175,7 +175,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           deploymentMode: Validate
-          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_RUN_ATTEMPT }}-validate
+          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}-validate
           scope: subscription
           region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
@@ -185,7 +185,7 @@ jobs:
         id: task-deploy
         uses: azure/arm-deploy@v1
         with:
-          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${{ GITHUB_RUN_NUMBER }}-${{ GITHUB_RUN_ATTEMPT }}
+          deploymentName: ${{github.event.inputs.old_resourceGroupName}}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}
           scope: subscription
           region: ${{ env.location }}
           template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
