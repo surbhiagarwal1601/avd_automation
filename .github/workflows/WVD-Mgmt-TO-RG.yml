@@ -189,6 +189,7 @@ jobs:
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
             }
+          azPSVersion: "latest"
 
       - name: Deploy Module
         id: task-deploy
@@ -209,6 +210,7 @@ jobs:
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
             }
+          azPSVersion: "latest"
 
 
 
