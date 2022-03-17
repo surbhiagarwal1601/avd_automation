@@ -21,7 +21,7 @@
     // 'Start on connect' role definition
     "soCRoleDefParameters": {
       "value": {
-        "enabled": true,
+        "enabled": false,
         "moduleName": "RoleDefinitions",
         "moduleVersion": "1.0.0",
         "roleName": "ReadAndStartVMs",
@@ -60,7 +60,7 @@
         "accessPolicies": [
           {
             "tenantId": "98f3e5a8-1add-4955-a7ed-16b948862dbb",
-            "objectId": "ed9baec0-fe07-454f-acd2-5fe89aee9ab8",
+            "objectId": "ed9baec0-fe07-454f-acd2-5fe89aee9ab8", // github_cicd_service_principal
             "permissions": {
               "keys": [
                 "All"
@@ -83,7 +83,7 @@
         "enabled": true,
         "moduleName": "StorageAccounts",
         "moduleVersion": "1.0.0",
-        "storageAccountName": "wvdmgmt",
+        "storageAccountName": "avdaaddstoassetsstore",
         "storageAccountKind": "StorageV2",
         "storageAccountSku": "Standard_LRS",
         "blobContainers": [
@@ -104,7 +104,7 @@
           }
         ],
         "tables": [
-          "mgmthostpool"
+          "avdtohp"
         ]
       }
     },
@@ -123,10 +123,10 @@
         "enabled": true,
         "moduleName": "RecoveryServicesVaults",
         "moduleVersion": "1.0.0",
-        "recoveryVaultName": "mgmtrecservault",
+        "recoveryVaultName": "avdBackupVault",
         "backupPolicies": [
           {
-            "name": "mgmtrecservicepolicy",
+            "name": "filesharepolicy",
             "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
             "properties": {
               "backupManagementType": "AzureStorage",
@@ -151,7 +151,7 @@
                   }
                 }
               },
-              "timeZone": "Mountain Standard Time",
+              "timeZone": "UTC",
               "protectedItemsCount": 0
             }
           }

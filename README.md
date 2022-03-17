@@ -304,14 +304,51 @@ First configure self-service password reset
 Domain Joined Service Account: 
 ```bash
 
-az ad sp create-for-rbac --name "azure_virtual_desktop_domain_join_service_principal"  --sdk-auth
+domain_join_sp_name=avd_domain_join_sp
+az ad sp create-for-rbac --name $domain_join_sp_name  --sdk-auth
 
 ```
 
-Add user to UVD Userer Group
+Storage Joined Service Account: 
 ```bash
+
+storage_join_sp_name=avd_storage_join_sp
+az ad sp create-for-rbac --name $storage_join_sp_name  --sdk-auth
+
+```
+
+Add Domain Join User to AAD DC Administrators Group
+```bash
+# Get Group Id
+aad_dc_admin_group_name="AAD DC Administrators"
+
+# Get the objectId of the DomainJoinSp
+avd_domain_join_sp_object_id=$(az ad sp list \
+  --display-name $domain_join_sp_name \
+  --query [].objectId \
+  --out tsv)
+
+az ad group member check --group "$aad_dc_admin_group_name" --member-id $avd_domain_join_sp_object_id
+az ad group member add --group "$aad_dc_admin_group_name" --member-id $avd_domain_join_sp_object_id
+
+
+```
+
+Add user to UVD User Group
+```bash
+# Create Group
 avd_user_group="AVD Users"
 az ad group create --display-name "$avd_user_group" --mail-nickname "$avd_user_group"
+
+# Get the objectId of the DomainJoinSp
+avd_user_name="AVD User 001"
+avd_user_object_id=$(az ad user list \
+  --display-name "$avd_user_name" \
+  --query [].objectId \
+  --out tsv)
+
+az ad group member check --group "$avd_user_group" --member-id $avd_user_object_id
+az ad group member add --group "$avd_user_group" --member-id $avd_user_object_id
 ```
 ```PowerShell
 # Get the AAD DC Administrators Group Id
