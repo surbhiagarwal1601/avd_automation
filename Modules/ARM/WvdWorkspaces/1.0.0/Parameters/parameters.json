@@ -3,21 +3,21 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "workSpaceName": {
-            "value": "sxx-az-wvdws-weu-x-001"
+            "value": "wks-01"
         },
         "location": {
-            "value": "eastus"
+            "value": "westus2"
         },
         "appGroupResourceIds": {
             "value": [
-                "/subscriptions/8629be3b-96bc-482d-a04b-ffff597c65a2/resourceGroups/validation-rg/providers/Microsoft.DesktopVirtualization/applicationgroups/sxx-az-wvdag-weu-x-001"
+                "/subscriptions/8629be3b-96bc-482d-a04b-ffff597c65a2/resourceGroups/AVD-HostPool-RG/providers/Microsoft.DesktopVirtualization/applicationgroups/primary-ag"
             ]
         },
         "workspaceFriendlyName": {
-            "value": "My first WVD Workspace"
+            "value": "primary-workspace"
         },
         "workspaceDescription": {
-            "value": "This is my first WVD Workspace"
+            "value": "Primary Workspace"
         }
     }
 }

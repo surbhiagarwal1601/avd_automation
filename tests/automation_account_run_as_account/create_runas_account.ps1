@@ -92,7 +92,10 @@ Write-Verbose "## 4 - Update Cert Secret to KV ##" -Verbose
 Write-Verbose "##################################" -Verbose
 
 $SelfSignedCertSecretName = "avdScalingRunAsPrincipalCert-Secret"
-$KeyVaultName = "kvlov2dhy7sje6o"
+$MgmResourceGroupName = "AVD-Mgmt-RG"
+
+$KeyVault = Get-AzKeyVault -ResourceGroupName $MgmResourceGroupName
+$KeyVaultName = $KeyVault.VaultName
 
 Write-Verbose ("No cert secret '{0}' found in key vault '{1}'. Generating new." -f $SelfSignedCertSecretName, $KeyVaultName) -Verbose
 $selfSignedCertPassword = ConvertTo-SecureString $selfSignedCertPlainPassword -AsPlainText -Force
@@ -103,7 +106,7 @@ Write-Verbose "##################################" -Verbose
 Write-Verbose "## 5 - Create Automation Cert   ##" -Verbose
 Write-Verbose "##################################" -Verbose
 
-$AutomationAccountRGName = "AVD-Mgmt-RG"
+$AutomationAccountRGName = $MgmResourceGroupName
 $AutomationAccountName = "avd-scaling-autoaccount"
 
 

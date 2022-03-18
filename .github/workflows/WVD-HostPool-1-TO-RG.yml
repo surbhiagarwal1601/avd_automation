@@ -29,7 +29,7 @@ on:
       resourceGroupName:
         description: 'Target Resource Group Name'
         required: true
-        default: 'AVD-HostPool-01-TO-RG'
+        default: 'AVD-HostPool-RG'
         type: string
       environment:
         description: 'Environment to deploy to'
@@ -44,6 +44,7 @@ env:
   ## GENERAL ##
   rgFolder: WVD-HostPool-01-TO-RG  
   storageContainerMapPath: Parameters/Uploads/assets.config.json
+  wvdUploadsPath: WVD/OrchestrationSources/Uploads
 
   # ResourceGroup related
   # resourceGroupName: AVD-HostPool-RG - From User Input
@@ -73,8 +74,8 @@ env:
   LogOffMessageBody: 'Forcing Log off to update os.' # PopUp text shown to users if they are warned of an upcoming imminent log-off
   UtcOffset: -13 #<ReplaceWith-UtcOffset> # Time difference to UTC. Enabled handling of different time zones.
   LAWorkspaceName: '' # Name of an OMS workspace to send host-pool image update process logs to
-  stateStorageAccountName: avdtoassetsstore #<ReplaceWith-StateStorageAccountName>
-  stateTableName: avdtohp # <ReplaceWith-StateTableName>
+  stateStorageAccountName: '' # avdtoassetsstore #<ReplaceWith-StateStorageAccountName>
+  stateTableName: '' #avdtohp # <ReplaceWith-StateTableName>
   
 
 jobs:

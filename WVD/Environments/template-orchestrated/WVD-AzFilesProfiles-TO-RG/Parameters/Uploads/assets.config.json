@@ -1,30 +1,30 @@
 {
     "storageContainerMaps": [
         {
-            "storageAccount": "avdassetsstore"
-            // "containerMaps": [
-            //     {
-            //         "targetContainer": "storagejoin",
-            //         "packagesToUpload": [
-            //             {
-            //                 "packageName": "005-AzFiles",
-            //                 "additionalPackageFiles": [
-            //                     "azfiles.parameters.json"
-            //                 ],
-            //                 "downloads": [
-            //                     {
-            //                         "Url": "https://github.com/Azure-Samples/azure-files-samples/releases/download/v0.2.3/AzFilesHybrid.zip",
-            //                         "DestinationFilePath": "AzFilesHybrid.zip"
-            //                     },
-            //                     {
-            //                         "Url": "https://download.sysinternals.com/files/PSTools.zip",
-            //                         "DestinationFilePath": "PSTools.zip"
-            //                     }
-            //                 ]
-            //             }
-            //         ]
-            //     }
-            // ]
+            "storageAccount": "avdassetsstore",
+            "containerMaps": [
+                {
+                    "targetContainer": "storagejoin",
+                    "packagesToUpload": [
+                        {
+                            "packageName": "005-AzFiles",
+                            "additionalPackageFiles": [
+                                "azfiles.parameters.json"
+                            ],
+                            "downloads": [
+                                {
+                                    "Url": "https://github.com/Azure-Samples/azure-files-samples/releases/download/v0.2.3/AzFilesHybrid.zip",
+                                    "DestinationFilePath": "AzFilesHybrid.zip"
+                                },
+                                {
+                                    "Url": "https://download.sysinternals.com/files/PSTools.zip",
+                                    "DestinationFilePath": "PSTools.zip"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

@@ -66,17 +66,17 @@
         "agParametersArray": [
           // Desktop
           {
-            "name": "sxx-az-avdag-wus-x-001",
+            "name": "primary-ag",
             "appGroupType": "Desktop",
             "appGroupFriendlyName": "Remote Applications 1",
             "appGroupDescription": "This is my first Remote Applications bundle",
             "roleAssignments": [
-            //   {
-            //     "roleDefinitionIdOrName": "Desktop Virtualization User",
-            //     "principalIds": [
-            //       "<ReplaceWith-PrincipalId>"
-            //     ]
-            //   }
+              {
+                "roleDefinitionIdOrName": "Desktop Virtualization User",
+                "principalIds": [
+                  "9160a407-2da5-4691-a04d-8f41d3065116"
+                ]
+              }
             ]
           }
         ]
@@ -88,7 +88,7 @@
         "enabled": true,
         "moduleName": "WvdWorkspaces",
         "moduleVersion": "1.0.0",
-        "name": "sxx-az-avdws-wus-x-001",
+        "name": "wks-01",
         "workspaceFriendlyName": "My first WVD Workspace",
         "workspaceDescription": "This is My first WVD Workspace"
       }
@@ -99,17 +99,15 @@
         "enabled": true,
         "moduleName": "VirtualMachines",
         "moduleVersion": "1.0.0",
-        "vmNamePrefix": "iac",
+        "vmNamePrefix": "sessionhost",
         "vmNumberOfInstances": 2,
         "vmInitialNumber": 0,
         "vmSize": "Standard_D2s_v5",
-        "imageReference": {
-            
+        "imageReference": {            
               "publisher": "MicrosoftWindowsServer",
               "offer": "WindowsServer",
               "sku": "2016-Datacenter",
-              "version": "latest"
-         
+              "version": "latest"         
         },
         "osDisk": {
           "createOption": "fromImage",
@@ -118,10 +116,10 @@
             "storageAccountType": "Premium_LRS"
           }
         },
-        "adminUsername": "localAdminUser",
+        "adminUsername": "localadmin",
         "adminPassword": {
           "keyVault": {
-            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall371231/providers/Microsoft.KeyVault/vaults/kvng2gfnoz2zgrq"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
           },
           "secretName": "localAdmin-Password"
         },
@@ -137,27 +135,32 @@
             "ipConfigurations": [
               {
                 "name": "ipconfig1",
-                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_avd_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-westus2"
+                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_avd_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool"
               }
             ]
           }
         ],
-        "domainName": "y3qjt.onmicrosoft.com",
-        "domainJoinUser": "azure_virtual_desktop_domain_join_service_principal@y3qjt.onmicrosoft.com",
+        "domainName": "y3qjt.com",
+        "domainJoinUser": "avd_domain_join_sp@y3qjt.com",
         "domainJoinPassword": {
           "keyVault": {
-            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/myAvdWorkFlowCall371231/providers/Microsoft.KeyVault/vaults/kvng2gfnoz2zgrq"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
           },
           "secretName": "domainJoinUser-Password"
         },
         // "domainJoinOU": "<ReplaceWith-DomainJoinOU>",
-        "domainJoinRestart": false // Required to pull GPOs
-        // "windowsScriptExtensionFileData": [
-        //   {
-        //     "uri": "<ReplaceWith-Uri>",
-        //     "storageAccountId": "<ReplaceWith-StorageAccountId>"
-        //   }
-        // ]
+        "domainJoinRestart": false, // Required to pull GPOs
+        "windowsScriptExtensionFileData": [
+          {
+            "uri": "https://avdassetsstore.blob.core.windows.net/imagescripts/scriptExtensionMasterInstaller.ps1",
+            "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-PO-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore"
+          },
+          {
+            "uri": "https://avdassetsstore.blob.core.windows.net/imagescripts/001-FSLogix.zip",
+            "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-PO-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore"
+          }
+        ],
+        "windowsScriptExtensionCommandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddsto01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Profiles-TO-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddsto01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]"
       }
     },
     // Applications
@@ -204,27 +207,27 @@
         "enabled": true,
         "moduleName": "WvdScalingScheduler",
         "moduleVersion": "1.0.0",
-        "logicAppName": "<ReplaceWith-LogicAppName>",
+        "logicAppName": "hp-scaling-workflow",
         "webhookURI": {
           "keyVault": {
-            "id": "<ReplaceWith-Id>"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
           },
-          "secretName": "<ReplaceWith-SecretName>"
+          "secretName": "AVDAutoScaleWebhook-Uri"
         },
         "actionSettingsBody": {
-          "ResourceGroupName": "<ReplaceWith-ResourceGroupName>",
-          "HostPoolName": "<ReplaceWith-HostPoolName>",
-          "UtcOffset": "<ReplaceWith-UtcOffset>",
-          "BeginPeakTime": "<ReplaceWith-BeginPeakTime>",
-          "EndPeakTime": "<ReplaceWith-EndPeakTime>",
-          "SessionThresholdPerCPU": "<ReplaceWith-SessionThresholdPerCPU>",
-          "MinimumNumberOfRDSH": "<ReplaceWith-MinimumNumberOfRDSH>",
-          "LimitSecondsToForceLogOffUser": "<ReplaceWith-LimitSecondsToForceLogOffUser>",
-          "LogOffMessageTitle": "<ReplaceWith-LogOffMessageTitle>",
-          "LogOffMessageBody": "<ReplaceWith-LogOffMessageBody>",
-          "LAWorkspaceName": "<ReplaceWith-LAWorkspaceName>",
-          "stateStorageAccountName": "<ReplaceWith-StateStorageAccountName>",
-          "stateTableName": "<ReplaceWith-StateTableName>"
+          "ResourceGroupName": "AVD-HostPool-RG",
+          "HostPoolName": "avd-hp",
+          "UtcOffset": "",
+          "BeginPeakTime": "9:00",
+          "EndPeakTime": "18:00",
+          "SessionThresholdPerCPU": "2",
+          "MinimumNumberOfRDSH": "1",
+          "LimitSecondsToForceLogOffUser": "9999",
+          "LogOffMessageTitle": "Logging off",
+          "LogOffMessageBody": "Logging off",
+          "LAWorkspaceName": "log-analytics-dad42fd927a",
+          "stateStorageAccountName": "",
+          "stateTableName": ""
         },
         "recurrenceInterval": 15
       }
