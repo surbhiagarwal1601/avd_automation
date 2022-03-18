@@ -135,7 +135,7 @@
             "ipConfigurations": [
               {
                 "name": "ipconfig1",
-                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_avd_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool"
+                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool"
               }
             ]
           }
