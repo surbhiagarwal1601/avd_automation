@@ -71,9 +71,10 @@ az network vnet subnet create -g $rg_name -n $subnet_aad_ds --vnet-name $vnet_co
 az network vnet create -g $rg_name -n $vnet_avd --address-prefixes $vnet_avd_prefix
 az network vnet subnet create -g $rg_name -n $subnet_avd --vnet-name $vnet_avd  --address-prefixes $subnet_avd_prefix
 
-# # create p2s vpn
-# az network p2s-vpn-gateway create -g $rg_name -n MyP2SVPNGateway --scale-unit 2 --vhub MyVhub --vpn-server-config MyVPNServerConfig --address-space 10.0.0.0/24 11.0.0.0/24
-
+# Create NSG for subnets
+nsg_avd=avd-nsg
+az network nsg create --name $nsg_avd --resource-group $rg_name
+az network vnet subnet update -g $rg_name -n $subnet_avd --vnet-name  $vnet_avd --network-security-group $nsg_avd
 
 
 # Peer networks
@@ -110,6 +111,7 @@ az network vnet peering show \
   --resource-group $rg_name \
   --vnet-name $vnet_core \
   --query peeringState
+
 
 ```
 ### Log Analytics Workspace 

@@ -45,7 +45,7 @@
         "enabled": true,
         "moduleName": "WvdHostPools",
         "moduleVersion": "1.0.0",
-        "name": "avd-hp",
+        "name": "avd-hp", // TODO Override with Pipeline
         "hostpoolFriendlyName": "AVD-HostPool",
         "hostpoolDescription": "Primary HostPool",
         "hostpoolType": "Pooled",
@@ -66,7 +66,7 @@
         "agParametersArray": [
           // Desktop
           {
-            "name": "primary-ag",
+            "name": "primary-ag", // TODO Override with Pipeline?
             "appGroupType": "Desktop",
             "appGroupFriendlyName": "Remote Applications 1",
             "appGroupDescription": "This is my first Remote Applications bundle",
@@ -74,7 +74,7 @@
               {
                 "roleDefinitionIdOrName": "Desktop Virtualization User",
                 "principalIds": [
-                  "9160a407-2da5-4691-a04d-8f41d3065116"
+                  "9160a407-2da5-4691-a04d-8f41d3065116" // TODO Override with Pipeline (AAD User Group ID)
                 ]
               }
             ]
@@ -119,11 +119,11 @@
         "adminUsername": "localadmin",
         "adminPassword": {
           "keyVault": {
-            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu" // TODO Override with Pipeline
           },
-          "secretName": "localAdmin-Password"
+          "secretName": "localAdmin-Password" 
         },
-        "availabilitySetName": "avd-avSet-westus",
+        "availabilitySetName": "avd-avSet-westus", 
         // "maxNumberOfVmsPerAvSet": <ReplaceWith-MaxNumberOfVmsPerAvSet>,
         // "useAvailabilityZone": <ReplaceWith-UseAvailabilityZone>,
         // "windowsConfiguration": {
@@ -135,16 +135,16 @@
             "ipConfigurations": [
               {
                 "name": "ipconfig1",
-                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool"
+                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool" // TODO Override with Pipeline
               }
             ]
           }
         ],
-        "domainName": "y3qjt.com",
-        "domainJoinUser": "avd_domain_join_sp@y3qjt.com",
+        "domainName": "y3qjt.com", 
+        "domainJoinUser": "avd_domain_join_sp@y3qjt.com", // TODO Override with Pipeline?
         "domainJoinPassword": {
           "keyVault": {
-            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu" // TODO Override with Pipeline
           },
           "secretName": "domainJoinUser-Password"
         },
@@ -171,7 +171,7 @@
         "moduleVersion": "1.0.0",
         "appParametersArray": [
           {
-            "appGroupName": "WorkRelatedApps",
+            "appGroupName": "primary-ag", // TODO Override with Pipeline
             "applications": [
               {
                 "name": "notepad",
@@ -210,13 +210,13 @@
         "logicAppName": "hp-scaling-workflow",
         "webhookURI": {
           "keyVault": {
-            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
+            "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu" // TODO Override with Pipeline
           },
           "secretName": "AVDAutoScaleWebhook-Uri"
         },
         "actionSettingsBody": {
-          "ResourceGroupName": "AVD-HostPool-RG",
-          "HostPoolName": "avd-hp",
+          "ResourceGroupName": "AVD-HostPool-RG", // TODO Override with Pipeline
+          "HostPoolName": "avd-hp", // TODO Override with Pipeline
           "UtcOffset": "",
           "BeginPeakTime": "9:00",
           "EndPeakTime": "18:00",
@@ -225,9 +225,9 @@
           "LimitSecondsToForceLogOffUser": "9999",
           "LogOffMessageTitle": "Logging off",
           "LogOffMessageBody": "Logging off",
-          "LAWorkspaceName": "log-analytics-dad42fd927a",
-          "stateStorageAccountName": "",
-          "stateTableName": ""
+          "LAWorkspaceName": "log-analytics-dad42fd927a", // TODO Override with Pipeline
+          "stateStorageAccountName": "", // TODO Override with Pipeline
+          "stateTableName": "" // TODO Override with Pipeline?
         },
         "recurrenceInterval": 15
       }

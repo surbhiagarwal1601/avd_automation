@@ -70,10 +70,10 @@ env:
   # -----------------------
   DeleteVMDeadline: '' # In 'yyyyMMddHHmm'. The deadline after which outdated VMs are delete
   LogoffDeadline: '' # In 'yyyyMMddHHmm'. The deadline after which users are log-off by force
-  LogOffMessageTitle: '' # PopUp title shown to users if they are warned of an upcoming imminent log-off
+  LogOffMessageTitle: 'Logging off' # PopUp title shown to users if they are warned of an upcoming imminent log-off
   LogOffMessageBody: 'Forcing Log off to update os.' # PopUp text shown to users if they are warned of an upcoming imminent log-off
-  UtcOffset: -13 #<ReplaceWith-UtcOffset> # Time difference to UTC. Enabled handling of different time zones.
-  LAWorkspaceName: '' # Name of an OMS workspace to send host-pool image update process logs to
+  UtcOffset: 0 #<ReplaceWith-UtcOffset> # Time difference to UTC. Enabled handling of different time zones.
+  LAWorkspaceName: 'log-analytics-dad42fd927a' # Name of an OMS workspace to send host-pool image update process logs to
   stateStorageAccountName: '' # avdtoassetsstore #<ReplaceWith-StateStorageAccountName>
   stateTableName: '' #avdtohp # <ReplaceWith-StateTableName>
   
