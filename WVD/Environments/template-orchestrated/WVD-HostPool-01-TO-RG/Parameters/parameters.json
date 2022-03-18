@@ -66,10 +66,25 @@
         "agParametersArray": [
           // Desktop
           {
-            "name": "primary-ag", // TODO Override with Pipeline?
+            "name": "avd-pooled-primary-dag", // TODO Override with Pipeline (yes,shared with apps)
             "appGroupType": "Desktop",
-            "appGroupFriendlyName": "Remote Applications 1",
-            "appGroupDescription": "This is my first Remote Applications bundle",
+            "appGroupFriendlyName": "Default Desktop",
+            "appGroupDescription": "Desktop App Group Created by CICD",
+            "roleAssignments": [
+              {
+                "roleDefinitionIdOrName": "Desktop Virtualization User",
+                "principalIds": [
+                  "9160a407-2da5-4691-a04d-8f41d3065116" // TODO Override with Pipeline (AAD User Group ID)
+                ]
+              }
+            ]
+          },
+          // Notepad
+          {
+            "name": "avd-pooled-primary-rag", // TODO Override with Pipeline (yes,shared with apps)
+            "appGroupType": "RemoteApp",
+            "appGroupFriendlyName": "Remote Applications",
+            "appGroupDescription": "Remote App Group Created by CICD",
             "roleAssignments": [
               {
                 "roleDefinitionIdOrName": "Desktop Virtualization User",
@@ -104,9 +119,9 @@
         "vmInitialNumber": 0,
         "vmSize": "Standard_D2s_v5",
         "imageReference": {            
-              "publisher": "MicrosoftWindowsServer",
-              "offer": "WindowsServer",
-              "sku": "2016-Datacenter",
+              "publisher": "microsoftwindowsdesktop",
+              "offer": "office-365",
+              "sku": "win10-21h2-avd-m365-g2",
               "version": "latest"         
         },
         "osDisk": {
@@ -141,14 +156,14 @@
           }
         ],
         "domainName": "y3qjt.com", 
-        "domainJoinUser": "avd_domain_join_sp@y3qjt.com", // TODO Override with Pipeline?
+        "domainJoinUser": "domainjoin@y3qjt.com", // TODO Override with Pipeline?
         "domainJoinPassword": {
           "keyVault": {
             "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu" // TODO Override with Pipeline
           },
           "secretName": "domainJoinUser-Password"
         },
-        // "domainJoinOU": "<ReplaceWith-DomainJoinOU>",
+        "domainJoinOU": "OU=Hosts,OU=AVD,DC=y3qjt,DC=com",
         "domainJoinRestart": false, // Required to pull GPOs
         "windowsScriptExtensionFileData": [
           {
@@ -171,7 +186,7 @@
         "moduleVersion": "1.0.0",
         "appParametersArray": [
           {
-            "appGroupName": "primary-ag", // TODO Override with Pipeline
+            "appGroupName": "avd-pooled-primary-rag", // TODO Override with Pipeline
             "applications": [
               {
                 "name": "notepad",
@@ -185,17 +200,17 @@
                 "iconIndex": 0
               }
               // Example Teams
-              //   ,{
-              //     "name": "Microsoft Teams",
-              //     "description": "Microsoft Teams by ARM template",
-              //     "friendlyName": "Microsoft Teams",
-              //     "filePath": "C:\\Program Files (x86)\\Microsoft\\Teams\\current\\Teams.exe",
-              //     "commandLineSetting": "DoNotAllow",
-              //     "commandLineArguments": "",
-              //     "showInPortal": true,
-              //     "iconPath": "C:\\Program Files (x86)\\Microsoft\\Teams\\current\\Teams.exe",
-              //     "iconIndex": 0
-              // }
+              ,{
+                "name": "Microsoft Teams",
+                "description": "Microsoft Teams by ARM template",
+                "friendlyName": "Microsoft Teams",
+                "filePath": "C:\\Program Files (x86)\\Microsoft\\Teams\\current\\Teams.exe",
+                "commandLineSetting": "DoNotAllow",
+                "commandLineArguments": "",
+                "showInPortal": true,
+                "iconPath": "C:\\Program Files (x86)\\Microsoft\\Teams\\current\\Teams.exe",
+                "iconIndex": 0
+              }
             ]
           }
         ]

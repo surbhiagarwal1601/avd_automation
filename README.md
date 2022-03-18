@@ -51,8 +51,10 @@ vnet_core=vnet-core-$rg_region
 vnet_core_prefix='10.0.0.0/16'
 subnet_aad_ds=snet-add-ds # Core - Azure AD Domain Services subnet
 subnet_aad_ds_prefix='10.0.255.0/27'
+subnet_bastion=AzureBastionSubnet
+subnet_bastion_prefix='10.0.255.64/27'
 # subnet_gateway=gateway # Core - P2S Gateway Subnet Name created automatically
-subnet_gateway_prefix='10.0.255.64/27'
+# subnet_gateway_prefix='10.0.255.32/27'
 
 # AVD VNet 
 vnet_avd=vnet-avd-$rg_region
@@ -66,10 +68,13 @@ az group create -n $rg_name -l $rg_region
 # create core vnet
 az network vnet create -g $rg_name -n $vnet_core --address-prefixes $vnet_core_prefix
 az network vnet subnet create -g $rg_name -n $subnet_aad_ds --vnet-name $vnet_core  --address-prefixes $subnet_aad_ds_prefix
+az network vnet subnet create -g $rg_name -n $subnet_bastion --vnet-name $vnet_core  --address-prefixes $subnet_bastion_prefix
 
 # create avd vnet
 az network vnet create -g $rg_name -n $vnet_avd --address-prefixes $vnet_avd_prefix
 az network vnet subnet create -g $rg_name -n $subnet_avd --vnet-name $vnet_avd  --address-prefixes $subnet_avd_prefix
+
+
 
 # Create NSG for subnets
 nsg_avd=avd-nsg
