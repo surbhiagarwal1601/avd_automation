@@ -40,6 +40,19 @@ az provider show --namespace Microsoft.DesktopVirtualization
 az provider register --namespace Microsoft.DesktopVirtualization
 ```
 
+Enable Windows Virtual Desktop Enterprise Application
+
+* Enable `Windows Virtual Desktop Server` 
+    * Navigate to  https://rdweb.wvd.microsoft.com/ 
+    * Select Server App for Consent Option
+    * Paste in Domain and submit
+    * Log in with Global Admin for the tenant
+* Enable `Windows Virtual Desktop Client` 
+    * Navigate to  https://rdweb.wvd.microsoft.com/ 
+    * Select Client App for Consent Option
+    * Paste in Domain and submit
+    * Log in with Global Admin for the tenant
+
 ### Virtual Network 
 ```bash
 # Resource Group
