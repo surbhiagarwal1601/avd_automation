@@ -6,6 +6,7 @@ on:
         description: 'Update Assets Storage Account'
         type: boolean
         default: true
+        required: false 
       enableDeploymentMasterARMTemplate:
         description: 'Deploy Resources'
         type: boolean
@@ -15,9 +16,9 @@ on:
         type: boolean
         default: true
       resourceGroupName:
-        description: 'User Profiles Resource Group Name'
+        description: 'Name of the Azure Files profiles resource group'
         required: true
-        default: 'AVD-UserProfiles'
+        default: 'AVD-AzFilesProfiles-RG'
         type: string
       targetEnvironment:
         description: Environment(s) to deploy to
@@ -30,16 +31,54 @@ on:
         - All
 
 env:
-  varFilePath: ./.github/variables/WVD-AzFilesProfiles-TO-RG.env
+  #############
+  ## GENERAL ##
+  #############
+
   rgFolder: WVD-AzFilesProfiles-TO-RG
   location: westus2
   storageContainerMapPath: Parameters/Uploads/assets.config.json
+  
+  # ResourceGroup related
+  # ---------------------
+  # resourcegroupname: / From User Input
+
+  # Recovery Services Vault related
+  # -------------------------------
+  profilesBackupVault: avdBackupVault
+  profilesBackupVaultRG: AVD-Mgmt-TO-RG
+
+  # Identity-based access for file shares (AD or AADDS)
+  # ------------------------------------------------
+  # Controls the way the authentication towards the FSLogix file shares is set up
+
+  ## Azure ADDS
+  # Either AD or AADDS
+  # If Azure ADDS is the provided identity solution, only the storage account is created as part of the pipeline.
+  # The identity-based access for file shares is enabled for Azure ADDS as part of the storage resource deployment.
+  # keyVaultName and helperServerName variables should be set to '' (empty)
+  identityApproach: AADDS
+  keyVaultName: ""
+  helperServerName: ""
+  avd_users_group_id: 9160a407-2da5-4691-a04d-8f41d3065116
+
+  ## Native AD
+  # If Native AD (ADDS) is the provided identity solution, additional jobs are triggered as part of the pipeline.
+  # The identity-based access for file shares is enabled for Native AD leveraging a domain joined VM, created as part of the pipeline.
+  # keyVaultName is the key vault storing the hybrid admin credentials used to join the storage account.
+  # helperServerName is the name of the domain joined VM which will be created to run the storage account join on behalf of the hybrid admin.
+  # identityApproach: <ReplaceWith-# identityApproach>
+  # keyVaultName: <ReplaceWith-# keyVaultName>
+  # helperServerName: <ReplaceWith-# helperServerName>
+  #endregion
 
 jobs:
   Update_AssetsStorageAccount:
     name: Update Assets Storage Account
     if: ${{ github.event.inputs.enableJobUpdateAssetsStorageAccount == 'true' }}
     runs-on: windows-latest
+    env:
+      storageAccountName: fslogixaaddst01
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -53,7 +92,7 @@ jobs:
           creds: ${{secrets.AZURE_CREDENTIALS}}
           enable-AzPSSession: true
       - name: Upload latest configuration files to assets storage account
-        id: task-post-deploy-storage-accounts
+        id: PostDeploy_StorageAccounts_Task
         uses: azure/powershell@v1
         with:
           inlineScript: |
@@ -91,9 +130,12 @@ jobs:
           echo Update_AssetsStorageAccount contains failure ${{ contains(needs.Update_AssetsStorageAccount.result, 'failure')}}
 
   Deploy_Profiles:
-    runs-on: ubuntu-latest
+    name:  Deploy Azure Files Profile Resources
     needs: Update_AssetsStorageAccount
-    if: ${{ github.event.inputs.enableDeploymentMasterARMTemplate == 'true' }}
+    if: |
+      !failure() && !cancelled() &&
+      (github.event.inputs.enableDeploymentMasterARMTemplate == 'true')
+    runs-on: windows-latest    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -105,28 +147,135 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true  
       - name: Check Params
         run: |
           echo "Deployment Name: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')"
           echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
           echo "Parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.AZURE_CREDENTIALS}} componentsStorageContainerName=${{env.componentsStorageContainerName}}"
           echo "Pipeline Params: ${{ github.event.inputs.rgname }}"
-
-      - name: Validate template
-        id: task-validate-arm-template
-        uses: azure/arm-deploy@v1
+      - name: Update Parameters
+        id: step-update-parameters
+        uses: azure/powershell@v1
         with:
-          deploymentMode: Validate
-          scope: subscription
-          region: ${{ env.location }}
-          template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.rgname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}}
+          inlineScript: |
 
-      - name: Deploy template
-        id: task-deploy-arm-template
-        uses: azure/arm-deploy@v1
+            #======== Code to over write nested parameters
+            $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $paramsRaw = Get-Content $parameterFilePath -Raw
+            $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+            $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+            
+            # Replace with Pipeline parameters
+            $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
+
+            $json.parameters.storAccountParameters.identityApproach.value = "${{ env.identityApproach }}"
+            $json.parameters.storAccountParameters.saParametersArray.fileShares[0].principalIds = "${{env.avd_users_group_id}}"
+            $json.parameters.vmParameters.value.location = "${{env.location}}"
+            # $json.parameters.vmParameters.adminPassword.keyVault.id = "${{env.KeyVaultId}}"
+            # $json.parameters.vmParameters.ipConfigurations.subnetId = "${{env.location}}"
+            # $json.parameters.vmParameters.domainName = "${{env.location}}"
+            # $json.parameters.vmParameters.domainJoinUser = "${{env.location}}"
+            # $json.parameters.vmParameters.domainJoinPassword.keyVault.id = "${{env.location}}"
+             
+            ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            #========
+          errorActionPreference: stop
+          azPSVersion: "latest"
+
+      - name: Validate
+        uses: azure/powershell@v1
         with:
-          scope: subscription
-          region: ${{ env.location }}
-          template: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json
-          parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json resourcegroupname=${{ github.event.inputs.resourcegroupname }} componentStorageAccountId=${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}} componentsStorageContainerName=${{env.componentsStorageContainerName}} enableVmResources=true enableVmExtensions=true
+          inlineScript: |
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolderPath }}/deploy.json"
+            $DeploymentInputs = @{
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+              EnableVmResources     = $true
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              Location              = '${{ env.location }}'
+            }
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+            Test-AzSubscriptionDeployment @DeploymentInputs
+
+            if ($ValidationErrors) {
+              Write-Error "Template is not valid."
+            }
+          errorActionPreference: stop
+          azPSVersion: "latest"
+
+      - name: Deploy
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolderPath }}/deploy.json"
+            $DeploymentInputs = @{
+              Name                  = "$(resourcegroupname)-$(Get-Date -Format yyyyMMddHHMMss)"
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+              EnableVmResources     = $true
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              ErrorAction           = "Stop"
+              Location              = '${{ env.location }}'
+            }
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+            New-AzSubscriptionDeployment @DeploymentInputs
+          errorActionPreference: stop
+          azPSVersion: "latest"
+
+  Deploy_FileSharesBackup:
+    name:  Deploy Azure File Shares Backup
+    needs: Deploy_Profiles
+    if: |
+      !failure() && !cancelled() &&
+      (github.event.inputs.enableJobDeployFileSharesBackup == 'true') && 
+      success('Deploy_Profiles')
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true  
+      - name: Deploy Azure File Shares Backup Task
+        id: Deploy_FileSharesBackup_Task
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Invoke-RsvPostDeployment.ps1'
+            $filesharePolicyMapPath = Join-Path '${{ env.orchestrationPath }}/' '${{ env.rgFolder }}/Parameters/rsv.backupmap.json'
+
+            if(-not (Test-Path $filesharePolicyMapPath)) {
+              throw "Unable to locate file share backup configuration in path [$filesharePolicyMapPath]"
+            }
+            $fileSharePolicyMaps = Get-Content -Path $filesharePolicyMapPath -Raw | ConvertFrom-Json -AsHashtable
+
+            $functionInput = @{
+              orchestrationFunctionsPath         = Join-Path '${{ env.orchestrationPath }}/'
+              recoveryServicesVaultName          = "${{ env.profilesBackupVault }}"
+              RecoveryServicesVaultResourceGroup = "${{ env.profilesBackupVaultRG }}"
+              fileSharePolicyMaps                = $fileSharePolicyMaps.fileSharePolicyMaps
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Invoke-RSVPostDeployment @functionInput -Verbose
+
+          azPSVersion: "latest"
+  
+  

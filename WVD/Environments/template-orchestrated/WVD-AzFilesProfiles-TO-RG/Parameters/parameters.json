@@ -8,7 +8,7 @@
         "enabled": true,
         "moduleName": "ResourceGroup",
         "moduleVersion": "1.0.0",
-        // "resourceGroupName": "<ReplaceWith-ResourceGroupName>",
+        "resourceGroupName": "", // updated by pipeline
         // Native AD only
         "roleAssignments": [
         //   {
@@ -26,23 +26,23 @@
         "enabled": true,
         "moduleName": "StorageAccounts",
         "moduleVersion": "1.0.0",
-        "identityApproach": "AD",
+        "identityApproach": "", // updated by pipeline
         "saParametersArray": [
           {
-            "storageAccountName": "chanuserprofilesstorage",
+            "storageAccountName": "fslogixaaddst01",
             "storageAccountKind": "StorageV2",
-            "storageAccountSku": "Standard_LRS",
+            "storageAccountSku": "Standard_GRS",
             "fileShares": [
               {
-                "name": "userprofile",
-                "shareQuota": "100",
+                "name": "avdprofiles01",
+                "shareQuota": "5120",
                 "roleAssignments": [
-                  // {
-                  //   "roleDefinitionIdOrName": "Storage File Data SMB Share Contributor",
-                  //   "principalIds": [
-                  //     "<ReplaceWith-PrincipalIds>"
-                  //   ]
-                  // }
+                  {
+                    "roleDefinitionIdOrName": "Storage File Data SMB Share Contributor",
+                    "principalIds": [
+                      "" // updated by pipeline for the AVD User Group(s)
+                    ]
+                  }
                 ]
               }
             ]
@@ -64,68 +64,67 @@
       "value": {
         "enabled": true,
         "moduleName": "VirtualMachines",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        // "location": "<ReplaceWith-Location>",
+        "moduleVersion": "1.0.0",
         "vmNames": [
-          "<ReplaceWith-VmNames>"
+          "HelperSrvTO"
         ],
-        "vmSize": "<ReplaceWith-VmSize>",
+        "vmSize": "Standard_D2s_v5",
         "managedServiceIdentity": "SystemAssigned",
         "imageReference": {
           // "id": ""
-          "publisher": "<ReplaceWith-Publisher>",
-          "offer": "<ReplaceWith-Offer>",
-          "sku": "<ReplaceWith-Sku>",
-          "version": "<ReplaceWith-Version>"
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "WindowsServer",
+          "version": "latest"
         },
         "osDisk": {
           "createOption": "fromImage",
-          "diskSizeGB": "<ReplaceWith-DiskSizeGB>",
+          "diskSizeGB": "128",
           "managedDisk": {
-            "storageAccountType": "<ReplaceWith-StorageAccountType>"
+            "storageAccountType": "Premium_LRS"
           }
         },
-        "adminUsername": "<ReplaceWith-AdminUsername>",
+        "adminUsername": "localadmin",
         "adminPassword": {
           "keyVault": {
-            "id": "<ReplaceWith-Id>"
+            "id": "" // updated from pipeline
           },
-          "secretName": "<ReplaceWith-SecretName>"
+          "secretName": "localAdmin-Password"
         },
-        "windowsConfiguration": {
-          "timeZone": "<ReplaceWith-TimeZone>"
-        },
+        // "windowsConfiguration": {
+        //   "timeZone": "<ReplaceWith-TimeZone>"
+        // },
         "nicConfigurations": [
           {
-            "nicSuffix": "<ReplaceWith-NicSuffix>",
+            "nicSuffix": "-nic-01",
             "ipConfigurations": [
               {
-                "name": "<ReplaceWith-Name>",
-                "subnetId": "<ReplaceWith-SubnetId>"
+                "name": "ipconfig1",
+                "subnetId": "" // updated from pipeline
               }
             ]
           }
         ],
-        "domainName": "<ReplaceWith-DomainName>",
-        "domainJoinUser": "<ReplaceWith-DomainJoinUser>",
+        "domainName": "", // updated from pipeline
+        "domainJoinUser": "", // updated from pipeline
         "domainJoinPassword": {
           "keyVault": {
-            "id": "<ReplaceWith-Id>"
+            "id": "" // updated from pipeline
           },
-          "secretName": "<ReplaceWith-SecretName>"
+          "secretName": "domainJoinUser-Password"
         },
-        "domainJoinOU": "<ReplaceWith-DomainJoinOU>",
-        "domainJoinRestart": true, // Required to pull GPOs
-        "windowsScriptExtensionFileData": [
-          {
-            "uri": "<ReplaceWith-Uri>",
-            "storageAccountId": "<ReplaceWith-StorageAccountId>"
-          },
-          {
-            "uri": "<ReplaceWith-Uri>",
-            "storageAccountId": "<ReplaceWith-StorageAccountId>"
-          }
-        ]
+        // "domainJoinOU": "<ReplaceWith-DomainJoinOU>",
+        "domainJoinRestart": false // Required to pull GPOs
+        // "windowsScriptExtensionFileData": [
+        //   {
+        //     "uri": "<ReplaceWith-Uri>",
+        //     "storageAccountId": "<ReplaceWith-StorageAccountId>"
+        //   },
+        //   {
+        //     "uri": "<ReplaceWith-Uri>",
+        //     "storageAccountId": "<ReplaceWith-StorageAccountId>"
+        //   }
+        // ]
       }
     },
     // Shared
