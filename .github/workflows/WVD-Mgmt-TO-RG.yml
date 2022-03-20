@@ -39,7 +39,7 @@ on:
 env:
   ## GENERAL ##
   rgFolder: WVD-Mgmt-TO-RG
-  soc_service_principal_ids: 7c43926c-b40b-43c0-bf5b-2b2cc6689750
+  soc_service_principal_ids: ce2e7d65-158e-4ff9-804b-5f74cba22b96 # Built in Identity
   avdStorageAccountName: avdaaddstoassetsstore
   domainJoinUserName: avd_domain_join_sp
   storageJoinUserName: avd_storage_join_sp
