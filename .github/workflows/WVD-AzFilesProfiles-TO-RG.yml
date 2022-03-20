@@ -150,10 +150,10 @@ jobs:
           enable-AzPSSession: true  
       - name: Check Params
         run: |
-          echo "Deployment Name: ${{ env.resourcegroupname }}-$(date +'%Y%m%d%H%M%S')"
+          echo "Deployment Name: ${{ github.event.inputs.resourceGroupName }}-$(date +'%Y%m%d%H%M%S')"
           echo "Template Name: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
           echo "Parameters: ${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json componentStorageAccountId=${{secrets.AZURE_CREDENTIALS}} componentsStorageContainerName=${{env.componentsStorageContainerName}}"
-          echo "Pipeline Params: ${{ github.event.inputs.rgname }}"
+          echo "Pipeline Params: ${{ github.event.inputs.resourceGroupName }}"
       - name: Update Parameters
         id: step-update-parameters
         uses: azure/powershell@v1
@@ -161,17 +161,20 @@ jobs:
           inlineScript: |
 
             #======== Code to over write nested parameters
-            $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $parameterFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             $paramsRaw = Get-Content $parameterFilePath -Raw
             $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
             $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+
+            echo $json
             
             # Replace with Pipeline parameters
-            $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
-
-            $json.parameters.storAccountParameters.identityApproach.value = "${{ env.identityApproach }}"
-            $json.parameters.storAccountParameters.saParametersArray.fileShares[0].principalIds = "${{env.avd_users_group_id}}"
+            $json.parameters.rgParameters.value.resourceGroupName = "${{ github.event.inputs.resourceGroupName }}"
+            $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+            $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+            $json.parameters.storAccountParameters.value.identityApproach = "${{ env.identityApproach }}"
+            $json.parameters.storAccountParameters.value.saParametersArray[0].fileShares[0].roleAssignments[0].principalIds = "${{env.avd_users_group_id}}"
             $json.parameters.vmParameters.value.location = "${{env.location}}"
             # $json.parameters.vmParameters.adminPassword.keyVault.id = "${{env.KeyVaultId}}"
             # $json.parameters.vmParameters.ipConfigurations.subnetId = "${{env.location}}"
@@ -188,7 +191,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolderPath }}/deploy.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
             $DeploymentInputs = @{
               TemplateFile          = $templateFilePath
               TemplateParameterFile = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
@@ -212,9 +215,9 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolderPath }}/deploy.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
             $DeploymentInputs = @{
-              Name                  = "$(resourcegroupname)-$(Get-Date -Format yyyyMMddHHMMss)"
+              Name                  = "${{ github.event.inputs.resourceGroupName }}-$(Get-Date -Format yyyyMMddHHMMss)"
               TemplateFile          = $templateFilePath
               TemplateParameterFile = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
               EnableVmResources     = $true
@@ -277,5 +280,3 @@ jobs:
             Invoke-RSVPostDeployment @functionInput -Verbose
 
           azPSVersion: "latest"
-  
-  
