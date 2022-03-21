@@ -13,8 +13,9 @@ on:
         default: true
       enableJobDeployFileSharesBackup:
         description: 'Deploy Azure File Shares Backup'
+        required: false
         type: boolean
-        default: true
+        default: false
       resourceGroupName:
         description: 'Name of the Azure Files profiles resource group'
         required: true
@@ -245,7 +246,10 @@ jobs:
     if: |
       !failure() && !cancelled() &&
       (github.event.inputs.enableJobDeployFileSharesBackup == 'true') && 
-      success('Deploy_Profiles')
+      (
+        success('Deploy_Profiles') || 
+        (contains(needs.Deploy_Profiles.result, 'skipped'))
+      )
     runs-on: windows-latest
     steps:
       - name: Checkout repository
