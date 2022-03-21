@@ -47,7 +47,7 @@ env:
   # Recovery Services Vault related
   # -------------------------------
   profilesBackupVault: avdBackupVault
-  profilesBackupVaultRG: AVD-Mgmt-TO-RG
+  profilesBackupVaultRG: AVD-Mgmt-RG
 
   # Identity-based access for file shares (AD or AADDS)
   # ------------------------------------------------
