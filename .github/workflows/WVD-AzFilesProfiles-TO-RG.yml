@@ -278,7 +278,7 @@ jobs:
             $fileSharePolicyMaps = Get-Content -Path $filesharePolicyMapPath -Raw | ConvertFrom-Json -AsHashtable
 
             $functionInput = @{
-              orchestrationFunctionsPath         = "${{ env.orchestrationPath }}/"
+              orchestrationFunctionsPath         = "${{ env.orchestrationFunctionsPath }}/"
               recoveryServicesVaultName          = "${{ env.profilesBackupVault }}"
               RecoveryServicesVaultResourceGroup = "${{ env.profilesBackupVaultRG }}"
               fileSharePolicyMaps                = $fileSharePolicyMaps.fileSharePolicyMaps
