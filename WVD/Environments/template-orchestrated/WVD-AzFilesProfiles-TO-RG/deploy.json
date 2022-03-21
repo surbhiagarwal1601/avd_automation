@@ -83,13 +83,6 @@
             "metadata": {
                 "description": "Optional. Tags to be applied on all resources/resource groups in this deployment."
             }
-        },
-         "resourcegroupname": {
-            "type": "string",
-            "defaultValue": "[deployment().name]",
-            "metadata": {
-                "description": "Resource Group Name."
-            }
         }
     },
     "variables": {
@@ -133,7 +126,8 @@
                 },
                 "parameters": {
                     "resourceGroupName": {
-                        "value": "[parameters('resourcegroupname')]"
+                        // "value": "[parameters('resourcegroupname')]"
+                        "value": "[if(contains(parameters('rgParameters'), 'resourceGroupName'), parameters('rgParameters').resourceGroupName, deployment().name)]"
                     },
                     "roleAssignments": {
                         "value": "[if(contains(parameters('rgParameters'), 'roleAssignments'), parameters('rgParameters').roleAssignments, json('[]'))]"

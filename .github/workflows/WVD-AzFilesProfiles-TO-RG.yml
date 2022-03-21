@@ -167,21 +167,21 @@ jobs:
             $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
             $json = ConvertFrom-Json $paramsSanitized -AsHashTable
 
-            echo $json
+            Write-Verbose "JsonHashTable: $json"
             
             # Replace with Pipeline parameters
             $json.parameters.rgParameters.value.resourceGroupName = "${{ github.event.inputs.resourceGroupName }}"
             $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
             $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
             $json.parameters.storAccountParameters.value.identityApproach = "${{ env.identityApproach }}"
-            $json.parameters.storAccountParameters.value.saParametersArray[0].fileShares[0].roleAssignments[0].principalIds = "${{env.avd_users_group_id}}"
+            $json.parameters.storAccountParameters.value.saParametersArray[0].fileShares[0].roleAssignments[0].principalIds[0] = "${{env.avd_users_group_id}}"
             $json.parameters.vmParameters.value.location = "${{env.location}}"
             # $json.parameters.vmParameters.adminPassword.keyVault.id = "${{env.KeyVaultId}}"
             # $json.parameters.vmParameters.ipConfigurations.subnetId = "${{env.location}}"
             # $json.parameters.vmParameters.domainName = "${{env.location}}"
             # $json.parameters.vmParameters.domainJoinUser = "${{env.location}}"
             # $json.parameters.vmParameters.domainJoinPassword.keyVault.id = "${{env.location}}"
-             
+            
             ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
             #========
           errorActionPreference: stop
@@ -191,10 +191,13 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
+
             $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+
             $DeploymentInputs = @{
               TemplateFile          = $templateFilePath
-              TemplateParameterFile = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+              TemplateParameterFile = $parameterUpdatedFilePath
               EnableVmResources     = $true
               Verbose               = $true
               OutVariable           = "ValidationErrors"
@@ -215,11 +218,14 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
+
             $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+
             $DeploymentInputs = @{
-              Name                  = "${{ github.event.inputs.resourceGroupName }}-$(Get-Date -Format yyyyMMddHHMMss)"
+              DeploymentName        = "${{ github.event.inputs.resourceGroupName }}-$(Get-Date -Format yyyyMMddHHMMss)"
               TemplateFile          = $templateFilePath
-              TemplateParameterFile = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+              TemplateParameterFile = $parameterUpdatedFilePath
               EnableVmResources     = $true
               Verbose               = $true
               OutVariable           = "ValidationErrors"

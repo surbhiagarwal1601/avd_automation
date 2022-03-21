@@ -449,3 +449,5 @@ TBD
 TBD
 
 
+# References
+- Creating AVD https://techcommunity.microsoft.com/t5/windows-it-pro-blog/getting-started-with-windows-virtual-desktop/ba-p/391054
