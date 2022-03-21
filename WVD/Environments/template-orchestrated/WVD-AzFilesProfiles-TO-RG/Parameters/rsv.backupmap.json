@@ -1,10 +1,11 @@
 {
     "fileSharePolicyMaps": [
         {
-            "policyName": "<ReplaceWith-PolicyName>",
+            "policyName": "filesharepolicy",
             "items": [
                 {
-                    "StorageAccountName": "<ReplaceWith-StorageAccountName>"
+                    "StorageAccountName": "fslogixaaddst01",
+                    "FileShareNames": "avdprofiles01"
                 }
             ]
         }
