@@ -1,7 +1,7 @@
 {
 	"fslogix": [
 		{
-			"installFSLogix": false,
+			"installFSLogix": true,
 			"configureFSLogix": true,
 			"FSLogixRegistrySettings": [
 				{
@@ -25,7 +25,7 @@
 						{
 							"Name": "VHDLocations",
 							"Type": "MultiString",
-							"Value": "\\\\<ReplaceWith-FileShareStorageAccountName>.file.core.windows.net\\<ReplaceWith-FileShareName>"
+							"Value": "\\\\fslogixaaddst01.file.core.windows.net\\avdprofiles01"
 						}
 					]
 				}
@@ -34,11 +34,11 @@
 			"configureNTFSPermissions": true,
 			"NTFSSettings": [
 				{
-					"fileShareStorageAccountName": "<ReplaceWith-FileShareStorageAccountName>",
-					"fileShareName": "<ReplaceWith-FileShareName>",
-					"domain": "<ReplaceWith-Domain>",
-					"targetGroup": "<ReplaceWith-TargetGroup>",
-					"driveLetter": "<ReplaceWith-DriveLetter>"
+					"fileShareStorageAccountName": "fslogixaaddst01",
+					"fileShareName": "avdprofiles01",
+					"domain": "Y3QJT",
+					"targetGroup": "AVD Users",
+					"driveLetter": "W"
 				}
 			]
 		}
