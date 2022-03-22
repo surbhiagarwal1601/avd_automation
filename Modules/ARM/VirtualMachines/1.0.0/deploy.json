@@ -2796,7 +2796,7 @@
                                                         {
                                                             "name": "fileUris",
                                                             "count": "[length(parameters('windowsScriptExtensionFileData'))]",
-                                                            "input": "[concat(parameters('windowsScriptExtensionFileData')[copyIndex('fileUris')].uri,if(contains(parameters('windowsScriptExtensionFileData')[copyIndex('fileUris')], 'storageAccountId'),concat('?',listAccountSas(parameters('windowsScriptExtensionFileData')[copyIndex('fileUris')].storageAccountId, '2019-04-01', parameters('accountSasProperties')).accountSasToken) , '' ))]"
+                                                            "input": "[concat(parameters('windowsScriptExtensionFileData')[copyIndex('fileUris')].uri,if(contains(parameters('windowsScriptExtensionFileData')[copyIndex('fileUris')], 'storageAccountId'),concat('?',listAccountSas(parameters('windowsScriptExtensionFileData')[copyIndex('fileUris')].storageAccountId), '2019-04-01', parameters('accountSasProperties')).accountSasToken) , '' ))]"
                                                         }
                                                     ]
                                                 },

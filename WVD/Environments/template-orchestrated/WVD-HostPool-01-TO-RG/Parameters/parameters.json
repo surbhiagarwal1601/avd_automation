@@ -166,13 +166,14 @@
         "domainJoinOU": "OU=Hosts,OU=AVD,DC=y3qjt,DC=com",
         "domainJoinRestart": true, // Required to pull GPOs
         "windowsScriptExtensionFileData": [
+          // TODO Override with Pipeline
           {
             "uri": "https://avdassetsstore.blob.core.windows.net/hostpool1/scriptExtensionMasterInstaller.ps1",
-            "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore" // TODO Override with Pipeline
+            "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore"
           },
           {
             "uri": "https://avdassetsstore.blob.core.windows.net/hostpool1/001-FSLogix.zip",
-            "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore" // TODO Override with Pipeline
+            "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore"
           }
         ],
         "windowsScriptExtensionCommandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddst01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-AzFilesProfiles-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddst01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]" // TODO Override with Pipeline
