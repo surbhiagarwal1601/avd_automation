@@ -39,8 +39,6 @@ on:
         required: true
       COMPONENT_STORAGE_ACCOUNT_ID:
         required: true
-    
-  
 
 jobs:
   Deploy_Resources:
@@ -112,10 +110,13 @@ jobs:
 
             Remove-RgDeployment @functionInput -Verbose
           azPSVersion: "latest"
-      - name: Validate Resources
+      - name: Update Parameters
+        id: step-update-parameters
         uses: azure/powershell@v1
         with:
           inlineScript: |
+
+            #======== Code to over write nested parameters
             $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
             $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
@@ -137,42 +138,82 @@ jobs:
               $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
             }
 
-
             ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Validate Resources
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+
+            $DeploymentInputs = @{
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = $parameterUpdatedFilePath
+              EnableVmResources     = $true
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              Location              = '${{ env.location }}'
+            }
+
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
-            az deployment sub validate --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
+            Test-AzSubscriptionDeployment @DeploymentInputs
+
             if ($ValidationErrors) {
               Write-Error "Template is not valid."
             }
+          errorActionPreference: stop
           azPSVersion: "latest"
       - name: Deploy Resources
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
-            $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
-            $paramsRaw = Get-Content $parameterFilePath -Raw
-            $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
-            $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+            # $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            # $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
+            # $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            # $paramsRaw = Get-Content $parameterFilePath -Raw
+            # $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+            # $json = ConvertFrom-Json $paramsSanitized -AsHashTable
             
-            # Replace with Pipeline parameters
-            $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
-            $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
-            $json.parameters.wvdLocation.value = "${{ inputs.location }}"
-            $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
+            # # Replace with Pipeline parameters
+            # $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+            # $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+            # $json.parameters.wvdLocation.value = "${{ inputs.location }}"
+            # $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
 
-            # Enable specific resource
-            $json.parameters.${{ inputs.jsonParameterToEnable }}.value = $true 
+            # # Enable specific resource
+            # $json.parameters.${{ inputs.jsonParameterToEnable }}.value = $true 
 
-            $performRestart = "${{ inputs.restartVMsAfterExtensionsDeployment }}"
-            if($performRestart -eq 'True') {
-              $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
+            # $performRestart = "${{ inputs.restartVMsAfterExtensionsDeployment }}"
+            # if($performRestart -eq 'True') {
+            #   $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
+            # }
+
+
+            # ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            # Write-Verbose 'Handling subscription level deployment' -Verbose
+            # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
+
+
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+
+            $DeploymentInputs = @{
+              DeploymentName        = "${{ inputs.resourceGroupName  }}-${{ inputs.jsonParameterToEnable }}-$(Get-Date -Format yyyyMMddHHMMss)"
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = $parameterUpdatedFilePath
+              EnableVmResources     = $true
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              ErrorAction           = "Stop"
+              Location              = '${{ inputs.location }}'
             }
 
-
-            ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
             Write-Verbose 'Handling subscription level deployment' -Verbose
-            az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
+            $ValidationErrors = $null
+            New-AzSubscriptionDeployment @DeploymentInputs
+          errorActionPreference: stop
           azPSVersion: "latest"
