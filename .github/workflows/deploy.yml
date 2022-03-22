@@ -146,8 +146,8 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
 
             $DeploymentInputs = @{
               TemplateFile          = $templateFilePath
@@ -157,6 +157,10 @@ jobs:
               OutVariable           = "ValidationErrors"
               Location              = '${{ env.location }}'
             }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $DeploymentInputs.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $DeploymentInputs[$_]) -Verbose }
+
 
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
@@ -198,8 +202,8 @@ jobs:
             # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
 
 
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
 
             $DeploymentInputs = @{
               DeploymentName        = "${{ inputs.resourceGroupName  }}-${{ inputs.jsonParameterToEnable }}-$(Get-Date -Format yyyyMMddHHMMss)"
@@ -211,6 +215,9 @@ jobs:
               ErrorAction           = "Stop"
               Location              = '${{ inputs.location }}'
             }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $DeploymentInputs.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $DeploymentInputs[$_]) -Verbose }
 
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
