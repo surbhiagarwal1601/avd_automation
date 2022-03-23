@@ -106,13 +106,13 @@
             }
         },
         "adminUsername": {
-            "type": "securestring",
+            "type": "secureString",
             "metadata": {
                 "description": "Required. Administrator username"
             }
         },
         "adminPassword": {
-            "type": "securestring",
+            "type": "secureString",
             "defaultValue": "",
             "metadata": {
                 "description": "Required. When specifying a Windows Virtual Machine, this value should be passed"
