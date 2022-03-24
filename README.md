@@ -430,9 +430,36 @@ az role assignment create --assignee $sp_client_id --role "User Access Administr
 ## Code Onboarding
 
 * Create a new Git Repo in the Customer's GitHub project
-* Add the solution Code (Download the Workloads/WVD folder)
-* Add the module Code
-* Onboard modules to Storage Account
+* Mirror the Sandox Repository
+* Fork the Mirror project
+
+```bash
+# Create Mirror Repository
+gh auth login --hostname https://enitgithubdev.honeywell.com
+gh repo create CORP/avd_automation-mirror
+
+# Mirror Remote Repository
+git clone --mirror https://github.com/briglx/avd_automation.git
+cd avd_automation.git
+git remote set-url --push origin https://enitgithubdev.honeywell.com/CORP/avd_automation-mirror
+
+# Sync the Mirror
+git fetch -p origin
+git push --mirror
+
+# Fork the Mirror
+gh repo fork CORP/avd_automation-mirror --clone=false --org CORP --fork-name avd_automation
+```
+
+Setup process to regularly update any changes from the Sandbox Repository
+```bash
+# Sync the Mirror
+cd /path/to/sandbox/avd_automation.git
+git fetch -p origin
+git push --mirror
+```
+
+
 
 ## Set up the deployment pipelines
 
@@ -451,3 +478,5 @@ TBD
 
 # References
 - Creating AVD https://techcommunity.microsoft.com/t5/windows-it-pro-blog/getting-started-with-windows-virtual-desktop/ba-p/391054
+- Duplicating a Repository https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
+- GitHub cli reference https://docs.github.com/en/github-cli/github-cli/github-cli-reference

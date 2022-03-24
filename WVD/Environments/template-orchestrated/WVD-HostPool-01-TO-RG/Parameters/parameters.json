@@ -177,7 +177,7 @@
         //   // }
         // ],
         // "windowsScriptExtensionCommandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddst01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-AzFilesProfiles-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddst01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]" // TODO Override with Pipeline
-        "windowsScriptExtensionCommandToExecute": "" // TODO Override with Pipeline
+        // "windowsScriptExtensionCommandToExecute": "" // TODO Override with Pipeline
       }
     },
     // Applications
