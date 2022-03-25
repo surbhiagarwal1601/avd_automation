@@ -229,8 +229,9 @@ jobs:
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
             New-AzSubscriptionDeployment @DeploymentInputs
-            $ValidationErrors| ForEach-Object { Write-Verbose ("Error: {0} val{1}" -f $_.Message,$b.Target) -Verbose}
- }
+            if ($ValidationErrors) {
+              $ValidationErrors| ForEach-Object { Write-Verbose ("Error: {0} val{1}" -f $_.Message,$b.Target) -Verbose}
+            }
 
 
           errorActionPreference: stop
