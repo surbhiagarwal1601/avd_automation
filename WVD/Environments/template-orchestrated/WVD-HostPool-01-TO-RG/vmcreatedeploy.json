@@ -1,0 +1,325 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "apiProfile": "2019-03-01-hybrid",
+    "parameters": {
+        // Deployment Steps
+        "enableWvdResources": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "enableVmResources": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "enableVmExtensions": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "enablePostVmResources": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "enableHostPoolJoin": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        // Resource Group
+        "rgParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // Host Pool
+        "hostPoolParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // App Groups
+        "appGroupParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // Virtual Machines (Session Hosts)
+        "vmParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // Applications
+        "appParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // Workspace
+        "workspaceParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // Scaling Scheduler (Auto Scaling)
+        "scalingParameters": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        // Shared
+        "wvdLocation": {
+            "type": "string",
+            "defaultValue": "eastus",
+            "metadata": {
+                "description": "Optional. Location of the WVD management resources (host pool, workspace, app group, applications) - this may be different from the session hosts' location, since WVD is not currently available in all regions."
+            }
+        },
+        "componentStorageAccountId": {
+            "type": "string",
+            "metadata": {
+                "description": "Optional. Resource ID of the storage account that stores all the components."
+            }
+        },
+        "componentsStorageContainerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Optional. Name of the storage container the module components will be stored in."
+            }
+        },
+        "componentsStorageContainerIsPrivate": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Optional. Validity in hours for the SAS token (in case the components storage account is private). If it's set to false, no SAS token will be generated."
+            }
+        },
+        "sasTokenValidityLength": {
+            "defaultValue": "PT8H",
+            "type": "string",
+            "metadata": {
+                "description": "Optional. SAS token validity length. Usage: 'PT8H' - valid for 8 hours; 'P5D' - valid for 5 days; 'P1Y' - valid for 1 year. When not provided, the SAS token will be valid for 8 hours."
+            }
+        },
+        "baseTime": {
+            "type": "string",
+            "defaultValue": "[utcNow('u')]",
+            "metadata": {
+                "description": "Generated. Do not provide a value! This date value is used to generate a SAS token to access the modules."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[deployment().location]",
+            "metadata": {
+                "description": "Optional. Location of the deployment."
+            }
+        },
+        "diagnosticStorageAccountId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Resource ID of the storage account to be used for diagnostic logs."
+            }
+        },
+        "diagnosticLogsRetentionInDays": {
+            "type": "int",
+            "defaultValue": 365,
+            "metadata": {
+                "description": "Optional. Number of days for diagnostic logs retention."
+            }
+        },
+        "workspaceId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Resource ID of the Log Analytics workspace to be used for diagnostic logs."
+            }
+        },
+        "eventHubAuthorizationRuleId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Authorization ID of the Event Hub Namespace to be used for diagnostic logs."
+            }
+        },
+        "eventHubName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Name of the Event Hub to be used for diagnostic logs."
+            }
+        },
+        "lockForDeletion": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Optional. Whether or not to put deletion lock on all resources/resource group defined in this template."
+            }
+        },
+        "tags": {
+            "type": "object",
+            "defaultValue": {
+            },
+            "metadata": {
+                "description": "Optional. Tags to be applied on all resources/resource groups in this deployment."
+            }
+        }
+    },
+    "variables": {
+        // Location of components
+        "componentsBaseUrl": "[concat('https://', split(parameters('componentStorageAccountId'), '/')[8], '.blob.core.windows.net/', parameters('componentsStorageContainerName'))]",
+        "modulesPath": "[concat(variables('componentsBaseUrl'), '/Modules/ARM/')]",
+
+        // SAS token validity calculation - DO NOT CHANGE THESE VALUES !
+        "accountSasProperties": {
+            "signedServices": "b", //Blob (b), Queue (q), Table (t), File (f).
+            "signedPermission": "r", //Read (r), Write (w), Delete (d), List (l), Add (a), Create (c), Update (u) and Process (p)
+            "signedExpiry": "[dateTimeAdd(parameters('baseTime'), parameters('sasTokenValidityLength'))]", //format: 2017-05-24T10:42:03Z
+            "signedResourceTypes": "o", //Service (s): Access to service-level APIs; Container (c): Access to container-level APIs; Object (o): Access to object-level APIs for blobs, queue messages, table entities, and files.
+            "signedProtocol": "https"
+        },
+        // dscConfiguration
+        "dscConfiguration": {
+            "settings": {
+                "wmfVersion": "latest",
+                "configuration": {
+                    "url": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration.zip",
+                    "script": "Configuration.ps1",
+                    "function": "AddSessionHost"
+                },
+                "configurationArguments": {
+                    "hostPoolName": "[parameters('hostPoolParameters').name]"
+                }
+            },
+            "protectedSettings": {
+                "configurationArguments": {
+                    "registrationInfoToken": "<RegistrationInfoTokenToReplace>"
+                }
+            }
+        },
+        // Format basetime. Removes columns, dashes and spaces
+        "formattedTime": "[replace(replace(replace(parameters('baseTime'), ':', ''), '-', ''), ' ', '')]"
+    },
+    "resources": [
+        // Virtual Machines (Session Hosts)
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "[concat(parameters('vmParameters').moduleName, '-', variables('formattedTime'))]",
+            "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
+            "dependsOn": [
+                "[concat(parameters('hostPoolParameters').moduleName, '-', variables('formattedTime'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "debugSetting": {
+                    "detailLevel": "requestContent,responseContent"
+                },
+                "templateLink": {
+                    "uri": "[concat(variables('modulesPath'), parameters('vmParameters').moduleName, '/', parameters('vmParameters').moduleVersion, '/deploy.json', if(parameters('componentsStorageContainerIsPrivate'), concat('?', listAccountSas(parameters('componentStorageAccountId'), '2019-04-01', variables('accountSasProperties')).accountSasToken), ''))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmNamePrefix": {
+                        "value": "[parameters('vmParameters').vmNamePrefix]"
+                    },
+                    "vmNumberOfInstances": {
+                        "value": "[parameters('vmParameters').vmNumberOfInstances]"
+                    },
+                    "vmInitialNumber": {
+                        "value": "[parameters('vmParameters').vmInitialNumber]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmParameters').vmSize]"
+                    },
+                    "imageReference": {
+                        "value": "[parameters('vmParameters').imageReference]"
+                    },
+                    "osDisk": {
+                        "value": "[parameters('vmParameters').osDisk]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('vmParameters').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "reference": "[parameters('vmParameters').adminPassword]"
+                    },
+                    "availabilitySetName": {
+                        "value": "[if(contains(parameters('vmParameters'), 'availabilitySetName') ,parameters('vmParameters').availabilitySetName, '')]"
+                    },
+                    "maxNumberOfVmsPerAvSet": {
+                        "value": "[if(contains(parameters('vmParameters'), 'maxNumberOfVmsPerAvSet') ,parameters('vmParameters').maxNumberOfVmsPerAvSet, 200)]"
+                    },
+                    "useAvailabilityZone": {
+                        "value": "[if(contains(parameters('vmParameters'), 'useAvailabilityZone') ,parameters('vmParameters').useAvailabilityZone, false())]"
+                    },
+                    "nicConfigurations": {
+                        "value": "[parameters('vmParameters').nicConfigurations]"
+                    },
+                    "domainName": {
+                        "value": "[if(and(parameters('enableVmExtensions'),contains(parameters('vmParameters'), 'domainName')) ,parameters('vmParameters').domainName, '')]"
+                    },
+                    "domainJoinUser": {
+                        "value": "[parameters('vmParameters').domainJoinUser]"
+                    },
+                    "domainJoinPassword": {
+                        "reference": "[parameters('vmParameters').domainJoinPassword]"
+                    },
+                    "domainJoinOU": {
+                        "value": "[if(contains(parameters('vmParameters'), 'domainJoinOU') ,parameters('vmParameters').domainJoinOU, '')]"
+                    },
+                    "domainJoinRestart": {
+                        "value": "[parameters('vmParameters').domainJoinRestart]"
+                    },
+                    "windowsConfiguration": {
+                        "value": "[if(contains(parameters('vmParameters'), 'windowsConfiguration'), parameters('vmParameters').windowsConfiguration, json('{}'))]"
+                    },
+                    "dscConfiguration": {
+                        "value": "[if(parameters('enableHostPoolJoin'), json(replace(string(variables('dscConfiguration')), '<RegistrationInfoTokenToReplace>', reference(concat(subscription().id,'/resourceGroups/', parameters('rgParameters').resourceGroupName, '/providers/Microsoft.DesktopVirtualization/hostpools/', parameters('hostPoolParameters').name), '2020-11-02-preview', 'Full').properties.registrationInfo.token)), json('{}'))]"
+                    },
+                    "windowsScriptExtensionFileData": {
+                        "value": "[if(and(parameters('enableVmExtensions'),contains(parameters('vmParameters'), 'windowsScriptExtensionFileData')), parameters('vmParameters').windowsScriptExtensionFileData, json('[]'))]"
+                    },
+                    "windowsScriptExtensionCommandToExecute": {
+                        // Option 1 -  Disable CSE
+                        // "value": ""
+
+                        // // Option 2 - Enable ANF Profile management
+                        // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{}\"')]"
+
+                        // Option 3 (default) - Enable Azure files Profile management with Single storage account
+                        "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddst01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-AzFilesProfiles-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddst01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]" // TODO Replace via pipeline
+
+                        // // Option 4 - Enable Azure files Profile management with Two storage accounts
+                        // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName01>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId01>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''} ;[pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName02>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId02>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]"
+                    },
+                    "diagnosticLogsRetentionInDays": {
+                        "value": "[parameters('diagnosticLogsRetentionInDays')]"
+                    },
+                    "diagnosticStorageAccountId": {
+                        "value": "[parameters('diagnosticStorageAccountId')]"
+                    },
+                    "workspaceId": {
+                        "value": "[parameters('workspaceId')]"
+                    },
+                    "eventHubAuthorizationRuleId": {
+                        "value": "[parameters('eventHubAuthorizationRuleId')]"
+                    },
+                    "eventHubName": {
+                        "value": "[parameters('eventHubName')]"
+                    },
+                    "lockForDeletion": {
+                        "value": "[if(contains(parameters('vmParameters'), 'lockForDeletion'), parameters('vmParameters').lockForDeletion, parameters('lockForDeletion'))]"
+                    },
+                    "tags": {
+                        "value": "[if(contains(parameters('vmParameters'), 'tags'), union(parameters('tags'), parameters('vmParameters').tags), parameters('tags'))]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "sasExpiryDateTime": {
+            "type": "string",
+            "value": "[if(parameters('componentsStorageContainerIsPrivate'),variables('accountSasProperties').signedExpiry,'')]"
+        }
+        // ,
+        // "wvdHostPoolRegistrationTokenExpiryDateTime": {
+        //     "type": "string",
+        //     "value": "[reference(concat(parameters('hostPoolParameters').moduleName, '-', variables('formattedTime'))).outputs.tokenExpirationTime.value]"
+        // }
+    }
+}
