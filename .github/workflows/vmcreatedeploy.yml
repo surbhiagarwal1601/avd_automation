@@ -219,7 +219,7 @@ jobs:
               Verbose               = $true
               OutVariable           = "ValidationErrors"
               ErrorAction           = "Stop"
-              Location              = '${{ inputs.location }}'
+              Location              = '${{ env.location }}'
             }
 
             Write-Verbose "Invoke task with" -Verbose

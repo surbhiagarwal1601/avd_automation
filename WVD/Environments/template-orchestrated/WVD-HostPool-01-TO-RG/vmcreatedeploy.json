@@ -62,7 +62,7 @@
         // Shared
         "wvdLocation": {
             "type": "string",
-            "defaultValue": "eastus",
+            "defaultValue": "westus2",
             "metadata": {
                 "description": "Optional. Location of the WVD management resources (host pool, workspace, app group, applications) - this may be different from the session hosts' location, since WVD is not currently available in all regions."
             }
