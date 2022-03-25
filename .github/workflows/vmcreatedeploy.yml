@@ -117,7 +117,7 @@ jobs:
           inlineScript: |
 
             #======== Code to over write nested parameters
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/vmcreatedeploy.json"
             $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
             $paramsRaw = Get-Content $parameterFilePath -Raw
@@ -152,7 +152,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/vmcreatedeploy.json"
             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
 
             $DeploymentInputs = @{
@@ -181,7 +181,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            # $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            # $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/vmcreatedeploy.json"
             # $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
             # $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
             # $paramsRaw = Get-Content $parameterFilePath -Raw
@@ -208,7 +208,7 @@ jobs:
             # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
 
 
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/vmcreatedeploy.json"
             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
 
             $DeploymentInputs = @{
