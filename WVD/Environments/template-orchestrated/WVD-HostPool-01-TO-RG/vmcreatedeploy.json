@@ -201,7 +201,7 @@
             "name": "[concat(parameters('vmParameters').moduleName, '-', variables('formattedTime'))]",
             "resourceGroup": "[parameters('rgParameters').resourceGroupName]",
             "dependsOn": [
-                "[concat(parameters('hostPoolParameters').moduleName, '-', variables('formattedTime'))]"
+//                "[concat(parameters('hostPoolParameters').moduleName, '-', variables('formattedTime'))]"
             ],
             "properties": {
                 "mode": "Incremental",
