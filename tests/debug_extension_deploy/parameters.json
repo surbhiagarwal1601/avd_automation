@@ -2,74 +2,236 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "vmNames": {
-            "value": [
-                "sessionhost000",
-                "sessionhost001"
-            ]
+        "enableWvdResources": {
+            "value": false
         },
-        "nicConfigurations": {
-            "value": [
-                {
-                    "nicSuffix": "-nic-01",
-                    "ipConfigurations": [
-                        {
-                            "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool",
-                            "name": "ipconfig1"
-                        }
-                    ]
+        "enableVmResources": {
+            "value": true
+        },
+        "enableVmExtensions": {
+            "value": true
+        },
+        "enablePostVmResources": {
+            "value": false
+        },
+        "enableHostPoolJoin": {
+            "value": false
+        },
+        "rgParameters": {
+            "value": {
+                "resourceGroupName": "AVD-HostPool-RG",
+                "moduleName": "ResourceGroup",
+                "moduleVersion": "1.0.0",
+                "enabled": true
+            }
+        },
+        "hostPoolParameters": {
+            "value": {
+                "hostpoolType": "Pooled",
+                "loadBalancerType": "DepthFirst",
+                "hostpoolDescription": "Primary HostPool",
+                "moduleVersion": "1.0.0",
+                "customRdpProperty": "audiocapturemode:i:1;audiomode:i:0;camerastoredirect:s:*;drivestoredirect:s:;redirectclipboard:i:1;redirectcomports:i:1;redirectprinters:i:1;redirectsmartcards:i:1;screen mode id:i:2;",
+                "enabled": true,
+                "validationEnviroment": true,
+                "maxSessionLimit": 30,
+                "moduleName": "WvdHostPools",
+                "startVMOnConnect": false,
+                "hostpoolFriendlyName": "AVD-HostPool",
+                "name": "avd-hp",
+                "personalDesktopAssignmentType": ""
+            }
+        },
+        "appGroupParameters": {
+            "value": {
+                "moduleName": "WvdApplicationGroups",
+                "agParametersArray": [
+                    {
+                        "appGroupType": "Desktop",
+                        "roleAssignments": [
+                            {
+                                "principalIds": [
+                                    "9160a407-2da5-4691-a04d-8f41d3065116"
+                                ],
+                                "roleDefinitionIdOrName": "Desktop Virtualization User"
+                            }
+                        ],
+                        "name": "avd-pooled-primary-dag",
+                        "appGroupFriendlyName": "Default Desktop",
+                        "appGroupDescription": "Desktop App Group Created by CICD"
+                    },
+                    {
+                        "appGroupType": "RemoteApp",
+                        "roleAssignments": [
+                            {
+                                "principalIds": [
+                                    "9160a407-2da5-4691-a04d-8f41d3065116"
+                                ],
+                                "roleDefinitionIdOrName": "Desktop Virtualization User"
+                            }
+                        ],
+                        "name": "avd-pooled-primary-rag",
+                        "appGroupFriendlyName": "Remote Applications",
+                        "appGroupDescription": "Remote App Group Created by CICD"
+                    }
+                ],
+                "moduleVersion": "1.0.0",
+                "enabled": true
+            }
+        },
+        "vmParameters": {
+            "value": {
+                "nicConfigurations": [
+                    {
+                        "ipConfigurations": [
+                            {
+                                "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool",
+                                "name": "ipconfig1"
+                            }
+                        ],
+                        "nicSuffix": "-nic-01"
+                    }
+                ],
+                "vmNumberOfInstances": 2,
+                "adminUsername": "localadmin",
+                "domainJoinOU": "OU=Hosts,OU=AVD,DC=y3qjt,DC=com",
+                "domainJoinUser": "domainjoin@y3qjt.com",
+                "vmSize": "Standard_D2s_v5",
+                "moduleName": "VirtualMachines",
+                "imageReference": {
+                    "version": "latest",
+                    "publisher": "microsoftwindowsdesktop",
+                    "offer": "office-365",
+                    "sku": "win10-21h2-avd-m365-g2"
+                },
+                "moduleVersion": "1.0.0",
+                "windowsScriptExtensionFileData": [],
+                "vmInitialNumber": 0,
+                "availabilitySetName": "avd-avSet-westus",
+                "enabled": true,
+                "domainJoinPassword": {
+                    "secretName": "domainJoinUser-Password",
+                    "keyVault": {
+                        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
+                    }
+                },
+                "adminPassword": {
+                    "secretName": "localAdmin-Password",
+                    "keyVault": {
+                        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
+                    }
+                },
+                "osDisk": {
+                    "managedDisk": {
+                        "storageAccountType": "Premium_LRS"
+                    },
+                    "createOption": "fromImage",
+                    "diskSizeGB": "128"
+                },
+                "domainJoinRestart": true,
+                "vmNamePrefix": "sessionhost",
+                "domainName": "y3qjt.com"
+            }
+        },
+        "appParameters": {
+            "value": {
+                "appParametersArray": [
+                    {
+                        "appGroupName": "avd-pooled-primary-rag",
+                        "applications": [
+                            {
+                                "name": "notepad",
+                                "iconIndex": 0,
+                                "friendlyName": "Notepad",
+                                "commandLineSetting": "DoNotAllow",
+                                "commandLineArguments": "",
+                                "showInPortal": true,
+                                "description": "Notepad by ARM template",
+                                "iconPath": "C:\\Windows\\System32\\notepad.exe",
+                                "filePath": "C:\\Windows\\System32\\notepad.exe"
+                            },
+                            {
+                                "name": "Microsoft Teams",
+                                "iconIndex": 0,
+                                "friendlyName": "Microsoft Teams",
+                                "commandLineSetting": "DoNotAllow",
+                                "commandLineArguments": "",
+                                "showInPortal": true,
+                                "description": "Microsoft Teams by ARM template",
+                                "iconPath": "C:\\Program Files (x86)\\Microsoft\\Teams\\current\\Teams.exe",
+                                "filePath": "C:\\Program Files (x86)\\Microsoft\\Teams\\current\\Teams.exe"
+                            }
+                        ]
+                    }
+                ],
+                "moduleName": "WvdApplications",
+                "moduleVersion": "1.0.0",
+                "enabled": true
+            }
+        },
+        "workspaceParameters": {
+            "value": {
+                "moduleName": "WvdWorkspaces",
+                "workspaceFriendlyName": "My first WVD Workspace",
+                "name": "wks-01",
+                "moduleVersion": "1.0.0",
+                "enabled": true,
+                "workspaceDescription": "This is My first WVD Workspace"
+            }
+        },
+        "scalingParameters": {
+            "value": {
+                "moduleName": "WvdScalingScheduler",
+                "actionSettingsBody": {
+                    "stateTableName": "",
+                    "MinimumNumberOfRDSH": "1",
+                    "LogOffMessageBody": "Logging off",
+                    "EndPeakTime": "18:00",
+                    "SessionThresholdPerCPU": "2",
+                    "stateStorageAccountName": "",
+                    "LogOffMessageTitle": "Logging off",
+                    "LAWorkspaceName": "log-analytics-dad42fd927a",
+                    "UtcOffset": "",
+                    "HostPoolName": "avd-hp",
+                    "ResourceGroupName": "AVD-HostPool-RG",
+                    "LimitSecondsToForceLogOffUser": "9999",
+                    "BeginPeakTime": "9:00"
+                },
+                "recurrenceInterval": 15,
+                "moduleVersion": "1.0.0",
+                "enabled": true,
+                "logicAppName": "hp-scaling-workflow",
+                "webhookURI": {
+                    "secretName": "AVDAutoScaleWebhook-Uri",
+                    "keyVault": {
+                        "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu"
+                    }
                 }
-            ]
+            }
         },
-        "avSetNames": {
-            "value": [
-                "avd-avSet-westus-001"
-            ]
+        "wvdLocation": {
+            "value": "westus2"
         },
-        "maxNumberOfVmsPerAvSet": {
-            "value": 200
+        "componentStorageAccountId": {
+            "value": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_management_westus2/providers/Microsoft.Storage/storageAccounts/stdiacmodules"
         },
-        "maxNumberOfVmsPerDeployment": {
-            "value": 50
+        "componentsStorageContainerName": {
+            "value": "components"
         },
-        "bulkVMdeploymentLoopIndex": {
-            "value": 0
+        "componentsStorageContainerIsPrivate": {
+            "value": true
         },
-        "proximityPlacementGroupName": {
-            "value": ""
+        "sasTokenValidityLength": {
+            "value": "PT8H"
         },
         "location": {
             "value": "westus2"
         },
-        "tags": {
-            "value": {}
-        },
-        "vmComputerNames": {
-            "value": {}
-        },
-        "vmComputerNamesTransformation": {
-            "value": "none"
-        },
-        "useAvailabilityZone": {
-            "value": false
-        },
-        "availabilityZones": {
-            "value": [
-                "1",
-                "2"
-            ]
-        },
-        "plan": {
-            "value": {}
-        },
-        "lockForDeletion": {
-            "value": false
-        },
-        "diagnosticSettingName": {
-            "value": "service"
-        },
         "diagnosticStorageAccountId": {
             "value": ""
+        },
+        "diagnosticLogsRetentionInDays": {
+            "value": 365
         },
         "workspaceId": {
             "value": ""
@@ -80,261 +242,11 @@
         "eventHubName": {
             "value": ""
         },
-        "diagnosticsMetrics": {
-            "value": [
-                {
-                    "category": "AllMetrics",
-                    "timeGrain": null,
-                    "enabled": true,
-                    "retentionPolicy": {
-                        "enabled": true,
-                        "days": 365
-                    }
-                }
-            ]
-        },
-        "diagnosticLogsRetentionInDays": {
-            "value": 365
-        },
-        "vmSize": {
-            "value": "Standard_D2s_v5"
-        },
-        "imageReference": {
-            "value": {
-                "sku": "win10-21h2-avd-m365-g2",
-                "offer": "office-365",
-                "version": "latest",
-                "publisher": "microsoftwindowsdesktop"
-            }
-        },
-        "osDisk": {
-            "value": {
-                "createOption": "fromImage",
-                "diskSizeGB": "128",
-                "managedDisk": {
-                    "storageAccountType": "Premium_LRS"
-                }
-            }
-        },
-        "dataDisks": {
-            "value": []
-        },
-        "enableServerSideEncryption": {
+        "lockForDeletion": {
             "value": false
         },
-        "ultraSSDEnabled": {
-            "value": false
-        },
-        "adminUsername": {"value": "localadmin"},
-        "adminPassword": { 
-            "reference" : {
-                "keyVault": {
-                    "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu" // TODO Override with Pipeline
-                },
-                "secretName": "localAdmin-Password" 
-            }
-        },
-        // "adminUsername": {
-        //     "value": null
-        // },
-        // "adminPassword": {
-        //     "value": null
-        // },
-        "customData": {
-            "value": ""
-        },
-        "windowsConfiguration": {
+        "tags": {
             "value": {}
-        },
-        "linuxConfiguration": {
-            "value": {}
-        },
-        "certificatesToBeInstalled": {
-            "value": []
-        },
-        "allowExtensionOperations": {
-            "value": true
-        },
-        "bootDiagnosticStorageAccountName": {
-            "value": ""
-        },
-        "bootDiagnosticStorageAccountUri": {
-            "value": ".blob.core.windows.net/"
-        },
-        "vmPriority": {
-            "value": "Regular"
-        },
-        "enableEvictionPolicy": {
-            "value": false
-        },
-        "dedicatedHostId": {
-            "value": ""
-        },
-        "licenseType": {
-            "value": ""
-        },
-        "domainName": {
-            "value": "y3qjt.com"
-        },
-        "domainJoinUser": {
-            "value": "domainjoin@y3qjt.com"
-        },
-        "domainJoinOU": {
-            "value": "OU=Hosts,OU=AVD,DC=y3qjt,DC=com"
-        },
-        "domainJoinRestart": {
-            "value": true
-        },
-        "domainJoinOptions": {
-            "value": 3
-        },
-        "domainJoinPassword": {
-            "reference" : {
-                "keyVault": {
-                  "id": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.KeyVault/vaults/kvibrws6zma7zmu" // TODO Override with Pipeline
-                },
-                "secretName": "domainJoinUser-Password"
-            }
-        },
-        "enableMicrosoftAntiMalware": {
-            "value": false
-        },
-        "microsoftAntiMalwareSettings": {
-            "value": {}
-        },
-        "enableWindowsMMAAgent": {
-            "value": false
-        },
-        "enableLinuxMMAAgent": {
-            "value": false
-        },
-        "enableWindowsDiskEncryption": {
-            "value": false
-        },
-        "forceUpdateTag": {
-            "value": "1.0"
-        },
-        "keyVaultUri": {
-            "value": ""
-        },
-        "keyVaultId": {
-            "value": ""
-        },
-        "keyEncryptionKeyURL": {
-            "value": ""
-        },
-        "diskKeyEncryptionAlgorithm": {
-            "value": "RSA-OAEP"
-        },
-        "diskEncryptionVolumeType": {
-            "value": "All"
-        },
-        "resizeOSDisk": {
-            "value": false
-        },
-        "enableLinuxDiskEncryption": {
-            "value": false
-        },
-        "enableWindowsDependencyAgent": {
-            "value": false
-        },
-        "enableLinuxDependencyAgent": {
-            "value": false
-        },
-        "enableNetworkWatcherWindows": {
-            "value": false
-        },
-        "enableNetworkWatcherLinux": {
-            "value": false
-        },
-        "identity": {
-            "value": {
-                "type": "None",
-                "userAssignedIdentities": null
-            }
-        },
-        "dscConfiguration": {
-            "value": {}
-        },
-        "windowsScriptExtensionFileData": {
-            "value": [
-                {
-                    "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore",
-                    "uri": "https://avdassetsstore.blob.core.windows.net/hostpool1/scriptExtensionMasterInstaller.ps1"
-                },
-                {
-                    "storageAccountId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-Mgmt-RG/providers/Microsoft.Storage/storageAccounts/avdassetsstore",
-                    "uri": "https://avdassetsstore.blob.core.windows.net/hostpool1/001-FSLogix.zip"
-                },
-                null
-            ]
-        },
-        "windowsScriptExtensionCommandToExecute": {
-            "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddst01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-AzFilesProfiles-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddst01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]" // TODO Override with Pipeline
-      
-        },
-        "cseStorageAccountName": {
-            "value": ""
-        },
-        "cseStorageAccountKey": {
-            "value": ""
-        },
-        "cseManagedIdentity": {
-            "value": {}
-        },
-        // "maxPriceForLowPriorityVm": {
-        //     "value": null
-        // },
-        "accountSasProperties": {
-            "value": {
-                "signedServices": "b",
-                "signedPermission": "r",
-                "signedExpiry": "2022-03-22T23:55:18Z",
-                "signedResourceTypes": "o",
-                "signedProtocol": "https"
-            }
-        },
-        "roleAssignments": {
-            "value": []
-        },
-        "builtInRoleNames": {
-            "value": {
-                "Avere Cluster Create": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/a7b1b19a-0e83-4fe5-935c-faaefbfd18c3",
-                "Avere Cluster Runtime Operator": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/e078ab98-ef3a-4c9a-aba7-12f5172b45d0",
-                "Avere Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/4f8fab4f-1852-4a58-a46a-8eaf358af14a",
-                "Avere Operator": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/c025889f-8102-4ebf-b32c-fc0c6f0c6bd9",
-                "Azure Service Deploy Release Management Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/21d96096-b162-414a-8302-d8354f9d91b2",
-                "Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
-                "CAL-Custom-Role": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/7b266cd7-0bba-4ae2-8423-90ede5e1e898",
-                "DevTest Labs User": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/76283e04-6283-4c54-8f91-bcf1374a3c64",
-                "Log Analytics Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293",
-                "Log Analytics Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/73c42c96-874c-492b-b04d-ab87d138a893",
-                "masterreader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/a48d7796-14b4-4889-afef-fbb65a93e5a2",
-                "Managed Application Contributor Role": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/641177b8-a67a-45b9-a033-47bc880bb21e",
-                "Managed Application Operator Role": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/c7393b34-138c-406f-901b-d8cf2b17e6ae",
-                "Managed Applications Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/b9331d33-8a36-4f8c-b097-4f54124fdb44",
-                "Microsoft OneAsset Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/fd1bb084-1503-4bd2-99c0-630220046786",
-                "Monitoring Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
-                "Monitoring Metrics Publisher": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb",
-                "Monitoring Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/43d0d8ad-25c7-4714-9337-8ba259a9fe05",
-                "Owner": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
-                "Reader": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7",
-                "Reservation Purchaser": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/f7b75c60-3036-4b75-91c3-6b41c27c1689",
-                "Resource Policy Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/36243c78-bf99-498c-9df9-86d9f8d28608",
-                "User Access Administrator": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9",
-                "Virtual Machine Administrator Login": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/1c0163c0-47e6-4577-8991-ea5c82e286e4",
-                "Virtual Machine Contributor": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
-                "Virtual Machine User Login": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/providers/Microsoft.Authorization/roleDefinitions/fb879df8-f326-4884-b1cf-06f3ad86be52"
-            }
-        },
-        "backupVaultName": {
-            "value": ""
-        },
-        "backupVaultResourceGroup": {
-            "value": ""
-        },
-        "backupPolicyName": {
-            "value": "DefaultPolicy"
         }
     }
 }

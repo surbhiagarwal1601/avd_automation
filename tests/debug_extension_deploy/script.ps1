@@ -20,5 +20,6 @@ $ValidationErrors = $null
 New-AzSubscriptionDeployment @DeploymentInputs
 
 if ($ValidationErrors) {
-    Write-Error "Template is not valid."
+    Write-Error "Errors Found."
+    Write-Error $ValidationErrors
 }

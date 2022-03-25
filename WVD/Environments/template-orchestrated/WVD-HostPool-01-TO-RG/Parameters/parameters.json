@@ -165,6 +165,7 @@
         },
         "domainJoinOU": "OU=Hosts,OU=AVD,DC=y3qjt,DC=com",
         "domainJoinRestart": true, // Required to pull GPOs
+        "windowsScriptExtensionFileData": []
         // "windowsScriptExtensionFileData": [
         //   // TODO Override with Pipeline
         //   // {
