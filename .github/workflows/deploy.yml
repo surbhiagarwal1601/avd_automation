@@ -133,17 +133,11 @@ jobs:
             # Enable specific resource
             $json.parameters.${{ inputs.jsonParameterToEnable }}.value = $true 
 
-            $performRestart = "${{ inputs.restartVMsAfterExtensionsDeployment }}"
-            if($performRestart -eq 'True') {
-              
-              if( ([string]$json.parameters.vmParameters.value['windowsScriptExtensionFileData']).Trim()) {
-                $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
-              } else {
-                $json.parameters.vmParameters.value.windowsScriptExtensionFileData = $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
-              }
-              
-            }
-
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            # $performRestart = "${{ inputs.restartVMsAfterExtensionsDeployment }}"
+            # if($performRestart -eq 'True') {
+            #   $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
+            # }
             ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
             
           errorActionPreference: stop
