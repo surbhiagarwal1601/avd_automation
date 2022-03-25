@@ -1,0 +1,232 @@
+name: Deploy Resources
+
+on:
+  workflow_call:
+    inputs:
+      resourceGroupName:
+        required: true
+        type: string
+      UtcOffset:
+        required: true
+        type: string
+      rgFolder:
+        required: true
+        type: string
+      location:
+        required: true
+        type: string
+      jsonParameterToEnable:
+        required: true
+        type: string
+      restartVMsAfterExtensionsDeployment:
+        required: false
+        type: boolean
+        default: false
+      purgeRgDeployments:
+        required: false
+        type: boolean
+        default: false
+      waitForDeployments:
+        required: false
+        type: boolean
+        default: false
+      purgeFailedResources:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      COMPONENT_STORAGE_ACCOUNT_ID:
+        required: true
+
+jobs:
+  Deploy_Resources:
+    name: Deploy Resources
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Wait for possible active deployments
+        if: ${{ inputs.waitForDeployments == 'true' }}
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/SessionHosts/Wait-RunningRgDeployment.ps1'
+
+            $functionInput = @{
+              resourceGroupName = '${{ inputs.resourceGroupName }}'
+            }
+
+            Write-Verbose "Invoke task with $functionInput" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Wait-RunningRgDeployment @functionInput -Verbose
+          azPSVersion: "latest"
+      - name: Clean up failed resources
+        if: ${{ inputs.purgeFailedResources == 'true' }}
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/SessionHosts/Remove-FailedResource.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
+              resourceGroupName          = '${{ inputs.resourceGroupName }}'
+              UtcOffset                  = '${{ inputs.UtcOffset }}'
+            }
+
+            Write-Verbose "Invoke task with $functionInput" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Remove-FailedResource @functionInput -Verbose
+          azPSVersion: "latest"
+      - name: Clean up Resource Group deployment
+        if: ${{ inputs.purgeRgDeployments == 'true' }}
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/SessionHosts/Remove-RgDeployment.ps1'
+
+            $functionInput = @{
+              resourceGroupName          = '${{ inputs.resourceGroupName }}'
+              throttleLimit              = 100
+            }
+
+            Write-Verbose "Invoke task with $functionInput" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Remove-RgDeployment @functionInput -Verbose
+          azPSVersion: "latest"
+      - name: Update Parameters
+        id: step-update-parameters
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+
+            #======== Code to over write nested parameters
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $paramsRaw = Get-Content $parameterFilePath -Raw
+            $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+            $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+            
+            # Replace with Pipeline parameters
+            $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+            $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+            $json.parameters.wvdLocation.value = "${{ inputs.location }}"
+            $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
+
+            # Enable specific resource
+            $json.parameters.${{ inputs.jsonParameterToEnable }}.value = $true 
+
+            $performRestart = "${{ inputs.restartVMsAfterExtensionsDeployment }}"
+            if($performRestart -eq 'True') {
+              
+              if( ([string]$json.parameters.vmParameters.value['windowsScriptExtensionFileData']).Trim()) {
+                $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
+              } else {
+                $json.parameters.vmParameters.value.windowsScriptExtensionFileData = $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
+              }
+              
+            }
+
+            ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Validate Resources
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+
+            $DeploymentInputs = @{
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = $parameterUpdatedFilePath
+              EnableVmResources     = $true
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              Location              = '${{ env.location }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $DeploymentInputs.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $DeploymentInputs[$_]) -Verbose }
+
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+            Test-AzSubscriptionDeployment @DeploymentInputs
+
+            if ($ValidationErrors) {
+              Write-Error "Template is not valid."
+            }
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Deploy Resources
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            # $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
+            # $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            # $paramsRaw = Get-Content $parameterFilePath -Raw
+            # $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+            # $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+            
+            # # Replace with Pipeline parameters
+            # $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+            # $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+            # $json.parameters.wvdLocation.value = "${{ inputs.location }}"
+            # $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
+
+            # # Enable specific resource
+            # $json.parameters.${{ inputs.jsonParameterToEnable }}.value = $true 
+
+            # $performRestart = "${{ inputs.restartVMsAfterExtensionsDeployment }}"
+            # if($performRestart -eq 'True') {
+            #   $json.parameters.vmParameters.value.windowsScriptExtensionFileData += $json.parameters.vmParameters.value.windowsScriptRestartExtensionFileData
+            # }
+
+
+            # ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            # Write-Verbose 'Handling subscription level deployment' -Verbose
+            # az deployment sub create --location "${{ inputs.location }}" --template-file $templateFilePath --parameters @$parameterUpdatedFilePath
+
+
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+
+            $DeploymentInputs = @{
+              DeploymentName        = "${{ inputs.resourceGroupName  }}-${{ inputs.jsonParameterToEnable }}-$(Get-Date -Format yyyyMMddHHMMss)"
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = $parameterUpdatedFilePath
+              EnableVmResources     = $true
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              ErrorAction           = "Stop"
+              Location              = '${{ inputs.location }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $DeploymentInputs.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $DeploymentInputs[$_]) -Verbose }
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+            New-AzSubscriptionDeployment @DeploymentInputs
+          errorActionPreference: stop
+          azPSVersion: "latest"
