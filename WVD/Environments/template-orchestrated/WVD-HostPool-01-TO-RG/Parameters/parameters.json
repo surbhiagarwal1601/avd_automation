@@ -115,7 +115,7 @@
         "moduleName": "VirtualMachines",
         "moduleVersion": "1.0.0",
         "vmNamePrefix": "sessionhost",
-        "vmNumberOfInstances": 2,
+        "vmNumberOfInstances": 1,
         "vmInitialNumber": 0,
         "vmSize": "Standard_D2s_v5",
         "imageReference": {            
