@@ -214,7 +214,7 @@
                 },
                 "parameters": {
                     "vmNamePrefix": {
-                        "value": "[parameters('vmParameters').vmNamePrefix]"
+                        "value": "chan-"
                     },
                     "vmNumberOfInstances": {
                         "value": "[parameters('vmParameters').vmNumberOfInstances]"
