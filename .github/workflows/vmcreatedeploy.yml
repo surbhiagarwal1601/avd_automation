@@ -173,6 +173,7 @@ jobs:
             Test-AzSubscriptionDeployment @DeploymentInputs
 
             if ($ValidationErrors) {
+             Write-Verbose $ValidationErrors -Verbose
               Write-Error "Template is not valid."
             }
           errorActionPreference: stop
@@ -228,5 +229,6 @@ jobs:
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
             New-AzSubscriptionDeployment @DeploymentInputs
+             Write-Verbose $ValidationErrors -Verbose
           errorActionPreference: stop
           azPSVersion: "latest"
