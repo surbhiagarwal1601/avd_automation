@@ -1,6 +1,12 @@
 name: Test Floe
 on:
   workflow_dispatch:
+    inputs:
+      resourceGroupName:
+        description: 'Name of the Azure Files profiles resource group'
+        required: true
+        default: 'test'
+        type: string
 env:
   ## GENERAL ##
   rgFolder: test  
