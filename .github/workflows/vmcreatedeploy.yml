@@ -173,7 +173,7 @@ jobs:
             Test-AzSubscriptionDeployment @DeploymentInputs
 
             if ($ValidationErrors) {
-              $ValidationErrors| ForEach-Object { Write-Verbose ("Error: `t'{0}' Details: {1}, Message: {2}, Target{3}" -f $_.Code, $_.Details.ToString(),$_.Code, $_.Target) -Verbose }
+              $ValidationErrors| ForEach-Object { Write-Verbose ("Error: `t'{0}' Details: '{1}', Message: '{2}'', Target: '{3}'" -f $_.Code, $_.Details.ToString(),$_.Message, $_.Target) -Verbose }
               Write-Error "Template is not valid."
             }
           errorActionPreference: stop
