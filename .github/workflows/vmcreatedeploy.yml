@@ -173,7 +173,7 @@ jobs:
             Test-AzSubscriptionDeployment @DeploymentInputs
 
             if ($ValidationErrors) {
-             Write-Verbose $ValidationErrors -Verbose
+              $ValidationErrors| ForEach-Object { Write-Verbose ("Error: `t'{0}'" -f $_) -Verbose }
               Write-Error "Template is not valid."
             }
           errorActionPreference: stop
@@ -229,6 +229,7 @@ jobs:
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
             New-AzSubscriptionDeployment @DeploymentInputs
-             Write-Verbose $ValidationErrors -Verbose
+            $ValidationErrors| ForEach-Object { Write-Verbose ("Error: `t'{0}'" -f $_) -Verbose }
+
           errorActionPreference: stop
           azPSVersion: "latest"
