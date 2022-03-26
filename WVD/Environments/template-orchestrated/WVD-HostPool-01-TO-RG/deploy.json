@@ -522,13 +522,13 @@
                     },
                     "windowsScriptExtensionCommandToExecute": {
                         // Option 1 -  Disable CSE
-                        "value": ""
+                        // "value": ""
 
                         // // Option 2 - Enable ANF Profile management
                         // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{}\"')]"
 
                         // Option 3 (default) - Enable Azure files Profile management with Single storage account
-                        // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddst01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-AzFilesProfiles-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddst01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]" // TODO Replace via pipeline
+                        "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''fslogixaaddst01'';StAKey=''', listKeys('/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/AVD-AzFilesProfiles-RG/providers/Microsoft.Storage/storageAccounts/fslogixaaddst01', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]" // TODO Replace via pipeline
 
                         // // Option 4 - Enable Azure files Profile management with Two storage accounts
                         // "value": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"& .\\scriptExtensionMasterInstaller.ps1 -Dynparameters @{FSLogixKeys = @([pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName01>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId01>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''} ;[pscustomobject]@{StAName=''<ReplaceWith-profilesStorageAccountName02>'';StAKey=''', listKeys('<ReplaceWith-profilesStorageAccountId02>', providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '''})}\"')]"
