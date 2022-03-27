@@ -116,7 +116,7 @@
     "componentsStorageContainerName" : {
       "value" : "" // Replaced by pipeline
     },
-    "wvdLocation" : {
+    "location" : {
       "value" : "" // Replaced by pipeline
     },
     "tags": {
