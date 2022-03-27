@@ -183,7 +183,6 @@ jobs:
             $json.parameters.rgParameters.value.resourceGroupName = "${{ github.event.inputs.resourceGroupName }}"
             $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
             $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
-            $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
 
             # Enable specific resource
             
@@ -225,6 +224,7 @@ jobs:
             # Set SAS keys
             Set-SasKeysInFile -filePath $parameterUpdatedFilePath -Verbose
             $DeploymentInputs = @{
+              DeploymentName        = "${{ github.event.inputs.resourceGroupName }}-$(Get-Date -Format yyyyMMddHHMMss)"
               TemplateFile          = $templateFilePath
               TemplateParameterFile = $parameterUpdatedFilePath
               Verbose               = $true
