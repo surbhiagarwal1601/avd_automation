@@ -113,8 +113,14 @@ jobs:
     if: |
       !failure() && !cancelled() && 
       github.event.inputs.enableDeploymentMasterARMTemplate == 'true' &&
-      success('Update_AssetsStorageAccount') &&
-      success('Remove_ImageTemplateResourceGroups')
+      (
+        success('Update_AssetsStorageAccount') || 
+        (contains(needs.Update_AssetsStorageAccount.result, 'skipped'))
+      ) && 
+      (
+        success('Remove_ImageTemplateResourceGroups') || 
+        (contains(needs.Remove_ImageTemplateResourceGroups.result, 'skipped'))
+      )
     runs-on: windows-latest
     steps:
       - name: Checkout repository
