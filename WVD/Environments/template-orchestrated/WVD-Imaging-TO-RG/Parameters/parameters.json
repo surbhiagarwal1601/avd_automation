@@ -116,9 +116,6 @@
     "componentsStorageContainerName" : {
       "value" : "" // Replaced by pipeline
     },
-    "location" : {
-      "value" : "" // Replaced by pipeline
-    },
     "tags": {
       "value": {
         "Environment": "<ReplaceWith-Environment>",

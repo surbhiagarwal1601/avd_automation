@@ -183,7 +183,6 @@ jobs:
             $json.parameters.rgParameters.value.resourceGroupName = "${{ github.event.inputs.resourceGroupName }}"
             $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
             $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
-            $json.parameters.wvdLocation.value = "${{ inputs.location }}"
             $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
 
             # Enable specific resource
