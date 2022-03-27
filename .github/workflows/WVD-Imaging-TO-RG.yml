@@ -1,0 +1,235 @@
+name: AVD Imaging Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      enableJobUpdateAssetsStorageAccount:
+        description: 'Update Assets Storage Account'
+        type: boolean
+        required: true 
+      removeImageTemplateResourceGroups:
+        description: 'Pre-Remove Image Template Resource Groups'
+        type: boolean
+        required: true 
+      enableDeploymentMasterARMTemplate:
+        description: 'Deploy Resources'
+        type: boolean
+        required: true 
+      resourceGroupName:
+        description: 'Target Resource Group Name'
+        required: true
+        default: 'AVD-Imaging-RG'
+        type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'sbx' 
+        type: choice
+        options:
+        - sbx
+        - test
+        - prod 
+env:
+  rgFolderPath: WVD-Imaging-TO-RG
+
+jobs:
+  Update_AssetsStorageAccount:
+    name: Update Assets Storage Account
+    if: ${{ github.event.inputs.enableJobUpdateAssetsStorageAccount == 'true' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Upload latest configuration files to assets storage account
+        id: task-post-deploy-storage-accounts
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/Storage/Update-AssetsStorageAccount.ps1'
+
+            $functionInput = @{
+              orchestrationFunctionsPath = '${{ env.orchestrationFunctionsPath }}'
+              wvdUploadsPath             = '${{ env.wvdUploadsPath }}'
+              resourceGroupPath          = '${{ env.orchestrationPath }}/${{ env.rgFolder }}'
+              storageContainerMapPath    = '${{ env.orchestrationPath }}/${{ env.rgFolder }}/${{ env.storageContainerMapPath }}'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Update-AssetsStorageAccount @functionInput -Verbose
+          errorActionPreference: stop
+          azPSVersion: "latest"
+
+  Remove_ImageTemplateResourceGroups:
+    name: Pre-Remove any image template resource group
+    if: |
+      !failure() && !cancelled() && 
+      github.event.inputs.removeImageTemplateResourceGroups == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Remove generated image template resource groups
+        id: Remove_ImageTemplates_Task
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Verbose "Load function" -Verbose
+            . '${{ env.orchestrationFunctionsPath }}/Imaging/Remove-ImageTemplate.ps1'
+
+            $functionInput = @{
+              resourcegroupName = '$(resourcegroupname)'
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
+
+            Remove-ImageTemplate @functionInput -Verbose
+          errorActionPreference: stop
+          azPSVersion: "latest"
+
+  Deploy_Imaging:
+    name: Deploy Imaging Resources
+    needs:
+      Update_AssetsStorageAccount
+      Remove_ImageTemplateResourceGroups
+    if: |
+      !failure() && !cancelled() && 
+      github.event.inputs.enableDeploymentMasterARMTemplate == 'true' &&
+      success('Update_AssetsStorageAccount') &&
+      success('Remove_ImageTemplateResourceGroups')
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set Environment Variables
+        uses: ./.github/actions/setvars
+        with:
+          source: ./.github/variables/globals.env
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+          enable-AzPSSession: true
+      - name: Prepare environment
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $maximumRetries = 60
+            $waitTime = 10
+            $requiredResourceProviders = @(
+              'Microsoft.VirtualMachineImages'
+            )
+
+            foreach ($requiredResourceProvider in $requiredResourceProviders) {
+                $states = (Get-AzResourceProvider -ProviderNamespace $requiredResourceProvider).RegistrationState
+                if ($states -contains 'NotRegistered' -or $states -contains 'Unregistered') {
+                  Write-Verbose "Resource provider '$requiredResourceProvider' not registered. Registering" -Verbose
+                  Register-AzResourceProvider -ProviderNamespace $requiredResourceProvider
+                }
+                else {
+                  Write-Verbose "Resource provider '$requiredResourceProvider' already registered" -Verbose
+                }
+            }
+
+            foreach ($requiredResourceProvider in $requiredResourceProviders) {
+                $currentTry = 0
+                do {
+                  Write-Verbose "Resource provider '$requiredResourceProvider' still registering. Waiting $waitTime seconds [$currentTry|$maximumRetries]" -Verbose
+                  Start-Sleep $waitTime
+                  $currentTry++
+                } while ($currentTry -le $maximumRetries -and (Get-AzResourceProvider -ProviderNamespace $requiredResourceProvider).RegistrationState -contains 'Registering')
+            }
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Update Parameters
+        id: step-update-parameters
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+
+            #======== Code to over write nested parameters
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $paramsRaw = Get-Content $parameterFilePath -Raw
+            $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
+            $json = ConvertFrom-Json $paramsSanitized -AsHashTable
+            
+            # Replace with Pipeline parameters
+            $json.parameters.rgParameters.value.resourceGroupName = "${{ github.event.inputs.resourceGroupName }}"
+            $json.parameters.componentStorageAccountId.value = "${{secrets.COMPONENT_STORAGE_ACCOUNT_ID}}"
+            $json.parameters.componentsStorageContainerName.value = "${{env.componentsStorageContainerName}}"
+            $json.parameters.wvdLocation.value = "${{ inputs.location }}"
+            $json.parameters.rgParameters.value.resourceGroupName = "${{ inputs.resourceGroupName }}"
+
+            # Enable specific resource
+            
+            ConvertTo-Json $json -depth 10 | Out-File $parameterUpdatedFilePath
+            
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Validate
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $DeploymentInputs = @{
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = $parameterUpdatedFilePath
+              Verbose               = $true
+              OutVariable           = "ValidationErrors"
+              Location              = '${{ env.location }}'
+            }
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+            Test-AzSubscriptionDeployment @DeploymentInputs
+
+            if ($ValidationErrors) {
+              Write-Error "Template is not valid."
+            }
+          errorActionPreference: stop
+          azPSVersion: "latest"
+      - name: Deploy
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            # Set SAS keys
+            Set-SasKeysInFile -filePath $parameterUpdatedFilePath -Verbose
+            $DeploymentInputs = @{
+              TemplateFile          = $templateFilePath
+              TemplateParameterFile = $parameterUpdatedFilePath
+              Verbose               = $true
+              ErrorAction           = "Stop"
+              Location              = '${{ env.location }}'
+            }
+
+            Write-Verbose 'Handling subscription level deployment' -Verbose
+            $ValidationErrors = $null
+            New-AzSubscriptionDeployment @DeploymentInputs
+
+          errorActionPreference: stop
+          azPSVersion: "latest"

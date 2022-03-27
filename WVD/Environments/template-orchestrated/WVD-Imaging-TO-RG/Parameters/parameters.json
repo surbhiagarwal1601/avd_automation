@@ -7,8 +7,8 @@
       "value": {
         "enabled": true,
         "moduleName": "ResourceGroup",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "resourceGroupName": "<ReplaceWith-ResourceGroupName>"
+        "moduleVersion": "1.0.0",
+        "resourceGroupName": "" // replaced by pipeline
       }
     },
     // User Assigned Identity (MSI)
@@ -16,8 +16,8 @@
       "value": {
         "enabled": true,
         "moduleName": "UserAssignedIdentities",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "userMsiName": "<ReplaceWith-UserMsiName>"
+        "moduleVersion": "1.0.0",
+        "userMsiName": "imagingMSI"
       }
     },
     // Role Assignment (Subscription contributor)
@@ -25,7 +25,7 @@
       "value": {
         "enabled": true,
         "moduleName": "RoleAssignments",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>"
+        "moduleVersion": "1.0.0"
       }
     },
     // Shared Image Gallery
@@ -33,9 +33,9 @@
       "value": {
         "enabled": true,
         "moduleName": "SharedImageGallery",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
-        "galleryName": "<ReplaceWith-GalleryName>",
-        "galleryDescription": "<ReplaceWith-GalleryDescription>"
+        "moduleVersion": "1.0.0",
+        "galleryName": "sigto",
+        "galleryDescription": "This is an IaC image gallery"
       }
     },
     // Shared Image Definition
@@ -43,21 +43,21 @@
       "value": {
         "enabled": true,
         "moduleName": "SharedImageDefinition",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
+        "moduleVersion": "1.0.0",
         "sidParametersArray": [
           {
-            "imageDefinitionName": "<ReplaceWith-ImageDefinitionName>",
+            "imageDefinitionName": "W10-19H2-0365",
             "osType": "Windows",
             "osState": "Generalized",
-            "publisher": "<ReplaceWith-Publisher>",
-            "offer": "<ReplaceWith-Offer>",
-            "sku": "<ReplaceWith-Sku>",
-            "minRecommendedvCPUs": <ReplaceWith-MinRecommendedvCPUs>, //e.g 2
-            "maxRecommendedvCPUs": <ReplaceWith-MaxRecommendedvCPUs>, //e.g 8
-            "minRecommendedMemory": <ReplaceWith-MinRecommendedMemory>, //e.g 4
-            "maxRecommendedMemory": <ReplaceWith-MaxRecommendedMemory>, //e.g 16
-            "hyperVGeneration": "<ReplaceWith-HyperVGeneration>", //e.g. "V1"
-            "imageDefinitionDescription": "<ReplaceWith-ImageDefinitionDescription>"
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "office-365",
+            "sku": "19h2-evd-0365",
+            "minRecommendedvCPUs": 2, //e.g 2
+            "maxRecommendedvCPUs": 8, //e.g 8
+            "minRecommendedMemory": 4, //e.g 4
+            "maxRecommendedMemory": 16, //e.g 16
+            "hyperVGeneration": "V1", //e.g. "V1"
+            "imageDefinitionDescription": "Win 10 Desktop 2019h2 with Office 365."
           }
         ]
       }
@@ -67,34 +67,35 @@
       "value": {
         "enabled": true,
         "moduleName": "ImageTemplates",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>",
+        "moduleVersion": "1.0.0",
         "imgParametersArray": [
           {
-            "imageTemplateName": "<ReplaceWith-ImageTemplateName>",
-            "buildTimeoutInMinutes": <ReplaceWith-BuildTimeoutInMinutes>, //e.g. 0
-            "vmSize": "<ReplaceWith-VmSize>",
-            "osDiskSizeGB": <ReplaceWith-OsDiskSizeGB>,
-            "subnetId": "",
+            "imageTemplateName": "myImage",
+            "buildTimeoutInMinutes": 0, //e.g. 00
+            "vmSize": "Standard_D2s_v5",
+            "osDiskSizeGB": 127,
+            "subnetId": "/subscriptions/b0c05537-02c7-4099-b9af-ab0702d33d39/resourceGroups/rg_connectivity_westus2/providers/Microsoft.Network/virtualNetworks/vnet-avd-westus2/subnets/snet-avd-host-pool",
             "imageSource": {
-              "type": "<ReplaceWith-Type>",
-              "publisher": "<ReplaceWith-Publisher>",
-              "offer": "<ReplaceWith-Offer>",
-              "sku": "<ReplaceWith-Sku>",
-              "version": "<ReplaceWith-Version>"
+              "type": "PlatformImage",
+              "publisher": "MicrosoftWindowsDesktop",
+              "offer": "office-365",
+              "sku": "19h2-evd-0365",
+              "version": "latest"
             },
             "customizationSteps": [
-              {
-                "type": "<ReplaceWith-Type>",
-                "name": "<ReplaceWith-Name>",
-                "sourceUri": "<ReplaceWith-SourceUri>",
-                "destination": "<ReplaceWith-Destination>"
-              }
+              {"type": "WindowsRestart", "restartTimeout": "30m"}
+              // {
+              //   "type": "<ReplaceWith-Type>",
+              //   "name": "<ReplaceWith-Name>",
+              //   "sourceUri": "<ReplaceWith-SourceUri>",
+              //   "destination": "<ReplaceWith-Destination>"
+              // }
             ],
-            "managedImageName": "",
-            "unManagedImageName": "",
-            "imageReplicationRegions": [
-              "<ReplaceWith-ImageReplicationRegions>"
-            ]
+            "managedImageName": "imagingMSI"
+            // "unManagedImageName": "",
+            // "imageReplicationRegions": [
+            //   "<ReplaceWith-ImageReplicationRegions>"
+            // ]
           }
         ]
       }
@@ -103,9 +104,9 @@
     "deploymentScriptParameters": {
       "value": {
         "enableTriggerNewImage": true, // Trigger building new image
-        "enableSyncWaitNewImage": false, // Optional: synchronously wait for building new image
+        "enableSyncWaitNewImage": true, // Optional: synchronously wait for building new image
         "moduleName": "DeploymentScripts",
-        "moduleVersion": "<ReplaceWith-ModuleVersion>"
+        "moduleVersion": "1.0.0"
       }
     },
     // Shared

@@ -37,8 +37,6 @@ env:
   #############
 
   rgFolder: WVD-AzFilesProfiles-TO-RG
-  location: westus2
-  storageContainerMapPath: Parameters/Uploads/assets.config.json
   
   # ResourceGroup related
   # ---------------------
