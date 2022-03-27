@@ -220,6 +220,8 @@ jobs:
           inlineScript: |
             $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
+            . '${{ env.orchestrationPath }}/GeneralDeployment/Set-SasKeysInFile.ps1'
+
             # Set SAS keys
             Set-SasKeysInFile -filePath $parameterUpdatedFilePath -Verbose
             $DeploymentInputs = @{
@@ -229,6 +231,9 @@ jobs:
               ErrorAction           = "Stop"
               Location              = '${{ env.location }}'
             }
+
+            Write-Verbose "Invoke task with" -Verbose
+            $DeploymentInputs.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $DeploymentInputs[$_]) -Verbose }
 
             Write-Verbose 'Handling subscription level deployment' -Verbose
             $ValidationErrors = $null
