@@ -220,7 +220,7 @@ jobs:
           inlineScript: |
             $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
             $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
-            . '${{ env.orchestrationPath }}/GeneralDeployment/Set-SasKeysInFile.ps1'
+            . '${{ env.orchestrationFunctionsPath }}/GeneralDeployment/Set-SasKeysInFile.ps1'
 
             # Set SAS keys
             Set-SasKeysInFile -filePath $parameterUpdatedFilePath -Verbose
