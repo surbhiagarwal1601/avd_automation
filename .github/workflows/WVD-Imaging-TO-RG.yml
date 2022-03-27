@@ -109,9 +109,7 @@ jobs:
 
   Deploy_Imaging:
     name: Deploy Imaging Resources
-    needs:
-      Update_AssetsStorageAccount
-      Remove_ImageTemplateResourceGroups
+    needs: [Update_AssetsStorageAccount, Remove_ImageTemplateResourceGroups]
     if: |
       !failure() && !cancelled() && 
       github.event.inputs.enableDeploymentMasterARMTemplate == 'true' &&
