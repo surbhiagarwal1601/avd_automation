@@ -47,6 +47,7 @@
         "sidParametersArray": [
           {
             "imageDefinitionName": "W10-19H2-0365",
+            "galleryName" : "sigto",
             "osType": "Windows",
             "osState": "Generalized",
             "publisher": "MicrosoftWindowsDesktop",
