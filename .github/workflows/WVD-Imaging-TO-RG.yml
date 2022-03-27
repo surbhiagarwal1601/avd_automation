@@ -29,7 +29,7 @@ on:
         - test
         - prod 
 env:
-  rgFolderPath: WVD-Imaging-TO-RG
+  rgFolder: WVD-Imaging-TO-RG
 
 jobs:
   Update_AssetsStorageAccount:
@@ -172,9 +172,9 @@ jobs:
           inlineScript: |
 
             #======== Code to over write nested parameters
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
-            $parameterFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             $paramsRaw = Get-Content $parameterFilePath -Raw
             $paramsSanitized = $paramsRaw -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
             $json = ConvertFrom-Json $paramsSanitized -AsHashTable
@@ -196,8 +196,8 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             $DeploymentInputs = @{
               TemplateFile          = $templateFilePath
               TemplateParameterFile = $parameterUpdatedFilePath
@@ -219,8 +219,8 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            $templateFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/deploy.json"
-            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ inputs.rgFolder }}/Parameters/parameters.updated.json"
+            $templateFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/deploy.json"
+            $parameterUpdatedFilePath = "${{ env.orchestrationPath }}/${{ env.rgFolder }}/Parameters/parameters.updated.json"
             # Set SAS keys
             Set-SasKeysInFile -filePath $parameterUpdatedFilePath -Verbose
             $DeploymentInputs = @{
