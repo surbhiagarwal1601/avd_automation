@@ -110,6 +110,15 @@
       }
     },
     // Shared
+    "componentStorageAccountId" : {
+      "value" : "" // Replaced by pipeline
+    },
+    "componentsStorageContainerName" : {
+      "value" : "" // Replaced by pipeline
+    },
+    "wvdLocation" : {
+      "value" : "" // Replaced by pipeline
+    },
     "tags": {
       "value": {
         "Environment": "<ReplaceWith-Environment>",
