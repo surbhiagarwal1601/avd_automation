@@ -46,19 +46,22 @@
         "moduleVersion": "1.0.0",
         "sidParametersArray": [
           {
-            "imageDefinitionName": "W10-19H2-0365",
+            "imageDefinitionName": "win11-21h2-avd-m365",
             "galleryName" : "sigto",
             "osType": "Windows",
             "osState": "Generalized",
             "publisher": "MicrosoftWindowsDesktop",
             "offer": "office-365",
-            "sku": "19h2-evd-0365",
+            "sku": "win11-21h2-avd-m365",
             "minRecommendedvCPUs": 2, //e.g 2
             "maxRecommendedvCPUs": 8, //e.g 8
             "minRecommendedMemory": 4, //e.g 4
             "maxRecommendedMemory": 16, //e.g 16
-            "hyperVGeneration": "V1", //e.g. "V1"
-            "imageDefinitionDescription": "Win 10 Desktop 2019h2 with Office 365."
+            "hyperVGeneration": "V2", //e.g. "V1"
+            "imageDefinitionDescription": "Win 10 Desktop 2019h2 with Office 365.",
+            "productName": "Honeywell Desktop",
+            "planName": "standard",
+            "planPublisherName": "Honeywell IT"
           }
         ]
       }
@@ -80,7 +83,7 @@
               "type": "PlatformImage",
               "publisher": "MicrosoftWindowsDesktop",
               "offer": "office-365",
-              "sku": "19h2-evd-0365",
+              "sku": "win11-21h2-avd-m365",
               "version": "latest"
             },
             "customizationSteps": [

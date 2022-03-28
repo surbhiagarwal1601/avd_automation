@@ -319,15 +319,15 @@
                     // "releaseNoteUri": {
                     //     "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].releaseNoteUri]"
                     // },
-                    // "productName": {
-                    //     "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].productName]"
-                    // },
-                    // "planName": {
-                    //     "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].planName]"
-                    // },
-                    // "planPublisherName": {
-                    //     "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].planPublisherName]"
-                    // },
+                    "productName": {
+                        "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].productName]"
+                    },
+                    "planName": {
+                        "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].planName]"
+                    },
+                    "planPublisherName": {
+                        "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].planPublisherName]"
+                    },
                     // "endOfLife": {
                     //     "value": "[parameters('sidParameters').sidParametersArray[copyIndex()].endOfLife]"
                     // },
@@ -392,15 +392,15 @@
                     "managedImageName": {
                         "value": "[parameters('imgParameters').imgParametersArray[copyIndex()].managedImageName]"
                     },
-                    "unManagedImageName": {
-                        "value": "[parameters('imgParameters').imgParametersArray[copyIndex()].unManagedImageName]"
-                    },
+                    // "unManagedImageName": {
+                    //     "value": "[parameters('imgParameters').imgParametersArray[copyIndex()].unManagedImageName]"
+                    // },   
                     "sigImageDefinitionId": {
                         "value": "[reference(concat(parameters('sidParameters').moduleName, '-', variables('formattedTime'), '-', copyIndex())).outputs.imageDefinitionResourceId.value]"
                     },
-                    "imageReplicationRegions": {
-                        "value": "[parameters('imgParameters').imgParametersArray[copyIndex()].imageReplicationRegions]"
-                    },
+                    // "imageReplicationRegions": {
+                    //     "value": "[parameters('imgParameters').imgParametersArray[copyIndex()].imageReplicationRegions]"
+                    // },
                     "lockForDeletion": {
                         "value": "[if(contains(parameters('imgParameters'), 'lockForDeletion'), parameters('imgParameters').lockForDeletion, parameters('lockForDeletion'))]"
                     },
